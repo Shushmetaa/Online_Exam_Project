@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
+<entitymodel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://ofbiz.apache.org/dtds/entitymodel.xsd">
+    <!-- ========================================================= -->
+    <!-- ======================== Defaults ======================= -->
+    <!-- ========================================================= -->
+    <title>Entity of Onlineexam Component</title>
+    <description>None</description>
+    <copyright></copyright>
+    <version></version>
+    
+     <!-- Party entity extended with additional attributes -->
+    <extend-entity entity-name="Party">
+        <field name="allowAdminLockRelease" type="numeric"/>
+        <field name="lockReleaseTimeout" type="numeric"/>
+        <field name="peopleId" type="id"/>
+        <field name="userFunction" type="short-varchar"/>
+        <field name="lastActivity" type="short-varchar"/>
+        <field name="administeredBy" type="id"/>
+    </extend-entity>
+
+    <!-- Exam details -->
+    <entity entity-name="ExamMaster">
+        <field name="examId" type="id"/>
+        <field name="examName" type="name"/>
+        <field name="description" type="description"/>
+        <field name="noOfQuestions" type="numeric" not-null="true"/>
+        <field name="duration" type="numeric" not-null="true"/>
+        <field name="passPercentage" type="numeric" not-null="true"/>
+        <field name="questionsRandomized" type="numeric"/>
+        <field name="answersMust" type="numeric"/>
+        <field name="allowNegativeMarks" type="numeric"/>
+        <field name="examSetupProper" type="numeric"/>
+        <field name="negativeMarkValue" type="currency-amount"/>
+        <field name="fromDate" type="date-time"/>
+        <field name="thruDate" type="date-time"/>
+        <field name="createdByUserLogin" type="id-vlong"/>
+        <field name="lastModifiedByUserLogin" type="id-vlong"/>
+        <prim-key field="examId"/>
+    </entity>
+
+    <!-- Exam setup details -->
+    <entity entity-name="ExamSetupDetails">
+        <field name="examId" type="id"/>
+        <field name="setupType" type="id" not-null="true"/>
+        <field name="setupDetails" type="very-long" not-null="true"/>
+        <prim-key field="examId"/>
+        <relation rel-entity-name="ExamMaster"
+            fk-name="EXAM_SETUP_FK" type="one">
+            <key-map field-name="examId" rel-field-name="examId"/>
+        </relation>
+    </entity>
+
+    <!-- Topic details for each exam -->
+    <entity entity-name="ExamTopicDetails">
+        <field name="examId" type="id"/>
+        <field name="topicId" type="short-varchar"/>
+        <field name="topicName" type="short-varchar" not-null="true"/>
+        <field name="percentage" type="numeric" not-null="true"/>
+        <field name="startingQid" type="numeric" not-null="true"/>
+        <field name="endingQid" type="numeric" not-null="true"/>
+        <field name="questionsPerExam" type="numeric" not-null="true"/>
+        <field name="topicPassPercentage" type="floating-point" not-null="true"/>
+        <prim-key field="examId"/>
+        <prim-key field="topicId"/>
+        <relation rel-entity-name="ExamMaster"
+            fk-name="EXAM_TOPIC_FK" type="many">
+            <key-map field-name="examId" rel-field-name="examId"/>
+        </relation>
+    </entity>
+
+    <!-- Certificate templates -->
+    <entity entity-name="CertMasterDetails">
+        <field name="certDefId" type="numeric"/>
+        <field name="partyId" type="id"/>
+        <field name="templateName" type="short-varchar" not-null="true"/>
+        <field name="leftLogo" type="name"/>
+        <field name="rightLogo" type="name"/>
+        <field name="backgroundImg" type="name"/>
+        <field name="footer1Img" type="name"/>
+        <field name="footer2Img" type="name"/>
+        <field name="footerText" type="name"/>
+        <field name="title1" type="name"/>
+        <field name="title2" type="name"/>
+        <field name="text1" type="name"/>
+        <field name="text2" type="name"/>
+        <field name="text3" type="name"/>
+        <field name="text4" type="name"/>
+        <field name="text5" type="name"/>
+        <prim-key field="certDefId"/>
+        <prim-key field="partyId"/>
+        <relation rel-entity-name="Party"
+            fk-name="CERT_DETAILS_FK" type="many">
+            <key-map field-name="partyId" rel-field-name="partyId"/>
+        </relation>
+    </entity>
+
+    <!-- Exam and certificate relationship -->
+    <entity entity-name="ExamCertDetails">
+        <field name="examId" type="id"/>
+        <field name="certDefId" type="numeric"/>
+        <field name="fromDate" type="date-time"/>
+        <field name="thruDate" type="date-time"/>
+        <prim-key field="examId"/>
+        <prim-key field="certDefId"/>
+    </entity>
+
+    <!-- Admin and exam relationship -->
+    <entity entity-name="AdminPartyExamRel">
+        <field name="partyId" type="id"/>
+        <field name="examId" type="id"/>
+        <!-- Date threshold for admin exam management -->
+        <field name="fromDate" type="date-time"/>
+        <field name="thruDate" type="date-time"/>
+        <prim-key field="partyId"/>
+        <prim-key field="examId"/>
+        <relation rel-entity-name="Party"
+            fk-name="ADMIN_EXAM_UID_FK" type="many">
+            <key-map field-name="partyId" rel-field-name="partyId"/>
+        </relation>
+        <relation rel-entity-name="ExamMaster"
+            fk-name="ADMIN_EXAM_EID_FK" type="many">
+            <key-map field-name="examId" rel-field-name="examId"/>
+        </relation>
+    </entity>
+
+    <!-- Users currently taking exam -->
+    <entity entity-name="InProgressParty">
+        <field name="partyId" type="id"/>
+        <field name="examId" type="id"/>
+        <field name="remainingTime" type="short-varchar"/>
+        <field name="totalAnswered" type="numeric"/>
+        <field name="totalRemaining" type="numeric"/>
+        <field name="isExamActive" type="numeric" not-null="true"/>
+        <field name="currentSplitAttempt" type="numeric"/>
+        <prim-key field="partyId"/>
+        <prim-key field="examId"/>
+        <relation rel-entity-name="Party"
+            fk-name="INPROG_USERS_FK" type="many">
+            <key-map field-name="partyId" rel-field-name="partyId"/>
+        </relation>
+    </entity>
+
+    <!-- Question types -->
+    <entity entity-name="QuestionTypesMaster">
+        <field name="typeId" type="numeric"/>
+        <field name="typeDetails" type="short-varchar"/>
+        <prim-key field="typeId"/>
+    </entity>
+
+    <!-- Live question bank -->
+    <entity entity-name="QuestionBankMaster">
+        <field name="examId" type="id"/>
+        <field name="qId" type="numeric"/>
+        <field name="topicId" type="numeric" not-null="true"/>
+        <field name="questionDetail" type="very-long" not-null="true"/>
+        <field name="optiona" type="very-long" not-null="true"/>
+        <field name="optionb" type="very-long" not-null="true"/>
+        <field name="optionc" type="very-long" not-null="true"/>
+        <field name="optiond" type="very-long" not-null="true"/>
+        <field name="optione" type="very-long" not-null="true"/>
+        <field name="answer" type="id" not-null="true"/>
+        <field name="numAnswers" type="numeric" not-null="true"/>
+        <field name="questionType" type="numeric" not-null="true"/>
+        <field name="difficultyLevel" type="numeric"/>
+        <field name="answerValue" type="currency-amount"/>
+        <field name="negativeMarkValue" type="currency-amount"/>
+        <prim-key field="examId"/>
+        <prim-key field="qId"/>
+        <relation rel-entity-name="ExamMaster"
+            fk-name="QUESTION_BANK_FK" type="many">
+            <key-map field-name="examId" rel-field-name="examId"/>
+        </relation>
+    </entity>
+
+    <!-- Draft question bank -->
+    <entity entity-name="QuestionBankMasterB">
+        <field name="examId" type="id"/>
+        <field name="qId" type="numeric"/>
+        <field name="topicId" type="numeric" not-null="true"/>
+        <field name="questionDetail" type="very-long" not-null="true"/>
+        <field name="optiona" type="very-long" not-null="true"/>
+        <field name="optionb" type="very-long" not-null="true"/>
+        <field name="optionc" type="very-long" not-null="true"/>
+        <field name="optiond" type="very-long" not-null="true"/>
+        <field name="optione" type="very-long" not-null="true"/>
+        <field name="answer" type="id" not-null="true"/>
+        <field name="numAnswers" type="numeric" not-null="true"/>
+        <field name="questiontype" type="numeric" not-null="true"/>
+        <field name="difficultyLevel" type="numeric"/>
+        <field name="answerValue" type="currency-amount"/>
+        <field name="negativeMarkValue" type="currency-amount"/>
+        <prim-key field="examId"/>
+        <prim-key field="qId"/>
+        <relation rel-entity-name="ExamMaster"
+            fk-name="QUESTION_BANK_B_FK" type="many">
+            <key-map field-name="examId" rel-field-name="examId"/>
+        </relation>
+    </entity>
+
+    <!-- User answers -->
+    <entity entity-name="AnswerMaster">
+        <field name="questionId" type="numeric"/>
+        <field name="examId" type="id"/>
+        <field name="partyId" type="id"/>
+        <field name="submittedAnswer" type="short-varchar"/>
+        <field name="sNo" type="numeric"/>
+        <field name="isFlagged" type="numeric"/>
+        <prim-key field="questionId"/>
+        <prim-key field="examId"/>
+        <prim-key field="partyId"/>
+    </entity>
+
+    <!-- User and exam assignment -->
+    <entity entity-name="PartyExamRelationship">
+        <field name="partyId" type="id"/>
+        <field name="examId" type="id"/>
+        <field name="allowedAttempts" type="numeric" not-null="true"/>
+        <field name="noOfAttempts" type="numeric" not-null="true"/>
+        <field name="lastPerformanceDate" type="date-time"/>
+        <field name="certificatePrinted" type="numeric"/>
+        <field name="timeoutDays" type="numeric" not-null="true"/>
+        <field name="passwordChangesAuto" type="numeric"/>
+        <field name="canSplitExams" type="numeric"/>
+        <field name="canSeeDetailedResults" type="numeric"/>
+        <field name="maxSplitAttempts" type="numeric"/>
+        <field name="fromDate" type="date-time"/>
+        <field name="thruDate" type="date-time"/>
+        <prim-key field="partyId"/>
+        <prim-key field="examId"/>
+        <relation rel-entity-name="Party"
+            fk-name="USER_EXAM_UID_FK" type="many">
+            <key-map field-name="partyId" rel-field-name="partyId"/>
+        </relation>
+        <relation rel-entity-name="ExamMaster"
+            fk-name="USER_EXAM_EID_FK" type="many">
+            <key-map field-name="examId" rel-field-name="examId"/>
+        </relation>
+    </entity>
+
+    <!-- User performance -->
+    <entity entity-name="PartyPerformance">
+        <field name="partyId" type="id" not-null="true"/>
+        <field name="examId" type="id" not-null="true"/>
+        <field name="score" type="currency-amount" not-null="true"/>
+        <field name="date" type="date-time" not-null="true"/>
+        <field name="noOfQuestions" type="numeric"/>
+        <field name="totalCorrect" type="numeric"/>
+        <field name="totalWrong" type="numeric"/>
+        <field name="userPassed" type="numeric"/>
+        <field name="performanceId" type="numeric"/>
+        <field name="attemptNo" type="numeric"/>
+        <prim-key field="performanceId"/>
+    </entity>
+
+    <!-- Detailed user performance -->
+    <entity entity-name="DetailedPartyPerformance">
+        <field name="detailedPerformanceId" type="numeric"/>
+        <field name="partyId" type="id"/>
+        <field name="examId" type="id"/>
+        <field name="topicId" type="short-varchar"/>
+        <field name="topicPassPercentage" type="currency-amount"/>
+        <field name="userTopicPercentage" type="currency-amount"/>
+        <field name="correctQuestionsInthisTopic" type="numeric" not-null="true"/>
+        <field name="totalQuestionsInThisTopic" type="numeric" not-null="true"/>
+        <field name="userPassedThisTopic" type="numeric"/>
+        <field name="performanceId" type="numeric" not-null="true"/>
+        <prim-key field="detailedPerformanceId"/>
+        <relation rel-entity-name="PartyPerformance"
+            fk-name="DETAILED_PERF_FK" type="one">
+            <key-map field-name="performanceId"
+                rel-field-name="performanceId"/>
+        </relation>
+    </entity>
+
+</entitymodel>
