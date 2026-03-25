@@ -33,4 +33,16 @@ under the License.
     	<attribute name="partyId" mode="OUT" type="String"></attribute>
     </service>
     
+    <service name="createExamAuto" engine="entity-auto" default-entity-name="ExamMaster">
+        <auto-attributes include="pk" mode="OUT"></auto-attributes>
+        <auto-attributes include="nonpk" mode="IN"></auto-attributes>       
+    </service>
+    <service name="createExam" engine="java" location="com.vastpro.service.createExam" invoke="createExam" auth="true">
+        <attribute name="examId" mode="IN" type="id"></attribute>
+        <attribute name="examName" mode="IN" type="name"></attribute>
+        <attribute name="description" mode="IN" type="description"></attribute>
+        <attribute name="noOfQuestions" mode="IN" type="numeric"></attribute>
+        <attribute name="duration" mode="IN" type="numeric"></attribute>        
+	    <attribute name="passPercentage" mode="IN" type="numeric"></attribute>  
+    </service>
 </services>
