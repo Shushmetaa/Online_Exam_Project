@@ -3,6 +3,7 @@ package com.vastpro.rest.resources;
 import java.util.Map;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import org.apache.ofbiz.entity.Delegator;
@@ -19,28 +20,29 @@ public class UserResources {
 
     @Context
     private HttpServletRequest request;
+    
+    @Context
+    private HttpServletResponse response;
 
     @Context
-    private ServletContext servletContext;  // ← ADD THIS
+    private ServletContext servletContext;  
 
-    // Helper method to get Delegator
+    
     private Delegator getDelegator() {
         Delegator delegator = (Delegator) servletContext.getAttribute("delegator");
         if (delegator == null) {
-            // Fallback — get directly from factory
             delegator = DelegatorFactory.getDelegator("default");
         }
         return delegator;
     }
 
-    // Helper method to get Dispatcher
+  
     private LocalDispatcher getDispatcher() {
         LocalDispatcher dispatcher = 
             (LocalDispatcher) servletContext.getAttribute("dispatcher");
         if (dispatcher == null) {
-            // Fallback — get directly from ServiceContainer
             dispatcher = ServiceContainer.getLocalDispatcher(
-                "exam",   // must match localDispatcherName in web.xml
+                "exam",   
                 getDelegator()
             );
         }

@@ -8,6 +8,8 @@ import org.apache.ofbiz.entity.GenericEntityException;
 import org.apache.ofbiz.entity.GenericValue;
 import org.apache.ofbiz.entity.util.EntityQuery;
 import org.apache.ofbiz.service.DispatchContext;
+import org.apache.ofbiz.service.GenericServiceException;
+import org.apache.ofbiz.service.LocalDispatcher;
 import org.apache.ofbiz.service.ServiceUtil;
 
 public class OnlineExamRegisterUser {
@@ -19,6 +21,7 @@ public static Map<String, Object> registerUser(DispatchContext dctx, Map<String,
 	String email = (String) context.get("email");
 	String phoneNumber = (String) context.get("phoneNumber");
 	String password = (String) context.get("password");	
+	
 	//validation
 	if(firstName == null || firstName.isEmpty()) {
 		return ServiceUtil.returnError("First name is required");
@@ -44,6 +47,7 @@ public static Map<String, Object> registerUser(DispatchContext dctx, Map<String,
 	}
 	
 	Delegator delegator = dctx.getDelegator();
+	LocalDispatcher dispatcher = dctx.getDispatcher();
 	
 	try {
 		
@@ -58,22 +62,22 @@ public static Map<String, Object> registerUser(DispatchContext dctx, Map<String,
 		}
 		
 		//create party record
-		String partyId = delegator.getNextSeqId("Party");
 		
-		GenericValue party = delegator.makeValue("Party");
-		party.set("partyId", partyId);
-		party.set("partyTypeId", "PERSON");
-		party.set("statusId", "PARTY_ENABLED");
-		delegator.create(party);
+		dispatcher.runSync("registeruserParty",context);
 		
 		//create person record
+		/*
 		GenericValue person = delegator.makeValue("Person");
 		person.set("partyId", partyId);
 		person.set("firstName", firstName);
 		person.set("lastName", lastName);
 		delegator.create(person);
+		*/
+		
+		dispatcher.runSync("registerUserPerson", context);
 		
 		//create userLogin record
+		/*
 		GenericValue userLogin = delegator.makeValue("UserLogin");
 		userLogin.set("userLoginId", email);
 		userLogin.set("partyId", partyId);
@@ -81,34 +85,21 @@ public static Map<String, Object> registerUser(DispatchContext dctx, Map<String,
 		userLogin.set("enabled", "Y");
 		userLogin.set("hasLoggedOut", "N");
 		delegator.create(userLogin);
+		*/
+		dispatcher.runSync("registerUserLogin", context);
 		
-		//create contact for phone
-		String contactMechId = delegator.getNextSeqId("ContactMech");
-		
-		GenericValue contactMech = delegator.makeValue("ContactMech");
-		contactMech.set("contactMechId", contactMechId);
-		contactMech.set("contactMechTypeId", "TELECOM_NUMBER");
-		contactMech.set("infoString", phoneNumber);
-		delegator.create(contactMech);
-		
-		//link party table with contactMech
-		GenericValue partyContactMech = delegator.makeValue("PartyContactMech");
-		partyContactMech.set("partyId", partyId);
-		partyContactMech.set("contactMechId", contactMechId);
-		partyContactMech.set("fromDate", UtilDateTime.nowTimestamp());
-		delegator.create(partyContactMech);
-		
+		/*
 		//assign role
 		GenericValue partyRole = delegator.makeValue("PartyRole");
 		partyRole.set("partyId", partyId);
 		partyRole.set("roleTypeId", "EXAM_USER");
 		delegator.create(partyRole);
+		*/
 		
 		Map<String, Object> result = ServiceUtil.returnSuccess();
-		result.put("partyId", partyId);
 		return result;
 				
-	}catch(GenericEntityException e) {
+	}catch(GenericEntityException | GenericServiceException e) {
 		return ServiceUtil.returnError("Error creating user: " + e.getMessage());
 	}
 	
