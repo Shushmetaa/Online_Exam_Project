@@ -27,6 +27,8 @@ import org.apache.ofbiz.service.LocalDispatcher;
 import org.apache.ofbiz.service.ServiceContainer;
 import org.apache.ofbiz.service.ServiceUtil;
 
+import com.vastpro.javaservice.ExamMaster;
+
 @Path("/admin")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
@@ -65,46 +67,15 @@ public class AdminResources {
 	    
 	    @POST
 	    @Path("/create")
-	    public Map<String,Object> createExam(HttpServletRequest request, HttpServletResponse response){
-	    	try {
-	    		Map<String, Object> result=new HashMap<>();
-	    		String examId = request.getParameter("examId");
-		    	String examName = request.getParameter("examName");
-		    	String description = request.getParameter("description");
-		    	String noOfQuestions = request.getParameter("noOfQuestions");
-		    	String duration = request.getParameter("duration");
-		    	String passPercentage = request.getParameter("passPercentage");
-		    	
-	    	    LocalDispatcher dispatcher=(LocalDispatcher)request.getAttribute("dispatcher");
-	    	    
-	    	    GenericValue userLogin=EntityQuery.use(getDelegator())
-	    	    		.from("UserLogin")
-	    	    		.where("userLoginId", "admin")
-	    	    		.queryOne();
-	    	    
-	    	    Map<String, Object> createData =new HashMap<>();
-	    	    createData.put("examId", examId);
-	    	    createData.put("examName", examName);
-	    	    createData.put("description", description);
-	    	    createData.put("noOfQuestions",Long.parseLong(noOfQuestions));
-	    	    createData.put("duration",  Long.parseLong(duration));
-	    	    createData.put("passPercentage", Long.parseLong(passPercentage));
-	    	    createData.put("userLogin", userLogin);
-	    	    
-	    	    Map<String,Object> serviceResult=dispatcher.runSync("createExam", createData);
-	    	    if(ServiceUtil.isError(serviceResult)) {
-	    	    	return ServiceUtil.returnError(ServiceUtil.getErrorMessage(serviceResult));
-	    	    }
-	    	    else {
-	    	    	return ServiceUtil.returnSuccess("Exam Created Successfully");
-	    	    }
-	    	}catch(Exception e) {
-	      		return ServiceUtil.returnError("Exam Creation Failed:" +e.getMessage());
-	    	}	    	
+	    public Map<String,Object> createExam(@Context HttpServletRequest request, @Context HttpServletResponse response){
+	    	
+	    	return ExamMaster.createExam(request, response);
+	    	
 	    }
+	    
 	    @PUT
 	    @Path("/update")
-	    public Map<String, Object> updateExam(HttpServletRequest request, HttpServletResponse response) {
+	    public Map<String, Object> updateExam(@Context HttpServletRequest request, @Context HttpServletResponse response) {
 	    	
 	    	try {
 	    		
@@ -115,7 +86,7 @@ public class AdminResources {
 	    		String duration = request.getParameter("duration");
 	    		String passPercentage = request.getParameter("passPercentage");
 		    	
-		    	LocalDispatcher dispatcher = (LocalDispatcher)request.getAttribute("dispatcher");
+		    	LocalDispatcher dispatcher = getDispatcher();
 
 		    	
 		    	GenericValue userLogin = EntityQuery.use(getDelegator())
@@ -148,7 +119,7 @@ public class AdminResources {
 	    }
 	    @PUT
 	    @Path("/retire")
-	    public Map<String, Object> retireExam(HttpServletRequest request, HttpServletResponse response) {
+	    public Map<String, Object> retireExam(@Context HttpServletRequest request, @Context HttpServletResponse response) {
 			try {
 			String examId = request.getParameter("examId");
 			String lastModifiedByUserLogin = request.getParameter("lastModifiedByUserLogin");
@@ -156,7 +127,7 @@ public class AdminResources {
 			if (examId == null || examId.isEmpty())
 	            return ServiceUtil.returnError("Exam ID is required");
 			
-			LocalDispatcher dispatcher=(LocalDispatcher)request.getAttribute("dispatcher");
+			LocalDispatcher dispatcher=getDispatcher();
 			
 			GenericValue userLogin = EntityQuery.use(getDelegator())
                     .from("UserLogin")
@@ -181,5 +152,6 @@ public class AdminResources {
 				
 			}
 		}
+	    
 
 }
