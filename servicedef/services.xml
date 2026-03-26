@@ -72,7 +72,7 @@ under the License.
     
     <service name = "updateExamAuto" engine="entity-auto" default-entity-name="ExamMaster" invoke="update" auth="true">
     	<auto-attributes mode="IN" include="pk"></auto-attributes>
-    	<auto-attributes mode="OUT" include="nonpk"></auto-attributes>
+    	<auto-attributes mode="IN" include="nonpk"></auto-attributes>
     </service>
     
     <service name="retireExam" engine="java" location="com.vastpro.services.exammaster.RetireExam" invoke="retireExam" auth="true">

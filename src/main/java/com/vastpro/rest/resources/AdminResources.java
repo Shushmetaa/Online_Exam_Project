@@ -107,14 +107,16 @@ public class AdminResources {
 	    public Map<String, Object> updateExam(HttpServletRequest request, HttpServletResponse response) {
 	    	
 	    	try {
+	    		
 	    		String examId = request.getParameter("examId");
-		    	String examName = request.getParameter("examName");
-		    	String description = request.getParameter("description");
-		    	String noOfQuestions = request.getParameter("noOfQuestions");
-		    	String duration = request.getParameter("duration");
-		    	String passPercentage = request.getParameter("passPercentage");
+	    		String examName = request.getParameter("examName");
+	    		String description = request.getParameter("description");
+	    		String noOfQuestions = request.getParameter("noOfQuestions");
+	    		String duration = request.getParameter("duration");
+	    		String passPercentage = request.getParameter("passPercentage");
 		    	
 		    	LocalDispatcher dispatcher = (LocalDispatcher)request.getAttribute("dispatcher");
+
 		    	
 		    	GenericValue userLogin = EntityQuery.use(getDelegator())
 	                    .from("UserLogin")
@@ -122,7 +124,7 @@ public class AdminResources {
 	                    .queryOne();
 		    	
 		    	Map<String, Object> updateData = new HashMap<>();
-		    	
+		    
 		    	updateData.put("examId", examId);
 		    	updateData.put("examName", examName);
 		    	updateData.put("description", description);
