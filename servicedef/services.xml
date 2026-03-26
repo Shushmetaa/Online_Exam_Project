@@ -69,7 +69,19 @@ under the License.
         <attribute name="duration" mode="IN" type="numeric"></attribute>        
 	    <attribute name="passPercentage" mode="IN" type="numeric"></attribute>  
     </service>
+    
     <service name = "updateExamAuto" engine="entity-auto" default-entity-name="ExamMaster" invoke="update" auth="true">
+    	<auto-attributes mode="IN" include="pk"></auto-attributes>
+    	<auto-attributes mode="OUT" include="nonpk"></auto-attributes>
+    </service>
+    
+    <service name="retireExam" engine="java" location="com.vastpro.services.exammaster.RetireExam" invoke="retireExam" auth="true">
+	    <attribute name="examId" mode="IN"  type="String" optional="false"/>
+	    <attribute name="lastModifiedByUserLogin" mode="IN"  type="String" optional="true"/>
+    <attribute name="retiredAt" mode="OUT" type="String"/>
+	</service>
+	
+	<service name = "retireExamAuto" engine="entity-auto" default-entity-name="ExamMaster">
     	<auto-attributes mode="IN" include="pk"></auto-attributes>
     	<auto-attributes mode="OUT" include="nonpk"></auto-attributes>
     </service>

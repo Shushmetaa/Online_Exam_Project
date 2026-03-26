@@ -1,5 +1,6 @@
 package com.vastpro.rest.resources;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,8 +19,10 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.entity.DelegatorFactory;
+import org.apache.ofbiz.entity.GenericEntityException;
 import org.apache.ofbiz.entity.GenericValue;
 import org.apache.ofbiz.entity.util.EntityQuery;
+import org.apache.ofbiz.service.GenericServiceException;
 import org.apache.ofbiz.service.LocalDispatcher;
 import org.apache.ofbiz.service.ServiceContainer;
 import org.apache.ofbiz.service.ServiceUtil;
@@ -141,5 +144,40 @@ public class AdminResources {
 	    	}
 			
 	    }
+	    @PUT
+	    @Path("/retire")
+	    public Map<String, Object> retireExam(HttpServletRequest request, HttpServletResponse response) {
+			try {
+			String examId = request.getParameter("examId");
+			String lastModifiedByUserLogin = request.getParameter("lastModifiedByUserLogin");
+			
+			if (examId == null || examId.isEmpty())
+	            return ServiceUtil.returnError("Exam ID is required");
+			
+			LocalDispatcher dispatcher=(LocalDispatcher)request.getAttribute("dispatcher");
+			
+			GenericValue userLogin = EntityQuery.use(getDelegator())
+                    .from("UserLogin")
+                    .where("userLoginId", "admin")
+                    .queryOne();
+
+			Map<String, Object> retireData = new HashMap<>();
+            retireData.put("examId",examId);
+            retireData.put("lastModifiedByUserLogin","admin");
+            retireData.put("userLogin", userLogin);
+			
+            Map<String, Object> result = dispatcher.runSync("retireExam", retireData);
+
+            response.setStatus(200);
+            response.getWriter().write("success");
+            
+	    	
+            return result;
+				
+			}catch (GenericEntityException | GenericServiceException | IOException e) {
+	            return ServiceUtil.returnError("Error retiring exam: " + e.getMessage());
+				
+			}
+		}
 
 }
