@@ -48,26 +48,26 @@ under the License.
     	<attribute name="partyId" mode="OUT" type="String"></attribute>
     </service>
     
-    <service name="createExamAuto" engine="entity-auto" default-entity-name="ExamMaster">
+    <service name="createExamAuto" engine="entity-auto" invoke="create" default-entity-name="ExamMaster">
         <auto-attributes include="pk" mode="OUT"></auto-attributes>
         <auto-attributes include="nonpk" mode="IN"></auto-attributes>       
     </service>
     <service name="createExam" engine="java" location="com.vastpro.services.exammaster.CreateExam" invoke="createExam" auth="true">
-        <attribute name="examId" mode="IN" type="id"></attribute>
-        <attribute name="examName" mode="IN" type="name"></attribute>
-        <attribute name="description" mode="IN" type="description"></attribute>
-        <attribute name="noOfQuestions" mode="IN" type="numeric"></attribute>
-        <attribute name="duration" mode="IN" type="numeric"></attribute>        
-	    <attribute name="passPercentage" mode="IN" type="numeric"></attribute>  
+        <attribute name="examId" mode="OUT" type="String"></attribute>
+        <attribute name="examName" mode="IN" type="String"></attribute>
+        <attribute name="description" mode="IN" type="String"></attribute>
+        <attribute name="noOfQuestions" mode="IN" type="String"></attribute>
+        <attribute name="duration" mode="IN" type="String"></attribute>        
+	    <attribute name="passPercentage" mode="IN" type="String"></attribute>  
     </service>
     
     <service name="updateExam" engine="java" location="com.vastpro.services.exammaster.UpdateExam" invoke="updateExam" auth="true">
-        <attribute name="examId" mode="IN" type="id"></attribute>
-        <attribute name="examName" mode="IN" type="name"></attribute>
-        <attribute name="description" mode="IN" type="description"></attribute>
-        <attribute name="noOfQuestions" mode="IN" type="numeric"></attribute>
-        <attribute name="duration" mode="IN" type="numeric"></attribute>        
-	    <attribute name="passPercentage" mode="IN" type="numeric"></attribute>  
+        <attribute name="examId" mode="IN" type="String"></attribute>
+        <attribute name="examName" mode="IN" type="String"></attribute>
+        <attribute name="description" mode="IN" type="String"></attribute>
+        <attribute name="noOfQuestions" mode="IN" type="String"></attribute>
+        <attribute name="duration" mode="IN" type="String"></attribute>        
+	    <attribute name="passPercentage" mode="IN" type="String"></attribute>  
     </service>
     
     <service name = "updateExamAuto" engine="entity-auto" default-entity-name="ExamMaster" invoke="update" auth="true">
@@ -81,8 +81,8 @@ under the License.
     <attribute name="retiredAt" mode="OUT" type="String"/>
 	</service>
 	
-	<service name = "retireExamAuto" engine="entity-auto" default-entity-name="ExamMaster">
+	<service name = "retireExamAuto" engine="entity-auto" invoke ="update" default-entity-name="ExamMaster">
     	<auto-attributes mode="IN" include="pk"></auto-attributes>
-    	<auto-attributes mode="OUT" include="nonpk"></auto-attributes>
+    	<auto-attributes mode="IN" include="nonpk"></auto-attributes>
     </service>
 </services>

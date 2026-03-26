@@ -1,5 +1,6 @@
 package com.vastpro.javaservice;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,8 +11,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
 
 import org.apache.ofbiz.entity.Delegator;
+import org.apache.ofbiz.entity.GenericEntityException;
 import org.apache.ofbiz.entity.GenericValue;
 import org.apache.ofbiz.entity.util.EntityQuery;
+import org.apache.ofbiz.service.GenericServiceException;
 import org.apache.ofbiz.service.LocalDispatcher;
 import org.apache.ofbiz.service.ServiceUtil;
 
@@ -19,7 +22,7 @@ public class ExamMaster {
 	
     public static Map<String,Object> createExam(@Context HttpServletRequest request, @Context HttpServletResponse response){
     	try {
-    		Map<String, Object> result=new HashMap<>();
+    	
     		String examId = request.getParameter("examId");
 	    	String examName = request.getParameter("examName");
 	    	String description = request.getParameter("description");
@@ -29,6 +32,10 @@ public class ExamMaster {
 	    	
     	    LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
     	    
+    	    if (dispatcher == null) {
+                return ServiceUtil.returnError("Dispatcher is null");
+            }
+
     	    GenericValue userLogin=EntityQuery.use((Delegator) request.getAttribute("delegator"))
     	    		.from("UserLogin")
     	    		.where("userLoginId", "admin")
@@ -44,15 +51,91 @@ public class ExamMaster {
     	    createData.put("userLogin", userLogin);
     	    
     	    Map<String,Object> serviceResult=dispatcher.runSync("createExam", createData);
+    	    
     	    if(ServiceUtil.isError(serviceResult)) {
     	    	return ServiceUtil.returnError(ServiceUtil.getErrorMessage(serviceResult));
     	    }
-    	    else {
-    	    	return ServiceUtil.returnSuccess("Exam Created Successfully");
-    	    }
+    	    
+    	    Map<String,Object> responseMap = ServiceUtil.returnSuccess("Exam Created Successfully");
+            responseMap.put("examId", serviceResult.get("examId"));
+
+            return responseMap;
     	}catch(Exception e) {
       		return ServiceUtil.returnError("Exam Creation Failed:" +e.getMessage());
-    	}	    	
+    	}	 
     }
+    	public static Map<String,Object> updateExam(@Context HttpServletRequest request, @Context HttpServletResponse response){
+			
+    		try {
+	    		
+	    		String examId = request.getParameter("examId");
+	    		String examName = request.getParameter("examName");
+	    		String description = request.getParameter("description");
+	    		String noOfQuestions = request.getParameter("noOfQuestions");
+	    		String duration = request.getParameter("duration");
+	    		String passPercentage = request.getParameter("passPercentage");
+		    	
+	    		if (examId == null || examId.isEmpty()) {
+	    	            return ServiceUtil.returnError("Exam ID is required");
+	    	        }
+	    		LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
+
+	    		GenericValue userLogin=EntityQuery.use((Delegator) request.getAttribute("delegator"))
+	    	    		.from("UserLogin")
+	    	    		.where("userLoginId", "admin")
+	    	    		.queryOne();
+		    	
+		    	Map<String, Object> updateData = new HashMap<>();
+		    
+		    	updateData.put("examId", examId);
+		    	updateData.put("examName", examName);
+		    	updateData.put("description", description);
+		    	updateData.put("noOfQuestions", noOfQuestions);
+		    	updateData.put("duration", duration);
+		    	updateData.put("passPercentage", passPercentage);
+		    	updateData.put("userLogin", userLogin);
+		    	
+		    	Map<String, Object> result = dispatcher.runSync("updateExam", updateData);
+		    	
+		    	return result;
+		    	
+	    	}catch(Exception e) {
+	    		e.printStackTrace();
+	    		return null;
+	    	}
+    }
+    	public static Map<String,Object> retireExam(@Context HttpServletRequest request, @Context HttpServletResponse response){
+    		try {
+    			String examId = request.getParameter("examId");
+    			String lastModifiedByUserLogin = request.getParameter("lastModifiedByUserLogin");
+    			
+    			if (examId == null || examId.isEmpty())
+    	            return ServiceUtil.returnError("Exam ID is required");
+    			
+    			LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
+
+	    		GenericValue userLogin=EntityQuery.use((Delegator) request.getAttribute("delegator"))
+	    	    		.from("UserLogin")
+	    	    		.where("userLoginId", "admin")
+	    	    		.queryOne();
+
+    			Map<String, Object> retireData = new HashMap<>();
+                retireData.put("examId",examId);
+                retireData.put("lastModifiedByUserLogin","admin");
+                retireData.put("userLogin", userLogin);
+    			
+                Map<String, Object> result = dispatcher.runSync("retireExam", retireData);
+
+                response.setStatus(200);
+                response.getWriter().write("success");
+                
+    	    	
+                return result;
+    				
+    			}catch (GenericEntityException | GenericServiceException | IOException e) {
+    	            return ServiceUtil.returnError("Error retiring exam: " + e.getMessage());
+    				
+    			}
+    		}
 
 }

@@ -46,15 +46,6 @@ under the License.
         <field name="noOfQuestions" type="numeric" not-null="true"/>
         <field name="duration" type="numeric" not-null="true"/>
         <field name="passPercentage" type="numeric" not-null="true"/>
-        <field name="questionsRandomized" type="numeric"/>
-        <field name="answersMust" type="numeric"/>
-        <field name="allowNegativeMarks" type="numeric"/>
-        <field name="examSetupProper" type="numeric"/>
-        <field name="negativeMarkValue" type="currency-amount"/>
-        <field name="fromDate" type="date-time"/>
-        <field name="thruDate" type="date-time"/>
-        <field name="createdByUserLogin" type="id-vlong"/>
-        <field name="lastModifiedByUserLogin" type="id-vlong"/>
         <prim-key field="examId"/>
     </entity>
 

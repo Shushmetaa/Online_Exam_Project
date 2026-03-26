@@ -12,22 +12,22 @@ public class CreateExam {
     	
     	String examName  =   (String) context.get("examName");
         String description = (String) context.get("description");
-        Long noOfQuestions = (Long)   context.get("noOfQuestions");
-        Long duration     = (Long)   context.get("duration");
-        Long passPercentage = (Long)   context.get("passPercentage");
+        String noOfQuestions = (String) context.get("noOfQuestions");
+		String duration = (String) context.get("duration");
+		String passPercentage = (String) context.get("passPercentage");
         
         LocalDispatcher dispatcher=dctx.getDispatcher();
     	
     	if(examName==null || examName.isEmpty()) {
     		return ServiceUtil.returnError("Exam Name is required");
     	}
-    	if(noOfQuestions==null) {
+    	if(noOfQuestions == null || noOfQuestions.isEmpty()) {
     		return ServiceUtil.returnError("No of Questions is required");
     	}
     	if(description==null ||  description.isEmpty()) {
     		return ServiceUtil.returnError("description is required");
     	}
-    	if(duration==null) {
+    	if(duration==null || duration.isEmpty()) {
     		return ServiceUtil.returnError("Duration is required");
     	}
     	if(passPercentage==null) {
