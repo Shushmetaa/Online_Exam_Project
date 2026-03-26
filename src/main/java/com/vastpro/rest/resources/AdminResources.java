@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -25,7 +26,7 @@ import org.apache.ofbiz.service.ServiceUtil;
 
 @Path("/admin")
 @Produces(MediaType.APPLICATION_JSON)
-@Consumes(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 public class AdminResources {
 
 	  @Context
@@ -59,6 +60,45 @@ public class AdminResources {
 	        return dispatcher;
 	    }
 	    
+	    @POST
+	    @Path("/create")
+	    public Map<String,Object> createExam(HttpServletRequest request, HttpServletResponse response){
+	    	try {
+	    		Map<String, Object> result=new HashMap<>();
+	    		String examId = request.getParameter("examId");
+		    	String examName = request.getParameter("examName");
+		    	String description = request.getParameter("description");
+		    	String noOfQuestions = request.getParameter("noOfQuestions");
+		    	String duration = request.getParameter("duration");
+		    	String passPercentage = request.getParameter("passPercentage");
+		    	
+	    	    LocalDispatcher dispatcher=(LocalDispatcher)request.getAttribute("dispatcher");
+	    	    
+	    	    GenericValue userLogin=EntityQuery.use(getDelegator())
+	    	    		.from("UserLogin")
+	    	    		.where("userLoginId", "admin")
+	    	    		.queryOne();
+	    	    
+	    	    Map<String, Object> createData =new HashMap<>();
+	    	    createData.put("examId", examId);
+	    	    createData.put("examName", examName);
+	    	    createData.put("description", description);
+	    	    createData.put("noOfQuestions",Long.parseLong(noOfQuestions));
+	    	    createData.put("duration",  Long.parseLong(duration));
+	    	    createData.put("passPercentage", Long.parseLong(passPercentage));
+	    	    createData.put("userLogin", userLogin);
+	    	    
+	    	    Map<String,Object> serviceResult=dispatcher.runSync("createExam", createData);
+	    	    if(ServiceUtil.isError(serviceResult)) {
+	    	    	return ServiceUtil.returnError(ServiceUtil.getErrorMessage(serviceResult));
+	    	    }
+	    	    else {
+	    	    	return ServiceUtil.returnSuccess("Exam Created Successfully");
+	    	    }
+	    	}catch(Exception e) {
+	      		return ServiceUtil.returnError("Exam Creation Failed:" +e.getMessage());
+	    	}	    	
+	    }
 	    @PUT
 	    @Path("/update")
 	    public Map<String, Object> updateExam(HttpServletRequest request, HttpServletResponse response) {
@@ -71,7 +111,7 @@ public class AdminResources {
 		    	String duration = request.getParameter("duration");
 		    	String passPercentage = request.getParameter("passPercentage");
 		    	
-		    	LocalDispatcher dispatcher = getDispatcher();
+		    	LocalDispatcher dispatcher = (LocalDispatcher)request.getAttribute("dispatcher");
 		    	
 		    	GenericValue userLogin = EntityQuery.use(getDelegator())
 	                    .from("UserLogin")
