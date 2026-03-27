@@ -49,8 +49,8 @@ under the License.
     </service>
     
     <service name="createExamAuto" engine="entity-auto" invoke="create" default-entity-name="ExamMaster">
-        <auto-attributes include="pk" mode="OUT"></auto-attributes>
-        <auto-attributes include="nonpk" mode="IN"></auto-attributes>       
+        <auto-attributes include="pk" mode="OUT" optional="false"></auto-attributes>
+        <auto-attributes include="nonpk" mode="IN" optional="true"></auto-attributes>       
     </service>
     <service name="createExam" engine="java" location="com.vastpro.services.exammaster.CreateExam" invoke="createExam" auth="true">
         <attribute name="examId" mode="OUT" type="String"></attribute>
@@ -82,6 +82,16 @@ under the License.
 	</service>
 	
 	<service name = "retireExamAuto" engine="entity-auto" invoke ="update" default-entity-name="ExamMaster">
+    	<auto-attributes mode="IN" include="pk"></auto-attributes>
+    	<auto-attributes mode="IN" include="nonpk"></auto-attributes>
+    </service>
+    
+    <service name="deleteExam" engine="java" location="com.vastpro.services.exammaster.DeleteExam" invoke="deleteExam" auth="true">
+	    <attribute name="examId" mode="IN"  type="String" optional="false"/>
+	    <attribute name="examId" mode="OUT" type="String"/>
+	</service>
+	
+	<service name = "deleteExamAuto" engine="entity-auto" invoke ="delete" default-entity-name="ExamMaster">
     	<auto-attributes mode="IN" include="pk"></auto-attributes>
     	<auto-attributes mode="IN" include="nonpk"></auto-attributes>
     </service>

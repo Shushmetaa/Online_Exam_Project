@@ -5,6 +5,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -82,5 +83,12 @@ public class AdminResources {
 	    	request.setAttribute("dispatcher", getDispatcher());
 	    	return ExamMaster.retireExam(request, response);
 		}
+	    @DELETE
+	    @Path("/delete")
+	    public Map<String, Object> deleteExam(@Context HttpServletRequest request, @Context HttpServletResponse response) {
+	    	request.setAttribute("delegator", getDelegator());
+	    	request.setAttribute("dispatcher", getDispatcher());
+	    	return ExamMaster.deleteExam(request, response);
+	    }
 	    
 }

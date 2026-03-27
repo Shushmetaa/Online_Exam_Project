@@ -1,9 +1,7 @@
 package com.vastpro.services.exammaster;
 
-import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.ofbiz.entity.GenericValue;
 import org.apache.ofbiz.service.DispatchContext;
 import org.apache.ofbiz.service.GenericServiceException;
 import org.apache.ofbiz.service.LocalDispatcher;
@@ -25,31 +23,31 @@ public class UpdateExam {
 			if (examId == null || examId.isEmpty()) {                        
 			     return ServiceUtil.returnError("Exam ID is required");
 			}
+			if(examName==null || examName.isEmpty()) {
+	    		return ServiceUtil.returnError("Exam Name is required");
+	    	}
+	    	if(noOfQuestions == null || noOfQuestions.isEmpty()) {
+	    		return ServiceUtil.returnError("No of Questions is required");
+	    	}
+	    	if(description==null ||  description.isEmpty()) {
+	    		return ServiceUtil.returnError("description is required");
+	    	}
+	    	if(duration==null || duration.isEmpty()) {
+	    		return ServiceUtil.returnError("Duration is required");
+	    	}
+	    	if(passPercentage==null) {
+	    		return ServiceUtil.returnError("Pass Percentage is required");
+	    	}
 			LocalDispatcher dispatcher = dctx.getDispatcher();
-			
-			GenericValue userLogin = (GenericValue) context.get("userLogin");      
-			
-			 if (userLogin == null) {
-		            return ServiceUtil.returnError("UserLogin is required");
-		        }
-			 
-			Map<String, Object> update = new HashMap<>();
-			
-			update.put("examId", examId);
-			update.put("examName", examName);
-	    	update.put("description", description);
-	    	update.put("noOfQuestions", noOfQuestions);
-	    	update.put("duration", duration);
-	    	update.put("passPercentage", passPercentage);
-	    	update.put("userLogin", userLogin);
 	    	
-	    	 Map<String, Object> result = dispatcher.runSync("updateExamAuto", update);
+	    	 Map<String, Object> result = dispatcher.runSync("updateExamAuto", context);
 
 	         if (ServiceUtil.isError(result)) {
 	             return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
 	         }
-
-	         return ServiceUtil.returnSuccess("Exam Updated Successfully");
+	         Map<String,Object> response= ServiceUtil.returnSuccess("Exam Updated Successfully");
+	    		response.put("examId",result.get("examId"));
+	    		return response;
 			
 			
 		}catch(GenericServiceException e) {

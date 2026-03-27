@@ -1,15 +1,10 @@
 package com.vastpro.javaservice;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
-
 import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.entity.GenericEntityException;
 import org.apache.ofbiz.entity.GenericValue;
@@ -134,5 +129,35 @@ public class ExamMaster {
     				
     			}
     		}
+		public static Map<String, Object> deleteExam(@Context HttpServletRequest request, @Context HttpServletResponse response) {
+			try {
+		        String examId = request.getParameter("examId");
+
+		        if (examId == null || examId.isEmpty())
+		            return ServiceUtil.returnError("Exam ID is required");
+
+		        LocalDispatcher dispatcher =
+		            (LocalDispatcher) request.getAttribute("dispatcher");
+
+		        GenericValue userLogin = EntityQuery
+		                .use((Delegator) request.getAttribute("delegator"))
+		                .from("UserLogin")
+		                .where("userLoginId", "admin")
+		                .queryOne();
+
+		        Map<String, Object> deleteData = new HashMap<>();
+		        deleteData.put("examId",    examId);
+		        deleteData.put("userLogin", userLogin);
+
+		        Map<String, Object> result =
+		            dispatcher.runSync("deleteExam", deleteData);
+
+		        return result;
+
+		    } catch (GenericEntityException | GenericServiceException e) {
+		        return ServiceUtil.returnError(
+		            "Error deleting exam: " + e.getMessage());
+		    }
+		}
 
 }

@@ -45,11 +45,10 @@ under the License.
         <field name="description" type="description"/>
         <field name="noOfQuestions" type="numeric" not-null="true"/>
         <field name="duration" type="numeric" not-null="true"/>
-        <field name="passPercentage" type="numeric" not-null="true"/>
-         <!-- 
+        <field name="passPercentage" type="numeric" not-null="true"/>  
         <field name="thruDate" type="date-time"></field>
         <field name="lastModifiedByUserLogin" type="id"></field>
-        -->
+   
         <prim-key field="examId"/>
     </entity>
 
