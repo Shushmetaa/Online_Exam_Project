@@ -63,19 +63,12 @@ under the License.
     
     <service name="updateExam" engine="java" location="com.vastpro.services.exammaster.UpdateExam" invoke="updateExam" auth="true">
         <attribute name="examId" mode="IN" type="String"></attribute>
-<<<<<<< Updated upstream
         <attribute name="examName" mode="IN" type="String"></attribute>
         <attribute name="description" mode="IN" type="String"></attribute>
         <attribute name="noOfQuestions" mode="IN" type="String"></attribute>
         <attribute name="duration" mode="IN" type="String"></attribute>        
 	    <attribute name="passPercentage" mode="IN" type="String"></attribute>  
-=======
-        <attribute name="examName" mode="IN" type="name"></attribute>
-        <attribute name="description" mode="IN" type="description"></attribute>
-        <attribute name="noOfQuestions" mode="IN" type="numeric"></attribute>
-        <attribute name="duration" mode="IN" type="numeric"></attribute>        
-	    <attribute name="passPercentage" mode="IN" type="numeric"></attribute>  
->>>>>>> Stashed changes
+       
     </service>
     
     <service name = "updateExamAuto" engine="entity-auto" default-entity-name="ExamMaster" invoke="update" auth="true">
@@ -104,6 +97,11 @@ under the License.
     	<auto-attributes mode="IN" include="nonpk"></auto-attributes>
     </service>
     
+    <service name="getExam" engine="java" location="com.vastpro.services.exammaster.GetExam" invoke="getExam" auth="true" >
+   		<attribute name="examId" mode="IN" type="String" optional="false"/>
+    	<attribute name="examList" mode="OUT" type="List" optional="true"/>
+    </service>
+    
     <service name="topicMaster" engine="java" location="com.vastpro.services.topicmaster.CreateTopicMaster" invoke="createTopic" auth="true">
     	<attribute name="examId" mode="IN" type="String"></attribute>
     	<attribute name="topicId" mode="IN" type="String"></attribute>
@@ -120,7 +118,7 @@ under the License.
     	<auto-attributes mode="IN" include="nonpk"></auto-attributes>
     </service>
 
-    <service name="getTopicMaster" engine="java" location="com.vastpro.services.topicmaster.GetTopicMaster" invoke="getTopics" auth="true">
+    <service name="getTopicMaster" engine="java" location="com.vastpro.services.topicmaster.GetTopicMaster" invoke="getTopic" auth="true">
     	<attribute name="examId" mode="IN" type="String" optional="false"/>
     	<attribute name="topicList" mode="OUT" type="List" optional="true"/>
 	</service>

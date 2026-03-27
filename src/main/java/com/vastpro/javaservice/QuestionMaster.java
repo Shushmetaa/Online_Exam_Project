@@ -14,6 +14,8 @@ public class QuestionMaster {
 		String topicId = request.getParameter("topicId");
 		String questionDetail = request.getParameter("questionDetail");
 		
+		return null;
+		
 	}
 
 }

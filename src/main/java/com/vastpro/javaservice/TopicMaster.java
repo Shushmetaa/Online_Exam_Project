@@ -77,7 +77,7 @@ public class TopicMaster {
 		    Map<String, Object> id = new HashMap<>();
 		    
 		    id.put("examId", examId);
-		    id.put("UserLogin", userLogin);
+		    id.put("userLogin", userLogin);
 		    
 		    Map<String, Object> result = dispatcher.runSync("getTopicMaster", id);
 		    

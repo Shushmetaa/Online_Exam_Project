@@ -17,11 +17,7 @@ public class ExamMaster {
 	
     public static Map<String,Object> createExam(HttpServletRequest request, HttpServletResponse response){
     	try {
-<<<<<<< Updated upstream
-    	
-=======
-  
->>>>>>> Stashed changes
+
     		String examId = request.getParameter("examId");
 	    	String examName = request.getParameter("examName");
 	    	String description = request.getParameter("description");
@@ -161,6 +157,36 @@ public class ExamMaster {
 		    } catch (GenericEntityException | GenericServiceException e) {
 		        return ServiceUtil.returnError(
 		            "Error deleting exam: " + e.getMessage());
+		    }
+		}
+		
+		public static Map<String, Object> getExam(@Context HttpServletRequest request, @Context HttpServletResponse response) {
+			try {
+
+				String examId = request.getParameter("examId");
+				
+				LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
+			    
+			    GenericValue userLogin=EntityQuery.use((Delegator) request.getAttribute("delegator"))
+			    		.from("UserLogin")
+			    		.where("userLoginId", "admin")
+			    		.queryOne();
+			    
+			    Map<String, Object> input = new HashMap<>();
+
+		        input.put("examId", examId);
+		        input.put("userLogin", userLogin); 
+
+		        Map<String, Object> result = dispatcher.runSync("getExam", input);
+
+		        if (ServiceUtil.isError(result)) {
+		            return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+		        } else {
+		            return result;
+		        }
+
+		    } catch (GenericEntityException | GenericServiceException e) {
+		        return ServiceUtil.returnError(e.getMessage());
 		    }
 		}
 
