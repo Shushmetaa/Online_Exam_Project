@@ -3,6 +3,7 @@ package com.vastpro.services.exammaster;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.ofbiz.entity.GenericValue;
 import org.apache.ofbiz.service.DispatchContext;
 import org.apache.ofbiz.service.GenericServiceException;
 import org.apache.ofbiz.service.LocalDispatcher;
@@ -25,7 +26,13 @@ public class UpdateExam {
 			     return ServiceUtil.returnError("Exam ID is required");
 			}
 			LocalDispatcher dispatcher = dctx.getDispatcher();
-			                                                             
+			
+			GenericValue userLogin = (GenericValue) context.get("userLogin");      
+			
+			 if (userLogin == null) {
+		            return ServiceUtil.returnError("UserLogin is required");
+		        }
+			 
 			Map<String, Object> update = new HashMap<>();
 			
 			update.put("examId", examId);
@@ -34,7 +41,8 @@ public class UpdateExam {
 	    	update.put("noOfQuestions", noOfQuestions);
 	    	update.put("duration", duration);
 	    	update.put("passPercentage", passPercentage);
-			
+	    	update.put("userLogin", userLogin);
+	    	
 	    	 Map<String, Object> result = dispatcher.runSync("updateExamAuto", update);
 
 	         if (ServiceUtil.isError(result)) {

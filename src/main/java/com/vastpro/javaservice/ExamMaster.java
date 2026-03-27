@@ -125,14 +125,11 @@ public class ExamMaster {
                 retireData.put("userLogin", userLogin);
     			
                 Map<String, Object> result = dispatcher.runSync("retireExam", retireData);
-
-                response.setStatus(200);
-                response.getWriter().write("success");
-                
+        
     	    	
                 return result;
     				
-    			}catch (GenericEntityException | GenericServiceException | IOException e) {
+    			}catch (GenericEntityException | GenericServiceException e) {
     	            return ServiceUtil.returnError("Error retiring exam: " + e.getMessage());
     				
     			}

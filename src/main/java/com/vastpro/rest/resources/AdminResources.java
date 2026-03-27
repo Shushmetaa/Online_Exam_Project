@@ -67,7 +67,7 @@ public class AdminResources {
 	    	
 	    }
 	    
-	    @POST
+	    @PUT
 	    @Path("/update")
 	    public Map<String, Object> updateExam(@Context HttpServletRequest request, @Context HttpServletResponse response) {
 	    	request.setAttribute("delegator", getDelegator());
@@ -78,6 +78,8 @@ public class AdminResources {
 	    @Path("/retire")
 	    public Map<String, Object> retireExam(@Context HttpServletRequest request, @Context HttpServletResponse response) {
 			
+	    	request.setAttribute("delegator", getDelegator());
+	    	request.setAttribute("dispatcher", getDispatcher());
 	    	return ExamMaster.retireExam(request, response);
 		}
 	    
