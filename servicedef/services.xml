@@ -63,11 +63,19 @@ under the License.
     
     <service name="updateExam" engine="java" location="com.vastpro.services.exammaster.UpdateExam" invoke="updateExam" auth="true">
         <attribute name="examId" mode="IN" type="String"></attribute>
+<<<<<<< Updated upstream
         <attribute name="examName" mode="IN" type="String"></attribute>
         <attribute name="description" mode="IN" type="String"></attribute>
         <attribute name="noOfQuestions" mode="IN" type="String"></attribute>
         <attribute name="duration" mode="IN" type="String"></attribute>        
 	    <attribute name="passPercentage" mode="IN" type="String"></attribute>  
+=======
+        <attribute name="examName" mode="IN" type="name"></attribute>
+        <attribute name="description" mode="IN" type="description"></attribute>
+        <attribute name="noOfQuestions" mode="IN" type="numeric"></attribute>
+        <attribute name="duration" mode="IN" type="numeric"></attribute>        
+	    <attribute name="passPercentage" mode="IN" type="numeric"></attribute>  
+>>>>>>> Stashed changes
     </service>
     
     <service name = "updateExamAuto" engine="entity-auto" default-entity-name="ExamMaster" invoke="update" auth="true">
@@ -95,4 +103,42 @@ under the License.
     	<auto-attributes mode="IN" include="pk"></auto-attributes>
     	<auto-attributes mode="IN" include="nonpk"></auto-attributes>
     </service>
+    
+    <service name="topicMaster" engine="java" location="com.vastpro.services.topicmaster.CreateTopicMaster" invoke="createTopic" auth="true">
+    	<attribute name="examId" mode="IN" type="String"></attribute>
+    	<attribute name="topicId" mode="IN" type="String"></attribute>
+    	<attribute name="topicName" mode="IN" type="String"></attribute>
+    	<attribute name="percentage" mode="IN" type="String"></attribute>
+    	<attribute name="startingQid" mode="IN" type="String"></attribute>
+    	<attribute name="endingQid" mode="IN" type="String"></attribute>
+    	<attribute name="questionsPerExam" mode="IN" type="String"></attribute>
+    	<attribute name="topicPassPercentage" mode="IN" type="String"></attribute>
+    </service>
+    
+    <service name="createTopicMaster" engine="entity-auto" invoke="create" default-entity-name="ExamTopicDetails">
+    	<auto-attributes mode="IN" include="pk"></auto-attributes>
+    	<auto-attributes mode="IN" include="nonpk"></auto-attributes>
+    </service>
+
+    <service name="getTopicMaster" engine="java" location="com.vastpro.services.topicmaster.GetTopicMaster" invoke="getTopics" auth="true">
+    	<attribute name="examId" mode="IN" type="String" optional="false"/>
+    	<attribute name="topicList" mode="OUT" type="List" optional="true"/>
+	</service>
+	
+	<service name="updatetopicMaster" engine="java" location="com.vastpro.services.topicmaster.UpdateTopicMaster" invoke="updateTopic" auth="true">
+    	<attribute name="examId" mode="IN" type="String"></attribute>
+    	<attribute name="topicId" mode="IN" type="String"></attribute>
+    	<attribute name="topicName" mode="IN" type="String"></attribute>
+    	<attribute name="percentage" mode="IN" type="String"></attribute>
+    	<attribute name="startingQid" mode="IN" type="String"></attribute>
+    	<attribute name="endingQid" mode="IN" type="String"></attribute>
+    	<attribute name="questionsPerExam" mode="IN" type="String"></attribute>
+    	<attribute name="topicPassPercentage" mode="IN" type="String"></attribute>
+    </service>
+    
+    <service name="updateTopicMasterAuto" engine="entity-auto" invoke="update" auth="true" default-entity-name="ExamTopicDetails">
+    	<auto-attributes include="pk" mode="IN" />
+    	<auto-attributes include="nonpk" mode="IN"/>
+	</service>
+    
 </services>

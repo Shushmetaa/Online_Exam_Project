@@ -15,9 +15,13 @@ import org.apache.ofbiz.service.ServiceUtil;
 
 public class ExamMaster {
 	
-    public static Map<String,Object> createExam(@Context HttpServletRequest request, @Context HttpServletResponse response){
+    public static Map<String,Object> createExam(HttpServletRequest request, HttpServletResponse response){
     	try {
+<<<<<<< Updated upstream
     	
+=======
+  
+>>>>>>> Stashed changes
     		String examId = request.getParameter("examId");
 	    	String examName = request.getParameter("examName");
 	    	String description = request.getParameter("description");
