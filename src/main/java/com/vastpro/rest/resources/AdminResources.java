@@ -55,6 +55,8 @@ public class AdminResources {
 
 	    
 	    @POST
+	    @Produces(MediaType.APPLICATION_JSON)
+	    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	    @Path("/create")
 	    public Map<String,Object> createExam(@Context HttpServletRequest request, @Context HttpServletResponse response){
 	    
@@ -63,6 +65,8 @@ public class AdminResources {
 	    }
 	    
 	    @PUT
+	    @Produces(MediaType.APPLICATION_JSON)
+	    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	    @Path("/update")
 	    public Map<String, Object> updateExam(@Context HttpServletRequest request, @Context HttpServletResponse response) {
 	    
@@ -70,6 +74,8 @@ public class AdminResources {
 	    }
 	    
 	    @PUT
+	    @Produces(MediaType.APPLICATION_JSON)
+	    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	    @Path("/retire")
 	    public Map<String, Object> retireExam(@Context HttpServletRequest request, @Context HttpServletResponse response) {
 
@@ -77,21 +83,14 @@ public class AdminResources {
 		}
 
 	    @DELETE
+	    @Produces(MediaType.APPLICATION_JSON)
+	    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	    @Path("/delete")
 	    public Map<String, Object> deleteExam(@Context HttpServletRequest request, @Context HttpServletResponse response) {
 
 	    	return ExamMaster.deleteExam(request, response);
 	    }
 	    
-	    @GET
-	    @Produces(MediaType.APPLICATION_JSON)
-	    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	    @Path("/examTopics/{examId}")
-	    public Map<String, Object> getExam(@Context HttpServletRequest request, @Context HttpServletResponse response){
-	    	
-	    	return ExamMaster.getExam(request, response);
-	    	
-	    }
 	    @GET
 	    @Path("/getExams")
 	    @Produces(MediaType.APPLICATION_JSON)

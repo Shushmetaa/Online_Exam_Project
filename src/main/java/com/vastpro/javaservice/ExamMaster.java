@@ -16,29 +16,42 @@ import org.apache.ofbiz.service.ServiceUtil;
 
 public class ExamMaster {
 	
+	private static LocalDispatcher getDispatcher(HttpServletRequest request) {
+        LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
+        if (dispatcher == null) {
+            dispatcher = (LocalDispatcher) request.getSession().getServletContext().getAttribute("dispatcher");
+        }
+        return dispatcher;
+    }
+
+    private static Delegator getDelegator(HttpServletRequest request) {
+        Delegator delegator = (Delegator) request.getAttribute("delegator");
+        if (delegator == null) {
+            delegator = (Delegator) request.getSession().getServletContext().getAttribute("delegator");
+        }
+        return delegator;
+    }
+	
     public static Map<String,Object> createExam(HttpServletRequest request, HttpServletResponse response){
     	try {
-
-    		String examId = request.getParameter("examId");
 	    	String examName = request.getParameter("examName");
 	    	String description = request.getParameter("description");
 	    	String noOfQuestions = request.getParameter("noOfQuestions");
 	    	String duration = request.getParameter("duration");
 	    	String passPercentage = request.getParameter("passPercentage");
 	    	
-    	    LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
+    	    LocalDispatcher dispatcher=getDispatcher(request);
     	    
     	    if (dispatcher == null) {
                 return ServiceUtil.returnError("Dispatcher is null");
             }
 
-    	    GenericValue userLogin=EntityQuery.use((Delegator) request.getAttribute("delegator"))
+    	    GenericValue userLogin=EntityQuery.use(getDelegator(request))
     	    		.from("UserLogin")
     	    		.where("userLoginId", "admin")
     	    		.queryOne();
     	    
     	    Map<String, Object> createData =new HashMap<>();
-    	    createData.put("examId", examId);
     	    createData.put("examName", examName);
     	    createData.put("description", description);
     	    createData.put("noOfQuestions",noOfQuestions);
@@ -60,7 +73,7 @@ public class ExamMaster {
       		return ServiceUtil.returnError("Exam Creation Failed:" +e.getMessage());
     	}	 
     }
-    	public static Map<String,Object> updateExam(@Context HttpServletRequest request, @Context HttpServletResponse response){
+    	public static Map<String,Object> updateExam( HttpServletRequest request, HttpServletResponse response){
 			
     		try {
 	    		
@@ -74,9 +87,9 @@ public class ExamMaster {
 	    		if (examId == null || examId.isEmpty()) {
 	    	            return ServiceUtil.returnError("Exam ID is required");
 	    	        }
-	    		LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
+	    		LocalDispatcher dispatcher=getDispatcher(request);
 
-	    		GenericValue userLogin=EntityQuery.use((Delegator) request.getAttribute("delegator"))
+	    		GenericValue userLogin=EntityQuery.use(getDelegator(request))
 	    	    		.from("UserLogin")
 	    	    		.where("userLoginId", "admin")
 	    	    		.queryOne();
@@ -100,7 +113,7 @@ public class ExamMaster {
 	    		return null;
 	    	}
     }
-    	public static Map<String,Object> retireExam(@Context HttpServletRequest request, @Context HttpServletResponse response){
+    	public static Map<String,Object> retireExam(HttpServletRequest request, HttpServletResponse response){
     		try {
     			String examId = request.getParameter("examId");
     			String lastModifiedByUserLogin = request.getParameter("lastModifiedByUserLogin");
@@ -108,9 +121,9 @@ public class ExamMaster {
     			if (examId == null || examId.isEmpty())
     	            return ServiceUtil.returnError("Exam ID is required");
     			
-    			LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
+    			LocalDispatcher dispatcher=getDispatcher(request);
 
-	    		GenericValue userLogin=EntityQuery.use((Delegator) request.getAttribute("delegator"))
+	    		GenericValue userLogin=EntityQuery.use(getDelegator(request))
 	    	    		.from("UserLogin")
 	    	    		.where("userLoginId", "admin")
 	    	    		.queryOne();
@@ -130,18 +143,17 @@ public class ExamMaster {
     				
     			}
     		}
-		public static Map<String, Object> deleteExam(@Context HttpServletRequest request, @Context HttpServletResponse response) {
+		public static Map<String, Object> deleteExam(HttpServletRequest request, HttpServletResponse response) {
 			try {
 		        String examId = request.getParameter("examId");
 
 		        if (examId == null || examId.isEmpty())
 		            return ServiceUtil.returnError("Exam ID is required");
 
-		        LocalDispatcher dispatcher =
-		            (LocalDispatcher) request.getAttribute("dispatcher");
+		        LocalDispatcher dispatcher =getDispatcher(request);
 
 		        GenericValue userLogin = EntityQuery
-		                .use((Delegator) request.getAttribute("delegator"))
+		                .use(getDelegator(request))
 		                .from("UserLogin")
 		                .where("userLoginId", "admin")
 		                .queryOne();
@@ -161,14 +173,14 @@ public class ExamMaster {
 		    }
 		}
 		
-		public static Map<String, Object> getExam(@Context HttpServletRequest request, @Context HttpServletResponse response) {
+		public static Map<String, Object> getExam( HttpServletRequest request,  HttpServletResponse response) {
 			try {
 
 				String examId = request.getParameter("examId");
 				
-				LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
+				LocalDispatcher dispatcher=getDispatcher(request);
 			    
-			    GenericValue userLogin=EntityQuery.use((Delegator) request.getAttribute("delegator"))
+			    GenericValue userLogin=EntityQuery.use(getDelegator(request))
 			    		.from("UserLogin")
 			    		.where("userLoginId", "admin")
 			    		.queryOne();
@@ -193,7 +205,7 @@ public class ExamMaster {
 		public static Map<String, Object> getExams(HttpServletRequest request,
                 HttpServletResponse response) {
              try {
-                  Delegator delegator = (Delegator) request.getAttribute("delegator");
+                  Delegator delegator = getDelegator(request);
 
                        List<GenericValue> exams = EntityQuery.use(delegator)
                                     .from("ExamMaster")
