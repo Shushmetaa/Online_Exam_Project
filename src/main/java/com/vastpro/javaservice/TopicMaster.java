@@ -138,7 +138,39 @@ public class TopicMaster {
 	}
 	
 	public static Map<String, Object> deleteTopic(HttpServletRequest request, HttpServletResponse response){
-		return null;
+		try {
+			 	String examId = request.getParameter("examId");
+		        String topicId = request.getParameter("topicId");
+
+		        if (examId == null || examId.isEmpty()) {
+		            return ServiceUtil.returnError("Exam ID is required");
+		        }
+		        if (topicId == null || topicId.isEmpty()) {
+		            return ServiceUtil.returnError("Topic ID is required");
+		        }    
+		            LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
+
+		            GenericValue userLogin = EntityQuery.use((Delegator) request.getAttribute("delegator"))
+		                    .from("UserLogin")
+		                    .where("userLoginId", "admin")
+		                    .queryOne();
+
+		            Map<String, Object> input = new HashMap<>();
+		            input.put("examId", examId);
+		            input.put("topicId", topicId);
+		            input.put("userLogin", userLogin); 
+
+		            Map<String, Object> result = dispatcher.runSync("deleteTopicMaster", input);
+
+		            if (ServiceUtil.isError(result)) {
+		                return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+		            }
+
+		            return ServiceUtil.returnSuccess("Topic deleted successfully");   
+			
+		}catch (GenericEntityException | GenericServiceException e) {
+	        return ServiceUtil.returnError("Error deleting topic: " + e.getMessage());
+	    }
 		
 	}
 
