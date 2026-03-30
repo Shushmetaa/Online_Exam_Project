@@ -25,34 +25,6 @@ import com.vastpro.javaservice.ExamMaster;
 @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 public class AdminResources {
 
-	  @Context
-	  private HttpServletRequest request;
-	  
-	  @Context
-	  private HttpServletResponse response;
-
-	   @Context
-	   private ServletContext servletContext;  
-
-	    
-	    private Delegator getDelegator() {
-	        Delegator delegator = (Delegator) servletContext.getAttribute("delegator");
-	        if (delegator == null) {
-	            delegator = DelegatorFactory.getDelegator("default");
-	        }
-	        return delegator;
-	    }
-
-	  
-	    private LocalDispatcher getDispatcher() {
-	        LocalDispatcher dispatcher = 
-	            (LocalDispatcher) servletContext.getAttribute("dispatcher");
-	        if (dispatcher == null) {
-	            dispatcher = ServiceContainer.getLocalDispatcher("exam", getDelegator());
-	        }
-	        return dispatcher;
-	    }
-
 	    
 	    @POST
 	    @Produces(MediaType.APPLICATION_JSON)

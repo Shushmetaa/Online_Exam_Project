@@ -16,6 +16,22 @@ import org.apache.ofbiz.service.ServiceUtil;
 
 public class TopicMaster {
 	
+	private static LocalDispatcher getDispatcher(HttpServletRequest request) {
+        LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
+        if (dispatcher == null) {
+            dispatcher = (LocalDispatcher) request.getSession().getServletContext().getAttribute("dispatcher");
+        }
+        return dispatcher;
+    }
+
+    private static Delegator getDelegator(HttpServletRequest request) {
+        Delegator delegator = (Delegator) request.getAttribute("delegator");
+        if (delegator == null) {
+            delegator = (Delegator) request.getSession().getServletContext().getAttribute("delegator");
+        }
+        return delegator;
+    }
+	
 	public static Map<String, Object> createTopic(HttpServletRequest request, HttpServletResponse response){
 		
 		try {
@@ -28,9 +44,9 @@ public class TopicMaster {
 			String questionsPerExam = request.getParameter("questionsPerExam");
 			String topicPassPercentage = request.getParameter("topicPassPercentage");
 			
-			LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
+			LocalDispatcher dispatcher=getDispatcher(request);
 		    
-		    GenericValue userLogin=EntityQuery.use((Delegator) request.getAttribute("delegator"))
+		    GenericValue userLogin=EntityQuery.use(getDelegator(request))
 		    		.from("UserLogin")
 		    		.where("userLoginId", "admin")
 		    		.queryOne();
@@ -67,9 +83,9 @@ public class TopicMaster {
 
 			String examId = request.getParameter("examId");
 			
-			LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
+			LocalDispatcher dispatcher=getDispatcher(request);
 		    
-		    GenericValue userLogin=EntityQuery.use((Delegator) request.getAttribute("delegator"))
+		    GenericValue userLogin=EntityQuery.use(getDelegator(request))
 		    		.from("UserLogin")
 		    		.where("userLoginId", "admin")
 		    		.queryOne();
@@ -105,9 +121,9 @@ public class TopicMaster {
 			String questionsPerExam = request.getParameter("questionsPerExam");
 			String topicPassPercentage = request.getParameter("topicPassPercentage");
 			
-			LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
+			LocalDispatcher dispatcher=getDispatcher(request);
 		    
-		    GenericValue userLogin=EntityQuery.use((Delegator) request.getAttribute("delegator"))
+		    GenericValue userLogin=EntityQuery.use(getDelegator(request))
 		    		.from("UserLogin")
 		    		.where("userLoginId", "admin")
 		    		.queryOne();
@@ -148,9 +164,9 @@ public class TopicMaster {
 		        if (topicId == null || topicId.isEmpty()) {
 		            return ServiceUtil.returnError("Topic ID is required");
 		        }    
-		            LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
+		            LocalDispatcher dispatcher = getDispatcher(request);
 
-		            GenericValue userLogin = EntityQuery.use((Delegator) request.getAttribute("delegator"))
+		            GenericValue userLogin = EntityQuery.use(getDelegator(request))
 		                    .from("UserLogin")
 		                    .where("userLoginId", "admin")
 		                    .queryOne();
