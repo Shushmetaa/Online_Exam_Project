@@ -14,6 +14,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import com.vastpro.javaservice.QuestionMaster;
 import com.vastpro.javaservice.TopicMaster;
 
 @Path("/admin/questions")
@@ -25,7 +26,7 @@ public class QuestionResources {
     @Path("/create")
     public Map<String, Object> createQuestions(@Context HttpServletRequest request, @Context HttpServletResponse response){
     	
-    	return (request, response);
+    	return QuestionMaster.createQuestion(request, response);
     }
     
     @GET
@@ -34,7 +35,7 @@ public class QuestionResources {
     @Path("/examTopics/{examId}")
     public Map<String, Object> getQuestions(@Context HttpServletRequest request, @Context HttpServletResponse response){
     	
-    	return (request, response);
+    	return QuestionMaster.getQuestion(request, response);
     	
     }
     
@@ -44,7 +45,7 @@ public class QuestionResources {
     @Path("/update")
     public Map<String, Object> updateQuestions(@Context HttpServletRequest request, @Context HttpServletResponse response){
     	
-    	return (request, response);
+    	return QuestionMaster.updateQuestion(request, response);
     	
     }
     
@@ -54,7 +55,7 @@ public class QuestionResources {
     @Path("/delete")
     public Map<String, Object> deleteQuestions(@Context HttpServletRequest request, @Context HttpServletResponse response){
     	
-    	return (request, response);
+    	return QuestionMaster.deleteQuestion(request, response);
     	
     }
 

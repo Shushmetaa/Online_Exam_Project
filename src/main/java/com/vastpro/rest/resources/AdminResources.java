@@ -26,70 +26,33 @@ import com.vastpro.javaservice.TopicMaster;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 public class AdminResources {
-
-
-	  @Context
-	  private HttpServletRequest request;
-	  
-	  @Context
-	  private HttpServletResponse response;
-
-	   @Context
-	   private ServletContext servletContext;  
-
-	    
-	    private Delegator getDelegator() {
-	        Delegator delegator = (Delegator) servletContext.getAttribute("delegator");
-	        if (delegator == null) {
-	            delegator = DelegatorFactory.getDelegator("default");
-	        }
-	        return delegator;
-	    }
-
-	  
-	    private LocalDispatcher getDispatcher() {
-	        LocalDispatcher dispatcher = 
-	            (LocalDispatcher) servletContext.getAttribute("dispatcher");
-	        if (dispatcher == null) {
-	            dispatcher = ServiceContainer.getLocalDispatcher(
-	                "exam",   
-	                getDelegator()
-	            );
-	        }
-	        return dispatcher;
-	    }
 	    
 	    @POST
 	    @Path("/create")
 	    public Map<String,Object> createExam(@Context HttpServletRequest request, @Context HttpServletResponse response){
-	    	request.setAttribute("delegator", getDelegator());
-	        request.setAttribute("dispatcher", getDispatcher());
-
+	    
 	    	return ExamMaster.createExam(request, response);
-	    	
+	
 	    }
 	    
 	    @PUT
 	    @Path("/update")
 	    public Map<String, Object> updateExam(@Context HttpServletRequest request, @Context HttpServletResponse response) {
-	    	request.setAttribute("delegator", getDelegator());
-	        request.setAttribute("dispatcher", getDispatcher());
+	    
 	    	return ExamMaster.updateExam(request, response);
 	    }
+	    
 	    @PUT
 	    @Path("/retire")
 	    public Map<String, Object> retireExam(@Context HttpServletRequest request, @Context HttpServletResponse response) {
-			
-	    	request.setAttribute("delegator", getDelegator());
-	    	request.setAttribute("dispatcher", getDispatcher());
+
 	    	return ExamMaster.retireExam(request, response);
 		}
-	    
+
 	    @DELETE
 	    @Path("/delete")
 	    public Map<String, Object> deleteExam(@Context HttpServletRequest request, @Context HttpServletResponse response) {
-	    	request.setAttribute("delegator", getDelegator());
-	    	request.setAttribute("dispatcher", getDispatcher());
+
 	    	return ExamMaster.deleteExam(request, response);
 	    }
 	    
@@ -107,8 +70,7 @@ public class AdminResources {
 	    @Produces(MediaType.APPLICATION_JSON)
 	    public Map<String, Object> getExams(@Context HttpServletRequest request,
 	                                         @Context HttpServletResponse response) {
-	        request.setAttribute("delegator", getDelegator());
-	        request.setAttribute("dispatcher", getDispatcher());
+	       
 	        return ExamMaster.getExams(request, response);
 	    }
 

@@ -1,0 +1,119 @@
+package com.vastpro.services.questionmaster;
+
+import java.util.Map;
+
+import org.apache.ofbiz.entity.Delegator;
+import org.apache.ofbiz.entity.GenericEntityException;
+import org.apache.ofbiz.entity.GenericValue;
+import org.apache.ofbiz.entity.util.EntityQuery;
+import org.apache.ofbiz.service.DispatchContext;
+import org.apache.ofbiz.service.GenericServiceException;
+import org.apache.ofbiz.service.LocalDispatcher;
+import org.apache.ofbiz.service.ServiceUtil;
+
+public class UpdateQuestionMaster {
+	
+	public Map<String, Object> updateQuestion(DispatchContext dctx, Map<String, ? extends Object> context){
+		
+		try {
+			
+			String examId = (String) context.get("examId");
+			String qId = (String) context.get("qId");
+			String topicId = (String) context.get("topicId");
+			String questionDetail = (String) context.get("questionDetail");
+			String optiona = (String) context.get("optiona");
+			String optionb = (String) context.get("optionb");
+			String optionc = (String) context.get("optionc");
+			String optiond = (String) context.get("optiond");
+			String optione = (String) context.get("optione");
+			String numAnswers = (String) context.get("numAnswers");
+			String questiontype = (String) context.get("questiontype");
+			String difficultyLevel = (String) context.get("difficultyLevel");
+			String answerValue = (String) context.get("answerValue");
+			String negativeMarkValue = (String) context.get("negativeMarkValue");
+			
+			if(examId == null || examId.isEmpty()) {
+				return ServiceUtil.returnError("Exam Id is required");
+			}
+			
+			if(qId == null || qId.isEmpty()) {
+				return ServiceUtil.returnError("QId is required");
+			}
+			
+			if(topicId == null || topicId.isEmpty()) {
+				return ServiceUtil.returnError("Topic Id is required");
+			}
+			
+			if(questionDetail == null || questionDetail.isEmpty()) {
+				return ServiceUtil.returnError("Question Details is required");
+			}
+			
+			if(optiona == null || optiona.isEmpty()) {
+				return ServiceUtil.returnError("option A is required");
+			}
+			
+			if(optionb == null || optionb.isEmpty()) {
+				return ServiceUtil.returnError("option B is required");
+			}
+			
+			if(optionc == null || optionc.isEmpty()) {
+				return ServiceUtil.returnError("option C is required");
+			}
+			
+			if(optiond == null || optiond.isEmpty()) {
+				return ServiceUtil.returnError("option D is required");
+			}
+			
+			if(optione == null || optione.isEmpty()) {
+				return ServiceUtil.returnError("option E is required");
+			}
+			
+			if(numAnswers == null || numAnswers.isEmpty()) {
+				return ServiceUtil.returnError("Number of answers is required");
+			}
+			
+			if(questiontype == null || questiontype.isEmpty()) {
+				return ServiceUtil.returnError("Question typ is required");
+			}
+			
+			if(difficultyLevel == null || difficultyLevel.isEmpty()) {
+				return ServiceUtil.returnError("Difficuilty type is required");
+			}
+			
+			if(answerValue == null || answerValue.isEmpty()) {
+				return ServiceUtil.returnError("Answer is required");
+			}
+			
+			if(negativeMarkValue == null || negativeMarkValue.isEmpty()) {
+				return ServiceUtil.returnError("Negative marks value is required");
+			}
+			
+			Delegator delegator = dctx.getDelegator();
+			
+			LocalDispatcher dispatcher = dctx.getDispatcher();
+			
+			GenericValue existing_data = EntityQuery.use(delegator)
+					                           .from("QuestionBankMasterB")
+					                           .where("examId", examId, "qId", qId)
+					                           .queryOne();
+			
+			if(existing_data == null) {
+				return ServiceUtil.returnError("Questions not found");
+			}
+			
+			Map<String, Object> result = dispatcher.runSync("updateQuestionMasterAuto", context);
+			
+			if(ServiceUtil.isError(result)) {
+			    return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+			}
+			
+			return ServiceUtil.returnSuccess("Question updated successfully");
+			
+			
+			
+		}catch(GenericEntityException | GenericServiceException e) {
+			return ServiceUtil.returnError("Questions failed to update: " + e.getMessage());
+		}
+	}
+
+}
