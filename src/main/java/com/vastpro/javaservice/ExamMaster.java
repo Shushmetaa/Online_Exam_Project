@@ -1,6 +1,7 @@
 package com.vastpro.javaservice;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -189,5 +190,21 @@ public class ExamMaster {
 		        return ServiceUtil.returnError(e.getMessage());
 		    }
 		}
+		public static Map<String, Object> getExams(HttpServletRequest request,
+                HttpServletResponse response) {
+             try {
+                  Delegator delegator = (Delegator) request.getAttribute("delegator");
 
+                       List<GenericValue> exams = EntityQuery.use(delegator)
+                                    .from("ExamMaster")
+                                    .queryList();
+
+                       Map<String, Object> result = ServiceUtil.returnSuccess("Exams fetched");
+                       result.put("examList", exams);
+                       return result;
+
+              } catch (GenericEntityException e) {
+                   return ServiceUtil.returnError("Failed: " + e.getMessage());
+              }
+         }
 }

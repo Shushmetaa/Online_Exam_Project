@@ -102,5 +102,14 @@ public class AdminResources {
 	    	return ExamMaster.getExam(request, response);
 	    	
 	    }
-	    
+	    @GET
+	    @Path("/getExams")
+	    @Produces(MediaType.APPLICATION_JSON)
+	    public Map<String, Object> getExams(@Context HttpServletRequest request,
+	                                         @Context HttpServletResponse response) {
+	        request.setAttribute("delegator", getDelegator());
+	        request.setAttribute("dispatcher", getDispatcher());
+	        return ExamMaster.getExams(request, response);
+	    }
+
 }
