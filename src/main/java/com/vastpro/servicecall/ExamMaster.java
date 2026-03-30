@@ -1,4 +1,4 @@
-package com.vastpro.javaservice;
+package com.vastpro.servicecall;
 
 import java.util.HashMap;
 import java.util.List;

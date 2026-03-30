@@ -1,5 +1,6 @@
 package com.vastpro.services.topicmaster;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,7 +15,7 @@ import org.apache.ofbiz.service.ServiceUtil;
 
 public class CreateTopicMaster {
 	
-	public Map<String, Object> createTopic(DispatchContext dctx, Map<String, ? extends Object> context){
+	public static Map<String, Object> createTopic(DispatchContext dctx, Map<String, ? extends Object> context){
 		
 		try {
 			
@@ -49,31 +50,42 @@ public class CreateTopicMaster {
 				                           .where("examId", examId)
 				                           .queryOne();
 			String noOfQuestions = exam.getString("noOfQuestions");
-			
+
+              if (exam == null) {
+                    return ServiceUtil.returnError("Exam not found for examId: " + examId);
+                 }
 			double pct = Double.parseDouble(percentage);
 			double questions = Double.parseDouble(noOfQuestions);
 			
-			long questionsPerExam = Math.round((pct/100) * questions);
+			long calculatedQuestionsPerExam = Math.round((pct/100) * questions);
 			
 			List<GenericValue> existingTopics = EntityQuery.use(delegator)
 			        .from("ExamTopicDetails")
 			        .where("examId", examId)
 			        .queryList();
 
+			
 			double existingTotal = 0;
 			for(GenericValue topic : existingTopics) {
 			    existingTotal += Double.parseDouble(topic.getString("percentage"));
 			}
 
-			if(existingTotal + pct > 100) {
+			if (existingTotal + pct > 100) {
 			    return ServiceUtil.returnError("Total % exceeds 100. Already used: " + existingTotal + "%");
-			}else {
-				ServiceUtil.returnSuccess("% is correct proceed");
 			}
-			
 			LocalDispatcher dispatcher = dctx.getDispatcher();
 			
-			Map<String, Object> result = dispatcher.runSync("createTopicMaster", context);
+			 Map<String, Object> autoData = new HashMap<>();
+		        autoData.put("examId", examId);
+		        autoData.put("topicId", topicId);
+		        autoData.put("topicName",topicName);
+		        autoData.put("percentage",percentage);
+		        autoData.put("startingQid", startingQid);
+		        autoData.put("endingQid", endingQid);
+		        autoData.put("questionsPerExam", String.valueOf(calculatedQuestionsPerExam));
+		        autoData.put("topicPassPercentage", topicPassPercentage);
+		        
+			Map<String, Object> result = dispatcher.runSync("createAutoTopicMaster", autoData);
 			
 			if(ServiceUtil.isError(result)) {
 				return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));

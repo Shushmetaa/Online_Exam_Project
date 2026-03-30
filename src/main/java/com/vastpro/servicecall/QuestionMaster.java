@@ -1,4 +1,4 @@
-package com.vastpro.javaservice;
+package com.vastpro.servicecall;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +15,22 @@ import org.apache.ofbiz.service.LocalDispatcher;
 import org.apache.ofbiz.service.ServiceUtil;
 
 public class QuestionMaster {
+	
+	private static LocalDispatcher getDispatcher(HttpServletRequest request) {
+        LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
+        if (dispatcher == null) {
+            dispatcher = (LocalDispatcher) request.getSession().getServletContext().getAttribute("dispatcher");
+        }
+        return dispatcher;
+    }
+
+    private static Delegator getDelegator(HttpServletRequest request) {
+        Delegator delegator = (Delegator) request.getAttribute("delegator");
+        if (delegator == null) {
+            delegator = (Delegator) request.getSession().getServletContext().getAttribute("delegator");
+        }
+        return delegator;
+    }
 	
 	public static Map<String, Object> createQuestion(HttpServletRequest request, HttpServletResponse response){
 		

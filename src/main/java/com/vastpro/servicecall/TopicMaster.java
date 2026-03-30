@@ -1,4 +1,4 @@
-package com.vastpro.javaservice;
+package com.vastpro.servicecall;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -61,9 +61,9 @@ public class TopicMaster {
 		    topicData.put("endingQid", endingQid);
 		    topicData.put("questionsPerExam", questionsPerExam);
 		    topicData.put("topicPassPercentage", topicPassPercentage);
-		    topicData.put("UserLogin", userLogin);
+		    topicData.put("userLogin", userLogin);
 		    
-		    Map<String, Object> result = dispatcher.runSync("topicMaster", topicData);
+		    Map<String, Object> result = dispatcher.runSync("createTopicMaster", topicData);
 		    
 		    if(ServiceUtil.isError(result)) {
 		    	return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));

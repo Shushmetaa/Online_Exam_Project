@@ -13,9 +13,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-
-import com.vastpro.javaservice.QuestionMaster;
-import com.vastpro.javaservice.TopicMaster;
+import com.vastpro.servicecall.QuestionMaster;
 
 @Path("/admin/questions")
 public class QuestionResources {

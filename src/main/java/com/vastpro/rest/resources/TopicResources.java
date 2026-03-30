@@ -14,18 +14,47 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-
 import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.entity.DelegatorFactory;
 import org.apache.ofbiz.service.LocalDispatcher;
 import org.apache.ofbiz.service.ServiceContainer;
-
-import com.vastpro.javaservice.TopicMaster;
+import com.vastpro.servicecall.TopicMaster;
 
 @Path("/admin/topic")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 public class TopicResources {
+
+	@Context
+	  private HttpServletRequest request;
+	  
+	  @Context
+	  private HttpServletResponse response;
+
+	   @Context
+	   private ServletContext servletContext;  
+
+	    
+	    private Delegator getDelegator() {
+	        Delegator delegator = (Delegator) servletContext.getAttribute("delegator");
+	        if (delegator == null) {
+	            delegator = DelegatorFactory.getDelegator("default");
+	        }
+	        return delegator;
+	    }
+
+	  
+	    private LocalDispatcher getDispatcher() {
+	        LocalDispatcher dispatcher = 
+	            (LocalDispatcher) servletContext.getAttribute("dispatcher");
+	        if (dispatcher == null) {
+	            dispatcher = ServiceContainer.getLocalDispatcher(
+	                "exam",   
+	                getDelegator()
+	            );
+	        }
+	        return dispatcher;
+	    }
 	    
 	    @POST
 	    @Produces(MediaType.APPLICATION_JSON)

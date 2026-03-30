@@ -102,18 +102,19 @@ under the License.
     	<attribute name="examList" mode="OUT" type="List" optional="true"/>
     </service>
     
-    <service name="topicMaster" engine="java" location="com.vastpro.services.topicmaster.CreateTopicMaster" invoke="createTopic" auth="true">
+    <service name="createTopicMaster" engine="java" location="com.vastpro.services.topicmaster.CreateTopicMaster" invoke="createTopic" auth="true">
     	<attribute name="examId" mode="IN" type="String"></attribute>
     	<attribute name="topicId" mode="IN" type="String"></attribute>
     	<attribute name="topicName" mode="IN" type="String"></attribute>
     	<attribute name="percentage" mode="IN" type="String"></attribute>
     	<attribute name="startingQid" mode="IN" type="String"></attribute>
     	<attribute name="endingQid" mode="IN" type="String"></attribute>
-    	<attribute name="questionsPerExam" mode="IN" type="String"></attribute>
     	<attribute name="topicPassPercentage" mode="IN" type="String"></attribute>
+    	<attribute name="questionsPerExam" mode="IN" type="String" optional="true"/>
+        <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>  
     </service>
     
-    <service name="createTopicMaster" engine="entity-auto" invoke="create" default-entity-name="ExamTopicDetails">
+    <service name="createAutoTopicMaster" engine="entity-auto" invoke="create" default-entity-name="ExamTopicDetails">
     	<auto-attributes mode="IN" include="pk"></auto-attributes>
     	<auto-attributes mode="IN" include="nonpk"></auto-attributes>
     </service>
@@ -139,7 +140,15 @@ under the License.
     	<auto-attributes include="nonpk" mode="IN"/>
 	</service>
 	
-<<<<<<< Updated upstream
+	 <service name="deleteTopicMaster" engine="java" location="com.vastpro.services.topicmaster.DeleteTopicMaster" invoke="deleteQuestion" auth="true">
+       <attribute name="examId" mode="IN" type="String" />
+        <attribute name="topicId" mode="IN" type="String"/>  
+         </service>
+   <service name="deleteTopicMasterAuto" engine="engine-auto" default-entity-name="ExamTopicDetails" invoke="delete" auth="true">
+     	<auto-attributes include="pk" mode="IN"></auto-attributes>
+     	<auto-attributes include="nonpk" mode="IN"></auto-attributes>
+   </service>
+   
 	<service name="createQuestionMaster" engine="java" location="com.vastpro.services.questionmaster.CreateQuestionMaster" invoke="createQuestions" auth="true">
 		<attribute name="examId" mode="IN" type="String"></attribute>
 		<attribute name="qId" mode="IN" type="String"></attribute>
@@ -161,17 +170,6 @@ under the License.
     	<auto-attributes mode="IN" include="pk"></auto-attributes>
     	<auto-attributes mode="IN" include="nonpk"></auto-attributes>
     </service>
-=======
-	<service name="deleteTopicMaster" engine="java" location="com.vastpro.services.topicmaster.DeleteTopicMaster" invoke="deleteTopic" auth="true">
-		 <attribute name="examId" mode="IN" type="String"/>
-    	 <attribute name="topicId" mode="IN" type="String"/>
-	</service>
-	
-	<service name="deleteTopicMasterAuto" engine="entity-auto" invoke="delete" auth="true" default-entity-name="ExamTopicDetails">
-		<auto-attributes include="pk" mode="IN" />
-    	<auto-attributes include="nonpk" mode="IN"/>	
-	</service>
->>>>>>> Stashed changes
     
     <service name="getQuestionMaster" engine="java" location="" auth="true" invoke="getQuestions">
     	<attribute name="examId" mode="IN" type="String"></attribute>
@@ -200,4 +198,12 @@ under the License.
    	<auto-attributes include="pk" mode="IN"></auto-attributes>
    	<auto-attributes include="nonpk" mode="IN"></auto-attributes>
    </service> 
+   <service name="deleteQuestionMaster" engine="java" location="com.vastpro.services.question.UpdateQuestion" invoke="updateQuestion" auth="true">
+       <attribute name="examId" mode="IN" type="String" />
+	    <attribute name="qId" mode="IN" type="String" />
+   </service>
+   <service name="deleteQuestionMasterAuto" engine="engine-auto" default-entity-name="QuestionBankMasterB" invoke="delete" auth="true">
+     	<auto-attributes include="pk" mode="IN"></auto-attributes>
+     	<auto-attributes include="nonpk" mode="IN"></auto-attributes>
+   </service>
 </services>
