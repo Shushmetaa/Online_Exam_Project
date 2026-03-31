@@ -12,25 +12,25 @@ import org.apache.ofbiz.service.ServiceUtil;
 
 public class GetQuestionMaster {
 	
-	public Map<String, Object> createQuestions(DispatchContext dctx, Map<String, ? extends Object> context){
+	public Map<String, Object> getQuestions(DispatchContext dctx, Map<String, ? extends Object> context){
 		
 		try {
 			
 			String examId = (String) context.get("examId");
-			String topicId = (String) context.get("topicId");
+			Long topicId = (Long) context.get("topicId");
 			
 			if(examId == null || examId.isEmpty()) {
 				return ServiceUtil.returnError("Exam Id is required");
 			}
 			
-			if(topicId == null || topicId.isEmpty()) {
+			if(topicId == null) {
 				return ServiceUtil.returnError("Topic Id is required");
 			}
 			
 			Delegator delegator = dctx.getDelegator();
 			
 			List<GenericValue> getData = EntityQuery.use(delegator)
-					                                .from("QuestionBankMasterB")
+					                                .from("QuestionBankMaster")
 					                                .where("examId", examId, "topicId", topicId)
 					                                .queryList();
 			

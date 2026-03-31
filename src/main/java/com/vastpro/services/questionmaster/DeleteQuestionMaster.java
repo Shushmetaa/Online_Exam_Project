@@ -13,9 +13,9 @@ import org.apache.ofbiz.service.LocalDispatcher;
 import org.apache.ofbiz.service.ServiceUtil;
 
 public class DeleteQuestionMaster {
-      public  Map<String,Object> deleteQuestion(DispatchContext dctx, Map<String, ? extends Object> context ){
+      public  Map<String,Object> deleteQuestions(DispatchContext dctx, Map<String, ? extends Object> context ){
     	  String examId =(String) context.get("examId");
-    	  String qId =(String) context.get("qId");
+    	  Long qId = (Long) context.get("qId");
     	  
     	  Delegator delegator = dctx.getDelegator();
     	  LocalDispatcher dispatcher = dctx.getDispatcher();
@@ -24,14 +24,14 @@ public class DeleteQuestionMaster {
 				return ServiceUtil.returnError("Exam Id is required");
 			}
 			
-			if(qId == null || qId.isEmpty()) {
+			if(qId == null) {
 				return ServiceUtil.returnError("QId is required");
 			}
 			
     	  try {
     	  GenericValue delete_question=EntityQuery.use(delegator)
-    			  .from("QuestionBankMasterB")
-    			  .where("examID",examId,"qId",qId)
+    			  .from("QuestionBankMaster")
+    			  .where("examId",examId,"qId",qId)
     			  .queryOne();
     	  
     	  if(delete_question==null) {
