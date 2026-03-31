@@ -206,4 +206,28 @@ under the License.
      	<auto-attributes include="pk" mode="IN"></auto-attributes>
      	<auto-attributes include="nonpk" mode="IN"></auto-attributes>
    </service>
+   
+   <service name= "excelUpload" location="com.vastpro.services.excelupload.ExcelBulkUpload" invoke="excelUpload" auth="true">
+   		<attribute name="examId" mode="IN" type="String" />
+	    <attribute name="qId" mode="IN" type="String" />
+	    <attribute name="topicId" mode="IN" type="String"/>
+	    <attribute name="questionDetail" mode="IN" type="String" />
+	    <attribute name="optiona" mode="IN" type="String" />
+	    <attribute name="optionb" mode="IN" type="String" />
+	    <attribute name="optionc" mode="IN" type="String" />
+	    <attribute name="optiond" mode="IN" type="String"/>
+	    <attribute name="optione" mode="IN" type="String" />
+	    <attribute name="answer" mode="IN" type="String" />
+	    <attribute name="numAnswers" mode="IN" type="String" />
+	    <attribute name="questiontype" mode="IN" type="String" />
+	    <attribute name="difficultyLevel" mode="IN" type="String" />
+	    <attribute name="answerValue" mode="IN" type="String" />
+	    <attribute name="negativeMarkValue" mode="IN" type="String" />
+   </service>
+   
+   <service name="excelUploadAuto" engine="entity-auto" default-entity-name="QuestionMasterBankB" invoke="create" auth="true">
+   		<attribute name="examId" mode="IN" type="String" />
+   		<attribute name="file" mode="IN" type="java.io.InputStream"/>
+   </service>
+   
 </services>

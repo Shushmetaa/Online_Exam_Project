@@ -77,11 +77,10 @@ public class TopicMaster {
 		}
 	}
 	
-	public static Map<String, Object> getTopic(HttpServletRequest request, HttpServletResponse response){
+	public static Map<String, Object> getTopic(String examId, HttpServletRequest request, HttpServletResponse response){
+		
 		try {
 			
-
-			String examId = request.getParameter("examId");
 			
 			LocalDispatcher dispatcher=getDispatcher(request);
 		    
@@ -100,9 +99,10 @@ public class TopicMaster {
 		    if(ServiceUtil.isError(result)) {
 		    	return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
 		    }
-		    else {
-		    	return ServiceUtil.returnSuccess();
-		    }
+		    
+		    Map<String, Object> response2 = ServiceUtil.returnSuccess();
+            response2.put("topicList", result.get("topicList"));
+            return response2;
 			
 		}catch(GenericEntityException | GenericServiceException e) {
 			return ServiceUtil.returnError(e.getMessage());
@@ -130,6 +130,8 @@ public class TopicMaster {
 		    
 		    Map<String, Object> updateData = new HashMap<>();
 		    
+		    updateData.put("examId", request.getParameter("examId"));  
+		    updateData.put("topicId", request.getParameter("topicId"));  
 		    updateData.put("topicName", topicName);
 		    updateData.put("percentage", percentage);
 		    updateData.put("startingQid", startingQid);

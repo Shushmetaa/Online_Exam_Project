@@ -11,6 +11,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -25,36 +26,6 @@ import com.vastpro.servicecall.TopicMaster;
 @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 public class TopicResources {
 
-	@Context
-	  private HttpServletRequest request;
-	  
-	  @Context
-	  private HttpServletResponse response;
-
-	   @Context
-	   private ServletContext servletContext;  
-
-	    
-	    private Delegator getDelegator() {
-	        Delegator delegator = (Delegator) servletContext.getAttribute("delegator");
-	        if (delegator == null) {
-	            delegator = DelegatorFactory.getDelegator("default");
-	        }
-	        return delegator;
-	    }
-
-	  
-	    private LocalDispatcher getDispatcher() {
-	        LocalDispatcher dispatcher = 
-	            (LocalDispatcher) servletContext.getAttribute("dispatcher");
-	        if (dispatcher == null) {
-	            dispatcher = ServiceContainer.getLocalDispatcher(
-	                "exam",   
-	                getDelegator()
-	            );
-	        }
-	        return dispatcher;
-	    }
 	    
 	    @POST
 	    @Produces(MediaType.APPLICATION_JSON)
@@ -67,11 +38,10 @@ public class TopicResources {
 	    
 	    @GET
 	    @Produces(MediaType.APPLICATION_JSON)
-	    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	    @Path("/examTopics/{examId}")
-	    public Map<String, Object> getTopics(@Context HttpServletRequest request, @Context HttpServletResponse response){
+	    public Map<String, Object> getTopics(@PathParam("examId") String examId, @Context HttpServletRequest request, @Context HttpServletResponse response){
 	    	
-	    	return TopicMaster.getTopic(request, response);
+	    	return TopicMaster.getTopic(examId, request, response);
 	    	
 	    }
 	    
