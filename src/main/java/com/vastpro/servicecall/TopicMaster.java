@@ -110,16 +110,10 @@ public class TopicMaster {
 		
 	}
 	
-	public static Map<String, Object> updateTopic(HttpServletRequest request, HttpServletResponse response){
+	public static Map<String, Object> updateTopic(String examId, String topicId, String topicName, String percentage,
+			String startingQid, String endingQid, String questionsPerExam, String topicPassPercentage, HttpServletRequest request, HttpServletResponse response){
 		
 		try {
-			
-			String topicName = request.getParameter("topicName");
-			String percentage = request.getParameter("percentage");
-			String startingQid = request.getParameter("startingQid");
-			String endingQid = request.getParameter("endingQid");
-			String questionsPerExam = request.getParameter("questionsPerExam");
-			String topicPassPercentage = request.getParameter("topicPassPercentage");
 			
 			LocalDispatcher dispatcher=getDispatcher(request);
 		    
@@ -130,15 +124,15 @@ public class TopicMaster {
 		    
 		    Map<String, Object> updateData = new HashMap<>();
 		    
-		    updateData.put("examId", request.getParameter("examId"));  
-		    updateData.put("topicId", request.getParameter("topicId"));  
+		    updateData.put("examId", examId);  
+		    updateData.put("topicId", topicId);  
 		    updateData.put("topicName", topicName);
 		    updateData.put("percentage", percentage);
 		    updateData.put("startingQid", startingQid);
 		    updateData.put("endingQid", endingQid);
 		    updateData.put("questionsPerExam", questionsPerExam);
 		    updateData.put("topicPassPercentage", topicPassPercentage);
-		    updateData.put("UserLogin", userLogin);
+		    updateData.put("userLogin", userLogin);
 		    
 		    Map<String, Object> result = dispatcher.runSync("updatetopicMaster", updateData);
 			
@@ -155,10 +149,8 @@ public class TopicMaster {
 		
 	}
 	
-	public static Map<String, Object> deleteTopic(HttpServletRequest request, HttpServletResponse response){
+	public static Map<String, Object> deleteTopic(String examId, String topicId,HttpServletRequest request, HttpServletResponse response){
 		try {
-			 	String examId = request.getParameter("examId");
-		        String topicId = request.getParameter("topicId");
 
 		        if (examId == null || examId.isEmpty()) {
 		            return ServiceUtil.returnError("Exam ID is required");

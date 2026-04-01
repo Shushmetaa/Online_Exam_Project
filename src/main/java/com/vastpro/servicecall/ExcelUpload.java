@@ -1,15 +1,11 @@
 package com.vastpro.servicecall;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Part;
-
 import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.entity.GenericEntityException;
 import org.apache.ofbiz.entity.GenericValue;
@@ -36,12 +32,9 @@ public class ExcelUpload {
         return delegator;
     }
 
-	public static Map<String, Object> uploadQuestions(String examId, HttpServletRequest request, HttpServletResponse response) {
+	public static Map<String, Object> uploadQuestions(String examId, InputStream file, HttpServletRequest request, HttpServletResponse response) {
 		
 		try {
-			Part filePart = request.getPart("file");
-			
-			InputStream file = filePart.getInputStream();
 			
 			LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
 	
@@ -67,7 +60,7 @@ public class ExcelUpload {
 			}
 			
 			
-		} catch (IOException | ServletException | GenericEntityException | GenericServiceException e) {
+		} catch (GenericEntityException | GenericServiceException e) {
 			
 			return ServiceUtil.returnError("Excel uploaded failed" + e.getMessage());
 		}

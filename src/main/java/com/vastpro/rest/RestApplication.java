@@ -9,6 +9,7 @@ public class RestApplication extends ResourceConfig {
 	public RestApplication() {
 		packages("com.vastpro.rest.resources");
 		register(JacksonFeature.class);
+		register(org.glassfish.jersey.media.multipart.MultiPartFeature.class);
 	}
 
 }

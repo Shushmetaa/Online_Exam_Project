@@ -204,7 +204,7 @@ public class QuestionMaster {
 			Map<String, Object> delete = new HashMap<>();
 		    
 			delete.put("examId", examId);
-		    delete.put("UserLogin", userLogin);
+		    delete.put("userLogin", userLogin);
 		    
 		    Map<String, Object> result = dispatcher.runSync("getTopicMaster", delete);
 		    
