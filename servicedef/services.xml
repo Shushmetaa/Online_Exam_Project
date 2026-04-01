@@ -124,7 +124,7 @@ under the License.
     	<attribute name="topicList" mode="OUT" type="List" optional="true"/>
 	</service>
 	
-	<service name="updatetopicMaster" engine="java" location="com.vastpro.services.topicmaster.UpdateTopicMaster" invoke="updateTopic" auth="true">
+	<service name="updateTopicMaster" engine="java" location="com.vastpro.services.topicmaster.UpdateTopicMaster" invoke="updateTopic" auth="true">
     	<attribute name="examId" mode="IN" type="String"></attribute>
     	<attribute name="topicId" mode="IN" type="String"></attribute>
     	<attribute name="topicName" mode="IN" type="String"></attribute>
@@ -152,55 +152,59 @@ under the License.
      	<attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
    </service>
    
-	<service name="createQuestionMaster" engine="java" location="com.vastpro.services.questionmaster.CreateQuestionMaster" invoke="createQuestions" auth="true">
+	<service name="createQuestionMaster" engine="java" location="com.vastpro.services.questionmaster.CreateQuestionMaster" invoke="createQuestions" auth="false">
 		<attribute name="examId" mode="IN" type="String"></attribute>
-		<attribute name="qId" mode="IN" type="String"></attribute>
-		<attribute name="topicId" mode="IN" type="String"></attribute>
+		<attribute name="qId" mode="IN" type="Long"></attribute>
+		<attribute name="topicId" mode="IN" type="Long"></attribute>
 		<attribute name="questionDetail" mode="IN" type="String"></attribute>
 		<attribute name="optiona" mode="IN" type="String"></attribute>
 		<attribute name="optionb" mode="IN" type="String"></attribute>
 		<attribute name="optionc" mode="IN" type="String"></attribute>
 		<attribute name="optiond" mode="IN" type="String"></attribute>
 		<attribute name="optione" mode="IN" type="String"></attribute>
-		<attribute name="numAnswers" mode="IN" type="String"></attribute>
-		<attribute name="questiontype" mode="IN" type="String"></attribute>
-		<attribute name="difficultyLevel" mode="IN" type="String"></attribute>
-		<attribute name="answerValue" mode="IN" type="String"></attribute>
-		<attribute name="negativeMarkValue" mode="IN" type="String"></attribute>
+		<attribute name="answer" mode="IN" type="String"></attribute>
+		<attribute name="numAnswers" mode="IN" type="Long"></attribute>
+		<attribute name="questionType" mode="IN" type="Long"></attribute>
+		<attribute name="difficultyLevel" mode="IN" type="Long"></attribute>
+		<attribute name="answerValue" mode="IN" type="Double"></attribute>
+		<attribute name="negativeMarkValue" mode="IN" type="Double"></attribute>
 	</service>
 	
-    <service name="questionMasterAuto" engine="entity-auto" invoke="create" default-entity-name="QuestionBankMasterB" auth="true">
+    <service name="createQuestionMasterAuto" engine="entity-auto" invoke="create" default-entity-name="QuestionBankMaster" auth="false">
     	<auto-attributes mode="IN" include="pk"></auto-attributes>
     	<auto-attributes mode="IN" include="nonpk"></auto-attributes>
     </service>
+
     
-    <service name="getQuestionMaster" engine="java" location="" auth="true" invoke="getQuestions">
+    <service name="getQuestionMaster" engine="java" location="com.vastpro.services.questionmaster.GetQuestionMaster" auth="false" invoke="getQuestions">
     	<attribute name="examId" mode="IN" type="String"></attribute>
-    	<attribute name="questionList" mode="OUT" type="String"></attribute>
+    	<attribute name="topicId" mode="IN" type="Long"></attribute>
+    	<attribute name="questionList" mode="OUT" type="List"></attribute>
     </service>
     
-    <service name="updateQuestionMaster" engine="java" location="com.vastpro.services.question.UpdateQuestion" invoke="updateQuestion" auth="true">
-	    <attribute name="examId" mode="IN" type="String" />
-	    <attribute name="qId" mode="IN" type="String" />
-	    <attribute name="topicId" mode="IN" type="String"/>
-	    <attribute name="questionDetail" mode="IN" type="String" />
-	    <attribute name="optiona" mode="IN" type="String" />
-	    <attribute name="optionb" mode="IN" type="String" />
-	    <attribute name="optionc" mode="IN" type="String" />
-	    <attribute name="optiond" mode="IN" type="String"/>
-	    <attribute name="optione" mode="IN" type="String" />
-	    <attribute name="answer" mode="IN" type="String" />
-	    <attribute name="numAnswers" mode="IN" type="String" />
-	    <attribute name="questiontype" mode="IN" type="String" />
-	    <attribute name="difficultyLevel" mode="IN" type="String" />
-	    <attribute name="answerValue" mode="IN" type="String" />
-	    <attribute name="negativeMarkValue" mode="IN" type="String" />
+    <service name="updateQuestionMaster" engine="java" location="com.vastpro.services.questionmaster.UpdateQuestionMaster" invoke="updateQuestions" auth="false">
+	    <attribute name="examId" mode="IN" type="String"></attribute>
+		<attribute name="qId" mode="IN" type="Long"></attribute>
+		<attribute name="topicId" mode="IN" type="Long"></attribute>
+		<attribute name="questionDetail" mode="IN" type="String"></attribute>
+		<attribute name="optiona" mode="IN" type="String"></attribute>
+		<attribute name="optionb" mode="IN" type="String"></attribute>
+		<attribute name="optionc" mode="IN" type="String"></attribute>
+		<attribute name="optiond" mode="IN" type="String"></attribute>
+		<attribute name="optione" mode="IN" type="String"></attribute>
+		<attribute name="answer" mode="IN" type="String"></attribute>
+		<attribute name="numAnswers" mode="IN" type="Long"></attribute>
+		<attribute name="questionType" mode="IN" type="Long"></attribute>
+		<attribute name="difficultyLevel" mode="IN" type="Long"></attribute>
+		<attribute name="answerValue" mode="IN" type="Double"></attribute>
+		<attribute name="negativeMarkValue" mode="IN" type="Double"></attribute>
 	</service>
     
-   <service name="updateQuestionMasterAuto" engine="entity-auto" default-entity-name="QuestionBankMasterB" auth="true">
+   <service name="updateQuestionMasterAuto" engine="entity-auto"  invoke="update" default-entity-name="QuestionBankMaster" auth="false">
    	<auto-attributes include="pk" mode="IN"></auto-attributes>
    	<auto-attributes include="nonpk" mode="IN"></auto-attributes>
    </service> 
+<<<<<<< HEAD
    <service name="deleteQuestionMaster" engine="java" location="com.vastpro.services.question.UpdateQuestion" invoke="updateQuestion" auth="true">
        <attribute name="examId" mode="IN" type="String" />
 	    <attribute name="qId" mode="IN" type="String" />
@@ -211,6 +215,19 @@ under the License.
    </service>
    
    <service name= "excelUpload" location="com.vastpro.services.excelupload.ExcelBulkUpload" invoke="excelUpload" auth="true">
+=======
+  
+   <service name="deleteQuestionMaster" engine="java" location="com.vastpro.services.questionmaster.DeleteQuestionMaster" invoke="deleteQuestions" auth="false">
+		 <attribute name="examId" mode="IN" type="String"/>
+    	 <attribute name="qId" mode="IN" type="Long"/>
+	</service>
+	
+	<service name="deleteQuestionMasterAuto" engine="entity-auto" invoke="delete" auth="false" default-entity-name="QuestionBankMaster">
+		<auto-attributes include="pk" mode="IN" />
+    		
+	</service>
+   <service name= "excelUpload" engine="java" location="com.vastpro.services.excelupload.ExcelBulkUpload" invoke="excelUpload" auth="true">
+>>>>>>> c351e20cdebd11479aeac0ec240b35c8a2af26b4
    		<attribute name="examId" mode="IN" type="String" />
 	    <attribute name="qId" mode="IN" type="String" />
 	    <attribute name="topicId" mode="IN" type="String"/>
@@ -228,7 +245,7 @@ under the License.
 	    <attribute name="negativeMarkValue" mode="IN" type="String" />
    </service>
    
-   <service name="excelUploadAuto" engine="entity-auto" default-entity-name="QuestionMasterBankB" invoke="create" auth="true">
+   <service name="excelUploadAuto" engine="entity-auto" default-entity-name="QuestionMasterBank" invoke="create" auth="true">
    		<attribute name="examId" mode="IN" type="String" />
    		<attribute name="file" mode="IN" type="java.io.InputStream"/>
    </service>

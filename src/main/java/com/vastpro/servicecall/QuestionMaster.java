@@ -37,24 +37,29 @@ public class QuestionMaster {
 		try {
 			
 			String examId = request.getParameter("examId");
-			String qId = request.getParameter("qId");
-			String topicId = request.getParameter("topicId");
+			Long qId = Long.parseLong(request.getParameter("qId").trim());
+			Long topicId = Long.parseLong(request.getParameter("topicId").trim());
 			String questionDetail = request.getParameter("questionDetail");
 			String optiona = request.getParameter("optiona");
 			String optionb = request.getParameter("optionb");
 			String optionc = request.getParameter("optionc");
 			String optiond = request.getParameter("optiond");
 			String optione = request.getParameter("optione");
-			String numAnswers = request.getParameter("numAnswers");
-			String questiontype = request.getParameter("questiontype");
-			String difficultyLevel = request.getParameter("difficultyLevel");
-			String answerValue = request.getParameter("answerValue");
-			String negativeMarkValue = request.getParameter("negativeMarkValue");
+			String answer = request.getParameter("answer");
+			Long numAnswers = Long.parseLong(request.getParameter("numAnswers").trim());
+			Long questionType = Long.parseLong(request.getParameter("questionType").trim());
+			Long difficultyLevel = Long.parseLong(request.getParameter("difficultyLevel").trim());
+			Double answerValue = Double.parseDouble(request.getParameter("answerValue").trim());
+			Double negativeMarkValue = Double.parseDouble(request.getParameter("negativeMarkValue").trim());
 			
-			LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
-	
+			LocalDispatcher dispatcher= getDispatcher(request);
+//			GenericValue userLogin = (GenericValue) request.getSession().getAttribute("userLogin");
+//
+//			if (userLogin == null) {
+//			    return ServiceUtil.returnError("User not logged in");
+//			}
 			
-			GenericValue userLogin=EntityQuery.use((Delegator) request.getAttribute("delegator"))
+			GenericValue userLogin=EntityQuery.use(getDelegator(request))
 						.from("UserLogin")
 						.where("userLoginId", "admin")
 						.queryOne();
@@ -66,12 +71,13 @@ public class QuestionMaster {
 			createData.put("topicId", topicId);
 			createData.put("questionDetail", questionDetail);
 			createData.put("optiona", optiona);
-			createData.put("optiona", optiona);
-			createData.put("optiona", optiona);
-			createData.put("optiona", optiona);
-			createData.put("optiona", optiona);
+			createData.put("optionb", optionb);
+			createData.put("optionc", optionc);
+			createData.put("optiond", optiond);
+			createData.put("optione", optione);
+			createData.put("answer", answer);
 			createData.put("numAnswers", numAnswers);
-			createData.put("questiontype", questiontype);
+			createData.put("questionType", questionType);
 			createData.put("difficultyLevel", difficultyLevel);
 			createData.put("answerValue", answerValue);
 			createData.put("negativeMarkValue", negativeMarkValue);
@@ -87,7 +93,7 @@ public class QuestionMaster {
 			}
 			
 			
-		} catch (GenericEntityException | GenericServiceException e) {
+		} catch (GenericServiceException | GenericEntityException e) {
 			
 			return ServiceUtil.returnError("Questions created failed" + e.getMessage());
 		}
@@ -99,12 +105,23 @@ public class QuestionMaster {
 		try {
 			
 			String examId = request.getParameter("examId");
-			String topicId = request.getParameter("topicId");
 			
-			LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
+			if (examId == null || examId.trim().isEmpty()) {
+	            return ServiceUtil.returnError("examId is required");
+	        }
+
+			String topicIdStr = request.getParameter("topicId");
+
+			if (topicIdStr == null || topicIdStr.trim().isEmpty()) {
+			    return ServiceUtil.returnError("topicId is required");
+			}
+
+			Long topicId = Long.parseLong(topicIdStr.trim());
+			
+			LocalDispatcher dispatcher= getDispatcher(request);
 	
 			
-			GenericValue userLogin=EntityQuery.use((Delegator) request.getAttribute("delegator"))
+			GenericValue userLogin=EntityQuery.use(getDelegator(request))
 						.from("UserLogin")
 						.where("userLoginId", "admin")
 						.queryOne();
@@ -113,15 +130,15 @@ public class QuestionMaster {
 		    
 		    ids.put("examId", examId);
 		    ids.put("topicId", topicId);
-		    ids.put("UserLogin", userLogin);
+		    ids.put("userLogin", userLogin);
 		    
-		    Map<String, Object> result = dispatcher.runSync("getTopicMaster", ids);
+		    Map<String, Object> result = dispatcher.runSync("getQuestionMaster", ids);
 		    
 		    if(ServiceUtil.isError(result)) {
 		    	return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
 		    }
 		    else {
-		    	return ServiceUtil.returnSuccess();
+		    	return result;
 		    }
 			
 		}catch(GenericEntityException | GenericServiceException e) {
@@ -133,39 +150,54 @@ public class QuestionMaster {
 	public static Map<String, Object> updateQuestion(HttpServletRequest request, HttpServletResponse response){
 
 		try {
-			
-			String topicId = request.getParameter("topicId");
+			String examId = request.getParameter("examId");
+			//Long qId = Long.parseLong(request.getParameter("qId").trim());
+			String qIdStr = request.getParameter("qId");
+
+			if (qIdStr == null || qIdStr.trim().isEmpty()) {
+			    return ServiceUtil.returnError("qId is required");
+			}
+			Long qId = Long.parseLong(qIdStr);
+			//Long topicId = Long.parseLong(request.getParameter("topicId").trim());
+			String topicIdStr = request.getParameter("topicId");
+			if (topicIdStr == null || topicIdStr.trim().isEmpty()) {
+			    return ServiceUtil.returnError("topicId is required");
+			}
+			Long topicId = Long.parseLong(topicIdStr);
 			String questionDetail = request.getParameter("questionDetail");
 			String optiona = request.getParameter("optiona");
 			String optionb = request.getParameter("optionb");
 			String optionc = request.getParameter("optionc");
 			String optiond = request.getParameter("optiond");
 			String optione = request.getParameter("optione");
-			String numAnswers = request.getParameter("numAnswers");
-			String questiontype = request.getParameter("questiontype");
-			String difficultyLevel = request.getParameter("difficultyLevel");
-			String answerValue = request.getParameter("answerValue");
-			String negativeMarkValue = request.getParameter("negativeMarkValue");
+			String answer = request.getParameter("answer");
+			Long numAnswers = Long.parseLong(request.getParameter("numAnswers").trim());
+			Long questionType = Long.parseLong(request.getParameter("questionType").trim());
+			Long difficultyLevel = Long.parseLong(request.getParameter("difficultyLevel").trim());
+			Double answerValue = Double.parseDouble(request.getParameter("answerValue").trim());
+			Double negativeMarkValue = Double.parseDouble(request.getParameter("negativeMarkValue").trim());
 			
-			LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
+			LocalDispatcher dispatcher= getDispatcher(request);
 	
 			
-			GenericValue userLogin=EntityQuery.use((Delegator) request.getAttribute("delegator"))
+			GenericValue userLogin=EntityQuery.use(getDelegator(request))
 						.from("UserLogin")
 						.where("userLoginId", "admin")
 						.queryOne();
 			
 			Map<String, Object> updateData = new HashMap<>();
-			
+			updateData.put("examId", examId);
+			updateData.put("qId", qId);
 			updateData.put("topicId", topicId);
 			updateData.put("questionDetail", questionDetail);
 			updateData.put("optiona", optiona);
-			updateData.put("optiona", optiona);
-			updateData.put("optiona", optiona);
-			updateData.put("optiona", optiona);
-			updateData.put("optiona", optiona);
+			updateData.put("optionb", optionb);
+			updateData.put("optionc", optionc);
+			updateData.put("optiond", optiond);
+			updateData.put("optione", optione);
+			updateData.put("answer", answer);
 			updateData.put("numAnswers", numAnswers);
-			updateData.put("questiontype", questiontype);
+			updateData.put("questionType", questionType);
 			updateData.put("difficultyLevel", difficultyLevel);
 			updateData.put("answerValue", answerValue);
 			updateData.put("negativeMarkValue", negativeMarkValue);
@@ -191,12 +223,12 @@ public class QuestionMaster {
 		try {
 			
 			String examId = request.getParameter("examId");
-			String qId = request.getParameter("qId");
+			Long qId = Long.parseLong(request.getParameter("qId"));
 			
-			LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
+			LocalDispatcher dispatcher= getDispatcher(request);
 			
 			
-			GenericValue userLogin=EntityQuery.use((Delegator) request.getAttribute("delegator"))
+			GenericValue userLogin=EntityQuery.use(getDelegator(request))
 						.from("UserLogin")
 						.where("userLoginId", "admin")
 						.queryOne();
@@ -204,9 +236,13 @@ public class QuestionMaster {
 			Map<String, Object> delete = new HashMap<>();
 		    
 			delete.put("examId", examId);
+<<<<<<< HEAD
+=======
+			delete.put("qId", qId);
+>>>>>>> c351e20cdebd11479aeac0ec240b35c8a2af26b4
 		    delete.put("userLogin", userLogin);
 		    
-		    Map<String, Object> result = dispatcher.runSync("getTopicMaster", delete);
+		    Map<String, Object> result = dispatcher.runSync("deleteQuestionMaster", delete);
 		    
 		    if(ServiceUtil.isError(result)) {
 		    	return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
