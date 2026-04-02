@@ -23,5 +23,4 @@ public class ExcelResources {
 		return ExcelUpload.uploadQuestions(examId, request, response);
 		
 	}
-	
 }

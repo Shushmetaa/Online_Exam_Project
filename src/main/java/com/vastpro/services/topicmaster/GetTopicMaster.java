@@ -13,13 +13,13 @@ import org.apache.ofbiz.service.ServiceUtil;
 
 public class GetTopicMaster {
 	
-	public Map<String, Object> getTopic(DispatchContext dctx, Map<String, ? extends Object> context){
+	public static Map<String, Object> getTopic(DispatchContext dctx, Map<String, ? extends Object> context){
 		
 		
 		try {
 			
 			String examId = (String) context.get("examId");
-			
+			System.out.println("examId");
 			if(examId == null || examId.isEmpty()) {
 				return ServiceUtil.returnError("Exam Id is required");
 			}

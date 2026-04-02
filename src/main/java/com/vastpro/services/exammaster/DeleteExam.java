@@ -14,7 +14,7 @@ import org.apache.ofbiz.service.ServiceUtil;
 
 public class DeleteExam {
 
-	public static Map<String, Object> updateExam(DispatchContext dctx, Map<String, ? extends Object> context){
+	public static Map<String, Object> deleteExam(DispatchContext dctx, Map<String, ? extends Object> context){
 		String examId = (String) context.get("examId");
 
         if (examId == null || examId.isEmpty())
@@ -24,22 +24,6 @@ public class DeleteExam {
 
         try {
 
-            List<GenericValue> topics = EntityQuery.use(delegator)
-                    .from("ExamTopicDetails")
-                    .where("examId", examId)
-                    .queryList();
-
-            if (!topics.isEmpty())
-                return ServiceUtil.returnError("Cannot delete exam — topics exist");
-
-            List<GenericValue> questions = EntityQuery.use(delegator)
-                    .from("QuestionBankMaster")
-                    .where("examId", examId)
-                    .queryList();
-
-            if (!questions.isEmpty())
-                return ServiceUtil.returnError("Cannot delete exam — questions exist");
-
             List<GenericValue> assignedUsers = EntityQuery.use(delegator)
                     .from("PartyExamRelationship")
                     .where("examId", examId)
@@ -48,20 +32,14 @@ public class DeleteExam {
             if (!assignedUsers.isEmpty())
                 return ServiceUtil.returnError("Cannot delete exam — users assigned");
 
-            List<GenericValue> performances = EntityQuery.use(delegator)
-                    .from("PartyPerformance")
-                    .where("examId", examId)
-                    .queryList();
-
-            if (!performances.isEmpty())
-                return ServiceUtil.returnError("Cannot delete exam — performance exists");
 
    
             LocalDispatcher dispatcher = dctx.getDispatcher();
 
             Map<String, Object> input = new HashMap<>();
             input.put("examId", examId);
-
+            input.put("userLogin", context.get("userLogin"));
+            
             Map<String, Object> result = dispatcher.runSync("deleteExamAuto", input);
 
             if (ServiceUtil.isError(result)) {

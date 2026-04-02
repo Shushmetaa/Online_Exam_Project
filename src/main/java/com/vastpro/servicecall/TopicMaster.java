@@ -80,8 +80,7 @@ public class TopicMaster {
 	public static Map<String, Object> getTopic(String examId, HttpServletRequest request, HttpServletResponse response){
 		
 		try {
-			
-			
+
 			LocalDispatcher dispatcher=getDispatcher(request);
 		    
 		    GenericValue userLogin=EntityQuery.use(getDelegator(request))
@@ -93,7 +92,7 @@ public class TopicMaster {
 		    
 		    id.put("examId", examId);
 		    id.put("userLogin", userLogin);
-		    
+		    System.out.println(id);
 		    Map<String, Object> result = dispatcher.runSync("getTopicMaster", id);
 		    
 		    if(ServiceUtil.isError(result)) {

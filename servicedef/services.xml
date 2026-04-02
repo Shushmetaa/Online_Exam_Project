@@ -68,12 +68,12 @@ under the License.
         <attribute name="noOfQuestions" mode="IN" type="String"></attribute>
         <attribute name="duration" mode="IN" type="String"></attribute>        
 	    <attribute name="passPercentage" mode="IN" type="String"></attribute>  
-       
+        <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>  
     </service>
     
     <service name = "updateExamAuto" engine="entity-auto" default-entity-name="ExamMaster" invoke="update" auth="true">
     	<auto-attributes mode="IN" include="pk"></auto-attributes>
-    	<auto-attributes mode="IN" include="nonpk"></auto-attributes>
+    	<auto-attributes mode="IN" include="nonpk" optional="true"></auto-attributes>
     </service>
     
     <service name="retireExam" engine="java" location="com.vastpro.services.exammaster.RetireExam" invoke="retireExam" auth="true">
@@ -88,13 +88,12 @@ under the License.
     </service>
     
     <service name="deleteExam" engine="java" location="com.vastpro.services.exammaster.DeleteExam" invoke="deleteExam" auth="true">
-	    <attribute name="examId" mode="IN"  type="String" optional="false"/>
-	    <attribute name="examId" mode="OUT" type="String"/>
+	     <attribute name="examId" mode="IN" type="String" optional="false"/>
+         <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
 	</service>
 	
 	<service name = "deleteExamAuto" engine="entity-auto" invoke ="delete" default-entity-name="ExamMaster">
     	<auto-attributes mode="IN" include="pk"></auto-attributes>
-    	<auto-attributes mode="IN" include="nonpk"></auto-attributes>
     </service>
     
     <service name="getExam" engine="java" location="com.vastpro.services.exammaster.GetExam" invoke="getExam" auth="true" >
@@ -122,6 +121,7 @@ under the License.
     <service name="getTopicMaster" engine="java" location="com.vastpro.services.topicmaster.GetTopicMaster" invoke="getTopic" auth="true">
     	<attribute name="examId" mode="IN" type="String" optional="false"/>
     	<attribute name="topicList" mode="OUT" type="List" optional="true"/>
+    	<attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>  
 	</service>
 	
 	<service name="updatetopicMaster" engine="java" location="com.vastpro.services.topicmaster.UpdateTopicMaster" invoke="updateTopic" auth="true">

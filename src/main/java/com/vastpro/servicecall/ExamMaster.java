@@ -143,35 +143,34 @@ public class ExamMaster {
     				
     			}
     		}
-		public static Map<String, Object> deleteExam(HttpServletRequest request, HttpServletResponse response) {
-			try {
-		        String examId = request.getParameter("examId");
-
-		        if (examId == null || examId.isEmpty())
-		            return ServiceUtil.returnError("Exam ID is required");
-
-		        LocalDispatcher dispatcher =getDispatcher(request);
-
-		        GenericValue userLogin = EntityQuery
-		                .use(getDelegator(request))
-		                .from("UserLogin")
-		                .where("userLoginId", "admin")
-		                .queryOne();
-
-		        Map<String, Object> deleteData = new HashMap<>();
-		        deleteData.put("examId",    examId);
-		        deleteData.put("userLogin", userLogin);
-
-		        Map<String, Object> result =
-		            dispatcher.runSync("deleteExam", deleteData);
-
-		        return result;
-
-		    } catch (GenericEntityException | GenericServiceException e) {
-		        return ServiceUtil.returnError(
-		            "Error deleting exam: " + e.getMessage());
-		    }
-		}
+			public static Map<String, Object> deleteExam(HttpServletRequest request, HttpServletResponse response,String examId) {
+				try {
+	
+			        if (examId == null || examId.isEmpty())
+			            return ServiceUtil.returnError("Exam ID is required");
+	
+			        LocalDispatcher dispatcher =getDispatcher(request);
+	
+			        GenericValue userLogin = EntityQuery
+			                .use(getDelegator(request))
+			                .from("UserLogin")
+			                .where("userLoginId", "admin")
+			                .queryOne();
+	
+			        Map<String, Object> deleteData = new HashMap<>();
+			        deleteData.put("examId",    examId);
+			        deleteData.put("userLogin", userLogin);
+	
+			        Map<String, Object> result =
+			            dispatcher.runSync("deleteExam", deleteData);
+	
+			        return result;
+	
+			    } catch (GenericEntityException | GenericServiceException e) {
+			        return ServiceUtil.returnError(
+			            "Error deleting exam: " + e.getMessage());
+			    }
+			}
 		
 		public static Map<String, Object> getExam( HttpServletRequest request,  HttpServletResponse response) {
 			try {
@@ -209,6 +208,7 @@ public class ExamMaster {
 
                        List<GenericValue> exams = EntityQuery.use(delegator)
                                     .from("ExamMaster")
+                                    .orderBy("examId")
                                     .queryList();
 
                        Map<String, Object> result = ServiceUtil.returnSuccess("Exams fetched");

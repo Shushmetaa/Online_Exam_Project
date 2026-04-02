@@ -13,7 +13,7 @@ import org.apache.ofbiz.service.ServiceUtil;
 
 public class UpdateTopicMaster {
 	
-	public Map<String, Object> updateTopic(DispatchContext dctx, Map<String, ? extends Object> context) {
+	public static Map<String, Object> updateTopic(DispatchContext dctx, Map<String, ? extends Object> context) {
 		
 		try {
             String examId = (String) context.get("examId");

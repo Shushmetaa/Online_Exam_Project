@@ -2,23 +2,18 @@ package com.vastpro.rest.resources;
 
 import java.util.Map;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.websocket.server.PathParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import org.apache.ofbiz.entity.Delegator;
-import org.apache.ofbiz.entity.DelegatorFactory;
-import org.apache.ofbiz.service.LocalDispatcher;
-import org.apache.ofbiz.service.ServiceContainer;
 import com.vastpro.servicecall.TopicMaster;
 
 @Path("/admin/topic")
@@ -42,7 +37,6 @@ public class TopicResources {
 	    public Map<String, Object> getTopics(@PathParam("examId") String examId, @Context HttpServletRequest request, @Context HttpServletResponse response){
 	    	
 	    	return TopicMaster.getTopic(examId, request, response);
-	    	
 	    }
 	    
 	    @PUT
