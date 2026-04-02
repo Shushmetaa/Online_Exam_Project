@@ -134,7 +134,7 @@ public class TopicMaster {
 		    updateData.put("topicPassPercentage", topicPassPercentage);
 		    updateData.put("userLogin", userLogin);
 		    
-		    Map<String, Object> result = dispatcher.runSync("updatetopicMaster", updateData);
+		    Map<String, Object> result = dispatcher.runSync("updateTopicMaster", updateData);
 			
 		    if(ServiceUtil.isError(result)) {
 		    	return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));

@@ -213,7 +213,11 @@ under the License.
    	<auto-attributes include="nonpk" mode="IN"></auto-attributes>
    </service> 
 
+<<<<<<< Updated upstream
    <service name="deleteQuestionMaster" engine="java" location="com.vastpro.services.questionmaster.DeleteQuestionMaster" invoke="deleteQuestions" auth="true">
+=======
+   <service name="deleteQuestionMaster" engine="java" location="com.vastpro.services.questionmaster.DeleteQuestionMaster" invoke="deleteQuestions" auth="false">
+>>>>>>> Stashed changes
 		 <attribute name="examId" mode="IN" type="String"/>
     	 <attribute name="qId" mode="IN" type="Long"/>
     	 <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
@@ -223,6 +227,7 @@ under the License.
 		<auto-attributes include="pk" mode="IN" />
     		
 	</service>
+<<<<<<< Updated upstream
    <service name= "excelUpload" engine="java" location="com.vastpro.services.excelupload.ExcelBulkUpload" invoke="excelUpload" auth="true">
 
    		<attribute name="examId" mode="IN" type="String" />
@@ -242,10 +247,65 @@ under the License.
 	    <attribute name="negativeMarkValue" mode="IN" type="Double" />
 	    <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
    </service>
+=======
+>>>>>>> Stashed changes
    
-   <service name="excelUploadAuto" engine="entity-auto" default-entity-name="QuestionMasterBank" invoke="create" auth="true">
-   		<attribute name="examId" mode="IN" type="String" />
-   		<attribute name="file" mode="IN" type="java.io.InputStream"/>
-   </service>
+   <service name="excelBulkUpload" engine="java" location="com.vastpro.services.excelupload.ExcelBulkUpload" invoke="excelUpload" auth="true">
+	    <attribute name="examId"   mode="IN" type="String"/>
+	    <attribute name="file"     mode="IN" type="java.io.InputStream"/>
+	    <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+	</service>
+   
+	 <service name="excelUploadAuto" engine="entity-auto" invoke="create" auth="true" default-entity-name="QuestionBankMasterB">
+	    <auto-attributes include="pk"    mode="IN"/>
+	    <auto-attributes include="nonpk" mode="IN" optional="true"/>
+	    <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+	</service>
+	
+	<service name="createSetupExam" engine="java" location="com.vastpro.services.setupexam.SetupExamination" invoke="createSetupExam" auth="true">
+	    <attribute name="examId" mode="IN" type="String"  optional="false"/>
+	    <attribute name="setupType"  mode="IN" type="String"  optional="false"/>
+	    <attribute name="setupDetails" mode="IN" type="String"  optional="false"/>
+	    <attribute name="partyId" mode="IN" type="String"  optional="false"/>
+	    <attribute name="allowedAttempts" mode="IN" type="Integer" optional="false"/>
+	    <attribute name="noOfAttempts" mode="IN" type="Integer" optional="false"/>
+	    <attribute name="timeoutDays" mode="IN" type="Integer" optional="false"/>
+	    <attribute name="userLogin"  mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+    </service>
+
+	<service name="createExamSetupDetailsAuto" engine="entity-auto" invoke="create" default-entity-name="ExamSetupDetails">
+	    <auto-attributes include="pk" mode="IN" optional="false"/>
+	    <auto-attributes include="nonpk" mode="IN" optional="true"/>
+	    <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+	</service>
+
+	<service name="createPartyExamRelationshipAuto" engine="entity-auto" invoke="create" default-entity-name="PartyExamRelationship">
+	    <auto-attributes include="pk" mode="IN" optional="false"/>
+	    <auto-attributes include="nonpk" mode="IN" optional="true"/>
+	    <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+	</service>
+	
+	<service name="updateSetupExam" engine="java" location="com.vastpro.services.setupexam.UpdateSetupExamination" invoke="updateSetupExam" auth="true">
+	    <attribute name="examId" mode="IN" type="String" optional="false"/>
+	    <attribute name="setupType" mode="IN" type="String" optional="true"/>
+	    <attribute name="setupDetails" mode="IN" type="String" optional="true"/>
+	    <attribute name="partyId" mode="IN" type="String"  optional="false"/>
+	    <attribute name="allowedAttempts" mode="IN" type="Integer" optional="true"/>
+	    <attribute name="noOfAttempts" mode="IN" type="Integer" optional="true"/>
+	    <attribute name="timeoutDays" mode="IN" type="Integer" optional="true"/>
+	    <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+	</service>
+	
+	<service name="updateExamSetupDetailsAuto" engine="entity-auto" invoke="update" default-entity-name="ExamSetupDetails">
+	    <auto-attributes include="pk" mode="IN" optional="false"/>
+	    <auto-attributes include="nonpk" mode="IN" optional="true"/>
+	    <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+	</service>
+
+	<service name="updatePartyExamRelationshipAuto" engine="entity-auto" invoke="update" default-entity-name="PartyExamRelationship">
+	    <auto-attributes include="pk" mode="IN" optional="false"/>
+	    <auto-attributes include="nonpk" mode="IN" optional="true"/>
+	    <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+	</service>
    
 </services>
