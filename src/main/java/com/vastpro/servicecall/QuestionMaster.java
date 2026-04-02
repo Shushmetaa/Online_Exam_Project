@@ -48,16 +48,11 @@ public class QuestionMaster {
 			String answer = request.getParameter("answer");
 			Long numAnswers = Long.parseLong(request.getParameter("numAnswers").trim());
 			Long questionType = Long.parseLong(request.getParameter("questionType").trim());
-			Long difficultyLevel = Long.parseLong(request.getParameter("difficultyLevel").trim());
+			String difficultyLevel = request.getParameter("difficultyLevel").trim();
 			Double answerValue = Double.parseDouble(request.getParameter("answerValue").trim());
 			Double negativeMarkValue = Double.parseDouble(request.getParameter("negativeMarkValue").trim());
 			
 			LocalDispatcher dispatcher= getDispatcher(request);
-//			GenericValue userLogin = (GenericValue) request.getSession().getAttribute("userLogin");
-//
-//			if (userLogin == null) {
-//			    return ServiceUtil.returnError("User not logged in");
-//			}
 			
 			GenericValue userLogin=EntityQuery.use(getDelegator(request))
 						.from("UserLogin")
@@ -173,7 +168,7 @@ public class QuestionMaster {
 			String answer = request.getParameter("answer");
 			Long numAnswers = Long.parseLong(request.getParameter("numAnswers").trim());
 			Long questionType = Long.parseLong(request.getParameter("questionType").trim());
-			Long difficultyLevel = Long.parseLong(request.getParameter("difficultyLevel").trim());
+			String difficultyLevel = request.getParameter("difficultyLevel").trim();
 			Double answerValue = Double.parseDouble(request.getParameter("answerValue").trim());
 			Double negativeMarkValue = Double.parseDouble(request.getParameter("negativeMarkValue").trim());
 			
@@ -236,10 +231,7 @@ public class QuestionMaster {
 			Map<String, Object> delete = new HashMap<>();
 		    
 			delete.put("examId", examId);
-<<<<<<< HEAD
-=======
 			delete.put("qId", qId);
->>>>>>> c351e20cdebd11479aeac0ec240b35c8a2af26b4
 		    delete.put("userLogin", userLogin);
 		    
 		    Map<String, Object> result = dispatcher.runSync("deleteQuestionMaster", delete);

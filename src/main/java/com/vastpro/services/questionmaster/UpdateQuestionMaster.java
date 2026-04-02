@@ -29,7 +29,7 @@ public class UpdateQuestionMaster {
 			String answer = (String) context.get("answer");
 			Long numAnswers = (Long) context.get("numAnswers");
 			Long questionType = (Long) context.get("questionType");
-			Long difficultyLevel = (Long) context.get("difficultyLevel");
+			String difficultyLevel = (String) context.get("difficultyLevel");
 			Double answerValue = (Double) context.get("answerValue");
 			Double negativeMarkValue = (Double) context.get("negativeMarkValue");
 			

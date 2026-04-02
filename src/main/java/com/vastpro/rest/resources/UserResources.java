@@ -13,72 +13,31 @@ import org.apache.ofbiz.entity.util.EntityQuery;
 import org.apache.ofbiz.service.LocalDispatcher;
 import org.apache.ofbiz.service.ServiceContainer;
 
+import com.vastpro.servicecall.ExamMaster;
+import com.vastpro.servicecall.LoginMaster;
+import com.vastpro.servicecall.SignupMaster;
+
 @Path("/user")
-@Produces(MediaType.APPLICATION_JSON)
-@Consumes(MediaType.APPLICATION_JSON)
+
 public class UserResources {
 
-    @Context
-    private HttpServletRequest request;
-    
-    @Context
-    private HttpServletResponse response;
-
-    @Context
-    private ServletContext servletContext;  
-
-    
-    private Delegator getDelegator() {
-        Delegator delegator = (Delegator) servletContext.getAttribute("delegator");
-        if (delegator == null) {
-            delegator = DelegatorFactory.getDelegator("default");
-        }
-        return delegator;
-    }
-
-  
-    private LocalDispatcher getDispatcher() {
-        LocalDispatcher dispatcher = 
-            (LocalDispatcher) servletContext.getAttribute("dispatcher");
-        if (dispatcher == null) {
-            dispatcher = ServiceContainer.getLocalDispatcher(
-                "exam",   
-                getDelegator()
-            );
-        }
-        return dispatcher;
-    }
-
     @POST
-    @Path("/register")
-    public Response createStudent(Map<String, Object> input) {
-        try {
-            Delegator delegator   = getDelegator();
-            LocalDispatcher dispatcher = getDispatcher();
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Path("/signup")
+    public Map<String,Object> signupUser(@Context HttpServletRequest request, @Context HttpServletResponse response){
+	    
+    	return SignupMaster.signupUser(request, response);
 
-            if (dispatcher == null) {
-                return Response.status(500)
-                    .entity(Map.of("error", "Dispatcher is still null"))
-                    .build();
-            }
+    }
+    
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Path("/login")
+    public Map<String,Object> loginUser(@Context HttpServletRequest request, @Context HttpServletResponse response){
+	    
+    	return LoginMaster.loginUser(request, response);
 
-            GenericValue userLogin = EntityQuery.use(delegator)
-                    .from("UserLogin")
-                    .where("userLoginId", "admin")
-                    .queryOne();
-
-            input.put("userLogin", userLogin);
-
-            Map<String, Object> result =
-                dispatcher.runSync("registerUser", input);
-
-            return Response.ok(result).build();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Response.status(500)
-                    .entity(Map.of("error", e.getMessage()))
-                    .build();
-        }
     }
 }

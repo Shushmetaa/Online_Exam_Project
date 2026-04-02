@@ -35,7 +35,7 @@ under the License.
         <field name="peopleId" type="id"/>
         <field name="userFunction" type="short-varchar"/>
         <field name="lastActivity" type="short-varchar"/>
-        <field name="administeredBy" type="id"/>
+        <field name="administeredBy" type="short-varchar"/>
     </extend-entity>
 
     <!-- Exam details -->
