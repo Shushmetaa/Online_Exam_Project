@@ -103,12 +103,17 @@
 	<servlet>
 		<servlet-name>RestServlet</servlet-name>
 		<servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
-		<!-- ADD THIS -->
 		<init-param>
 			<param-name>javax.ws.rs.Application</param-name>
 			<param-value>com.vastpro.rest.RestApplication</param-value>
 		</init-param>
 		<load-on-startup>1</load-on-startup>
+		
+		<multipart-config>
+	        <max-file-size>10485760</max-file-size>
+	        <max-request-size>10485760</max-request-size>
+	        <file-size-threshold>1024</file-size-threshold>
+    	</multipart-config>	
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>RestServlet</servlet-name>

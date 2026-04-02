@@ -39,14 +39,16 @@ public class ExcelUpload {
 	public static Map<String, Object> uploadQuestions(String examId, HttpServletRequest request, HttpServletResponse response) {
 		
 		try {
-			Part filePart = request.getPart("file");
 			
-			InputStream file = filePart.getInputStream();
+			 Part filePart = request.getPart("file");
+			 
+	         InputStream file = filePart.getInputStream();
 			
-			LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
+			LocalDispatcher dispatcher=getDispatcher(request);
+			
+			Delegator delegator = getDelegator(request);
 	
-			
-			GenericValue userLogin=EntityQuery.use((Delegator) request.getAttribute("delegator"))
+			GenericValue userLogin=EntityQuery.use(delegator)
 						.from("UserLogin")
 						.where("userLoginId", "admin")
 						.queryOne();
@@ -57,7 +59,7 @@ public class ExcelUpload {
 			excelData.put("file", file);
 			excelData.put("userLogin", userLogin);
 			
-			Map<String, Object> result = dispatcher.runSync("excelUpload", excelData);
+			Map<String, Object> result = dispatcher.runSync("excelBulkUpload", excelData);
 			
 			if(ServiceUtil.isError(result)) {
 				return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
@@ -67,7 +69,7 @@ public class ExcelUpload {
 			}
 			
 			
-		} catch (IOException | ServletException | GenericEntityException | GenericServiceException e) {
+		} catch (GenericEntityException | GenericServiceException | IOException | ServletException e) {
 			
 			return ServiceUtil.returnError("Excel uploaded failed" + e.getMessage());
 		}

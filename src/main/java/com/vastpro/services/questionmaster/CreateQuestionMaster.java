@@ -18,29 +18,30 @@ public class CreateQuestionMaster {
 		try {
 	
 			String examId = (String) context.get("examId");
-			String qId = (String) context.get("qId");
-			String topicId = (String) context.get("topicId");
+			Long qId = (Long) context.get("qId");
+			Long topicId = (Long) context.get("topicId");
 			String questionDetail = (String) context.get("questionDetail");
 			String optiona = (String) context.get("optiona");
 			String optionb = (String) context.get("optionb");
 			String optionc = (String) context.get("optionc");
 			String optiond = (String) context.get("optiond");
 			String optione = (String) context.get("optione");
-			String numAnswers = (String) context.get("numAnswers");
-			String questiontype = (String) context.get("questiontype");
+			String answer = (String) context.get("answer");
+			Long numAnswers = (Long) context.get("numAnswers");
+			Long questionType = (Long) context.get("questionType");
 			String difficultyLevel = (String) context.get("difficultyLevel");
-			String answerValue = (String) context.get("answerValue");
-			String negativeMarkValue = (String) context.get("negativeMarkValue");
+			Double answerValue = (Double) context.get("answerValue");
+			Double negativeMarkValue = (Double) context.get("negativeMarkValue");
 			
 			if(examId == null || examId.isEmpty()) {
 				return ServiceUtil.returnError("Exam Id is required");
 			}
 			
-			if(qId == null || qId.isEmpty()) {
+			if(qId == null ) {
 				return ServiceUtil.returnError("QId is required");
 			}
 			
-			if(topicId == null || topicId.isEmpty()) {
+			if(topicId == null) {
 				return ServiceUtil.returnError("Topic Id is required");
 			}
 			
@@ -67,24 +68,26 @@ public class CreateQuestionMaster {
 			if(optione == null || optione.isEmpty()) {
 				return ServiceUtil.returnError("option E is required");
 			}
-			
-			if(numAnswers == null || numAnswers.isEmpty()) {
+			if(answer == null || answer.isEmpty()) {
+				return ServiceUtil.returnError("answer is required");
+			}
+			if(numAnswers == null) {
 				return ServiceUtil.returnError("Number of answers is required");
 			}
 			
-			if(questiontype == null || questiontype.isEmpty()) {
+			if(questionType == null) {
 				return ServiceUtil.returnError("Question typ is required");
 			}
 			
-			if(difficultyLevel == null || difficultyLevel.isEmpty()) {
+			if(difficultyLevel == null) {
 				return ServiceUtil.returnError("Difficuilty type is required");
 			}
 			
-			if(answerValue == null || answerValue.isEmpty()) {
+			if(answerValue == null) {
 				return ServiceUtil.returnError("Answer is required");
 			}
 			
-			if(negativeMarkValue == null || negativeMarkValue.isEmpty()) {
+			if(negativeMarkValue == null) {
 				return ServiceUtil.returnError("Negative marks value is required");
 			}
 			
@@ -92,18 +95,21 @@ public class CreateQuestionMaster {
 			
 			LocalDispatcher dispatcher = dctx.getDispatcher();
 			
-			GenericValue data = EntityQuery.use(delegator)
-					                       .from("QuestionBankMasterB")
+			GenericValue existing = EntityQuery.use(delegator)
+					                       .from("QuestionBankMaster")
 					                       .where("examId", examId, "topicId", topicId)
 					                       .queryOne();
+			if(existing != null){
+			    return ServiceUtil.returnError("Question already exists");
+			}
 			
-			Map<String, Object> result = dispatcher.runSync("", context);
+			Map<String, Object> result = dispatcher.runSync("createQuestionMasterAuto", context);
 			
 			if(ServiceUtil.isError(result)) {
 				return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
 			}
 			else {
-				return ServiceUtil.returnSuccess("Topics created successfully");
+				return ServiceUtil.returnSuccess("Questions created successfully");
 			}
 			
 		}catch(GenericEntityException | GenericServiceException e) {

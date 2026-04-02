@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.websocket.server.PathParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -39,13 +40,23 @@ public class TopicResources {
 	    	return TopicMaster.getTopic(examId, request, response);
 	    }
 	    
-	    @PUT
+	    @POST
 	    @Produces(MediaType.APPLICATION_JSON)
 	    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	    @Path("/update")
-	    public Map<String, Object> updateTopics(@Context HttpServletRequest request, @Context HttpServletResponse response){
+	    public Map<String, Object> updateTopics(
+	    		@FormParam("examId")  String examId,
+	    	    @FormParam("topicId")  String topicId,
+	    	    @FormParam("topicName")  String topicName,
+	    	    @FormParam("percentage") String percentage,
+	    	    @FormParam("startingQid") String startingQid,
+	    	    @FormParam("endingQid") String endingQid,
+	    	    @FormParam("questionsPerExam") String questionsPerExam,
+	    	    @FormParam("topicPassPercentage") String topicPassPercentage,
+	    		@Context HttpServletRequest request, @Context HttpServletResponse response){
 	    	
-	    	return TopicMaster.updateTopic(request, response);
+	    	return TopicMaster.updateTopic(examId, topicId, topicName, percentage, startingQid, endingQid, questionsPerExam, 
+	    			topicPassPercentage, request, response);
 	    	
 	    }
 	    
@@ -53,9 +64,10 @@ public class TopicResources {
 	    @Produces(MediaType.APPLICATION_JSON)
 	    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	    @Path("/delete")
-	    public Map<String, Object> deleteTopics(@Context HttpServletRequest request, @Context HttpServletResponse response){
+	    public Map<String, Object> deleteTopics(@FormParam("examId")  String examId, @FormParam("topicId") String topicId, 
+	    		@Context HttpServletRequest request, @Context HttpServletResponse response){
 	    	
-	    	return TopicMaster.deleteTopic(request, response);
+	    	return TopicMaster.deleteTopic(examId, topicId, request, response);
 	    	
 	    }
 	    

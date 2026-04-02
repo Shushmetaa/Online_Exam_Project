@@ -35,7 +35,7 @@ under the License.
         <field name="peopleId" type="id"/>
         <field name="userFunction" type="short-varchar"/>
         <field name="lastActivity" type="short-varchar"/>
-        <field name="administeredBy" type="id"/>
+        <field name="administeredBy" type="short-varchar"/>
     </extend-entity>
 
     <!-- Exam details -->
@@ -189,8 +189,8 @@ under the License.
     <!-- Draft question bank -->
     <entity entity-name="QuestionBankMasterB">
         <field name="examId" type="id"/>
-        <field name="qId" type="numeric"/>
-        <field name="topicId" type="numeric" not-null="true"/>
+        <field name="qId" type="id"/>
+        <field name="topicId" type="short-varchar" not-null="true"/>
         <field name="questionDetail" type="very-long" not-null="true"/>
         <field name="optiona" type="very-long" not-null="true"/>
         <field name="optionb" type="very-long" not-null="true"/>
@@ -199,8 +199,8 @@ under the License.
         <field name="optione" type="very-long" not-null="true"/>
         <field name="answer" type="id" not-null="true"/>
         <field name="numAnswers" type="numeric" not-null="true"/>
-        <field name="questiontype" type="numeric" not-null="true"/>
-        <field name="difficultyLevel" type="numeric"/>
+        <field name="questiontype" type="short-varchar" not-null="true"/>
+        <field name="difficultyLevel" type="short-varchar"/>
         <field name="answerValue" type="currency-amount"/>
         <field name="negativeMarkValue" type="currency-amount"/>
         <prim-key field="examId"/>

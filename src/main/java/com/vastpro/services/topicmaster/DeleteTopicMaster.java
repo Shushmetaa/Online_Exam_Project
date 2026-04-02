@@ -13,7 +13,7 @@ import org.apache.ofbiz.service.ServiceUtil;
 
 public class DeleteTopicMaster {
 
-	public static Map<String, Object> updateExam(DispatchContext dctx, Map<String, ? extends Object> context){
+	public Map<String, Object> deleteTopic(DispatchContext dctx, Map<String, ? extends Object> context){
 		try {
 				String examId = (String) context.get("examId");
 				String topicId = (String) context.get("topicId");
@@ -37,10 +37,14 @@ public class DeleteTopicMaster {
 		         if (topic == null) {
 		                return ServiceUtil.returnError("Topic not found");
 		            }
+		         
+		         GenericValue userLogin = (GenericValue) context.get("userLogin");
+		         
 		         Map<String, Object> input = new HashMap<>();
 		            input.put("examId", examId);
 		            input.put("topicId", topicId);
-
+		            input.put("userLogin", userLogin);
+		            
 		            Map<String, Object> result = dispatcher.runSync("deleteTopicMasterAuto", input);
 
 		            if (ServiceUtil.isError(result)) {

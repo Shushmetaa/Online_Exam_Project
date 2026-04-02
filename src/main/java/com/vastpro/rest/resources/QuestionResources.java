@@ -30,7 +30,7 @@ public class QuestionResources {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Path("/examTopics/{examId}")
+    @Path("/get")
     public Map<String, Object> getQuestions(@Context HttpServletRequest request, @Context HttpServletResponse response){
     	
     	return QuestionMaster.getQuestion(request, response);

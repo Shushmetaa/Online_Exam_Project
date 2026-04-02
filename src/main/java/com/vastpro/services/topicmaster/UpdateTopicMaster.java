@@ -53,11 +53,11 @@ public class UpdateTopicMaster {
                 return ServiceUtil.returnError("Exam not found");
             }
 
-            double noOfQuestions = exam.getDouble("noOfQuestions");
+            double noOfQuestions  = exam.getLong("noOfQuestions").doubleValue();
             double pct = Double.parseDouble(percentage);
             long questionsPerExam = Math.round((pct / 100) * noOfQuestions);
 
-            ((Map<String, Object>) context).put("questionsPerExam", questionsPerExam);
+            ((Map<String, Object>) context).put("questionsPerExam", String.valueOf(questionsPerExam));
 
             Map<String, Object> result = dispatcher.runSync("updateTopicMasterAuto", context);
 
