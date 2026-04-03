@@ -33,6 +33,7 @@ public class SignupMaster {
     		String lastName = request.getParameter("lastName");
     		String email = request.getParameter("email");
     		String password = request.getParameter("password");
+    		String confirmPassword = request.getParameter("confirmPassword");
     		
            
             LocalDispatcher dispatcher = getDispatcher(request);
@@ -51,6 +52,7 @@ public class SignupMaster {
             input.put("lastName", lastName);
             input.put("email",email);
             input.put("password",password);
+            input.put("confirmPassword", confirmPassword);
             input.put("userLogin", userLogin);
 
             Map<String, Object> result = dispatcher.runSync("signupUser", input);

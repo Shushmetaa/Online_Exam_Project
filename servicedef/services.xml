@@ -44,6 +44,7 @@ under the License.
     	<attribute name="lastName" mode="IN" type="String" optional="false"></attribute>
     	<attribute name="email" mode="IN" type="String" optional="false"></attribute>
     	<attribute name="password" mode="IN" type="String" optional="false"></attribute>
+    	<attribute name="confirmPassword" mode="IN"  type="String" optional="false"/>
     	<attribute name="partyId" mode="OUT" type="String" optional="true"></attribute>
     </service>
     
