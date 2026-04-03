@@ -1,11 +1,15 @@
 package com.vastpro.servicecall;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
+
 import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.entity.GenericEntityException;
 import org.apache.ofbiz.entity.GenericValue;
@@ -32,14 +36,19 @@ public class ExcelUpload {
         return delegator;
     }
 
-	public static Map<String, Object> uploadQuestions(String examId, InputStream file, HttpServletRequest request, HttpServletResponse response) {
+	public static Map<String, Object> uploadQuestions(String examId, HttpServletRequest request, HttpServletResponse response) {
 		
 		try {
 			
-			LocalDispatcher dispatcher=(LocalDispatcher) request.getAttribute("dispatcher");
-	
+			 Part filePart = request.getPart("file");
+			 
+	         InputStream file = filePart.getInputStream();
 			
-			GenericValue userLogin=EntityQuery.use((Delegator) request.getAttribute("delegator"))
+			LocalDispatcher dispatcher=getDispatcher(request);
+			
+			Delegator delegator = getDelegator(request);
+	
+			GenericValue userLogin=EntityQuery.use(delegator)
 						.from("UserLogin")
 						.where("userLoginId", "admin")
 						.queryOne();
@@ -50,7 +59,7 @@ public class ExcelUpload {
 			excelData.put("file", file);
 			excelData.put("userLogin", userLogin);
 			
-			Map<String, Object> result = dispatcher.runSync("excelUpload", excelData);
+			Map<String, Object> result = dispatcher.runSync("excelBulkUpload", excelData);
 			
 			if(ServiceUtil.isError(result)) {
 				return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
@@ -60,7 +69,7 @@ public class ExcelUpload {
 			}
 			
 			
-		} catch (GenericEntityException | GenericServiceException e) {
+		} catch (GenericEntityException | GenericServiceException | IOException | ServletException e) {
 			
 			return ServiceUtil.returnError("Excel uploaded failed" + e.getMessage());
 		}
