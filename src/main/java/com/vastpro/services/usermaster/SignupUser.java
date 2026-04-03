@@ -21,6 +21,7 @@ public static Map<String, Object> signupUser(DispatchContext dctx, Map<String, ?
 	String lastName = (String) context.get("lastName");
 	String email = (String) context.get("email");
 	String password = (String) context.get("password");	
+	String confirmPassword = (String) context.get("password");	
 	
 	//validation
 	if(firstName == null || firstName.isEmpty()) {
@@ -51,6 +52,13 @@ public static Map<String, Object> signupUser(DispatchContext dctx, Map<String, ?
 	if (!password.matches("(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}"))
 	    return ServiceUtil.returnError("Invalid password. Eg: John@123");
 	
+	if (confirmPassword == null || confirmPassword.isEmpty()) {
+	    return ServiceUtil.returnError("Confirm password is required");
+	}
+	
+	if (!password.equals(confirmPassword)) {
+	    return ServiceUtil.returnError("Password and confirm password do not match");
+	}
 	Delegator delegator = dctx.getDelegator();
 	LocalDispatcher dispatcher = dctx.getDispatcher();
 	String hashedPassword = HashCrypt.cryptUTF8("SHA", null, password);
