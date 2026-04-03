@@ -21,7 +21,7 @@ public static Map<String, Object> signupUser(DispatchContext dctx, Map<String, ?
 	String lastName = (String) context.get("lastName");
 	String email = (String) context.get("email");
 	String password = (String) context.get("password");	
-	String confirmPassword = (String) context.get("password");	
+	String confirmPassword = (String) context.get("confirmPassword");	
 	
 	//validation
 	if(firstName == null || firstName.isEmpty()) {

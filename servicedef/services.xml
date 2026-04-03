@@ -214,11 +214,7 @@ under the License.
    	<auto-attributes include="nonpk" mode="IN"></auto-attributes>
    </service> 
 
-<<<<<<< Updated upstream
    <service name="deleteQuestionMaster" engine="java" location="com.vastpro.services.questionmaster.DeleteQuestionMaster" invoke="deleteQuestions" auth="true">
-=======
-   <service name="deleteQuestionMaster" engine="java" location="com.vastpro.services.questionmaster.DeleteQuestionMaster" invoke="deleteQuestions" auth="false">
->>>>>>> Stashed changes
 		 <attribute name="examId" mode="IN" type="String"/>
     	 <attribute name="qId" mode="IN" type="Long"/>
     	 <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
@@ -228,7 +224,6 @@ under the License.
 		<auto-attributes include="pk" mode="IN" />
     		
 	</service>
-<<<<<<< Updated upstream
    <service name= "excelUpload" engine="java" location="com.vastpro.services.excelupload.ExcelBulkUpload" invoke="excelUpload" auth="true">
 
    		<attribute name="examId" mode="IN" type="String" />
@@ -248,8 +243,6 @@ under the License.
 	    <attribute name="negativeMarkValue" mode="IN" type="Double" />
 	    <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
    </service>
-=======
->>>>>>> Stashed changes
    
    <service name="excelBulkUpload" engine="java" location="com.vastpro.services.excelupload.ExcelBulkUpload" invoke="excelUpload" auth="true">
 	    <attribute name="examId"   mode="IN" type="String"/>

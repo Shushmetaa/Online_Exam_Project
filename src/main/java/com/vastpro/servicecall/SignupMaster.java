@@ -5,8 +5,10 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.ofbiz.entity.Delegator;
+import org.apache.ofbiz.entity.GenericEntityException;
 import org.apache.ofbiz.entity.GenericValue;
 import org.apache.ofbiz.entity.util.EntityQuery;
+import org.apache.ofbiz.service.GenericServiceException;
 import org.apache.ofbiz.service.LocalDispatcher;
 import org.apache.ofbiz.service.ServiceUtil;
 
@@ -64,10 +66,9 @@ public class SignupMaster {
 		    	return result;
 		    }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        } catch(GenericEntityException | GenericServiceException e) {
+    		return ServiceUtil.returnError("Error creating: " + e.getMessage());
+    	}
     	
     }
 }
