@@ -10,7 +10,7 @@ import org.apache.ofbiz.service.ServiceUtil;
 
 public class UpdateSetupExamination {
 	
-public static Map<String, Object> UpdateSetupExam(DispatchContext dctx, Map<String, ? extends Object> context){
+public static Map<String, Object> updateSetupExam(DispatchContext dctx, Map<String, ? extends Object> context){
 		
 		 try {
 	            String examId          = (String) context.get("examId");

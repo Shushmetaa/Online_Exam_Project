@@ -30,21 +30,10 @@ public class SetupExam1 {
         return delegator;
     }
 	
-	public static Map<String, Object> createSetup(HttpServletRequest request, HttpServletResponse response){
+	public static Map<String, Object> createSetup(String examId, String setupType, String setupDetails, 
+			String partyId, String allowedAttempts, String noOfAttempts, String timeoutDays, HttpServletRequest request, HttpServletResponse response){
 		
 		try {
-
-			String examId = request.getParameter("examId");
-
-			// ExamSetupDetails 
-			String setupType    = request.getParameter("setupType");
-			String setupDetails = request.getParameter("setupDetails");
-
-			// PartyExamRelationship 
-			String partyId         = request.getParameter("partyId");
-			String allowedAttempts = request.getParameter("allowedAttempts");
-			String noOfAttempts    = request.getParameter("noOfAttempts");
-			String timeoutDays     = request.getParameter("timeoutDays");
 			
 			LocalDispatcher dispatcher=getDispatcher(request);
     	    
@@ -57,21 +46,17 @@ public class SetupExam1 {
     	    		.where("userLoginId", "admin")
     	    		.queryOne();
     	    
-    	    Map<String, Object> examSetupDetailsData = new HashMap<>();
-            examSetupDetailsData.put("examId",       examId);     
-            examSetupDetailsData.put("setupType",    setupType);
-            examSetupDetailsData.put("setupDetails", setupDetails);
-            examSetupDetailsData.put("userLogin",    userLogin); 
-            dispatcher.runSync("createSetupExams", examSetupDetailsData); 
+    	    Map<String, Object> setupData = new HashMap<>();
+            setupData.put("examId",          examId);
+            setupData.put("setupType",       setupType);
+            setupData.put("setupDetails",    setupDetails);
+            setupData.put("partyId",         partyId);
+            setupData.put("allowedAttempts", allowedAttempts);
+            setupData.put("noOfAttempts",    noOfAttempts);
+            setupData.put("timeoutDays",     timeoutDays);
+            setupData.put("userLogin",       userLogin);
 
-            Map<String, Object> partyExamData = new HashMap<>();
-            partyExamData.put("examId",          examId);          
-            partyExamData.put("partyId",         partyId);
-            partyExamData.put("allowedAttempts", allowedAttempts);
-            partyExamData.put("noOfAttempts",    noOfAttempts);
-            partyExamData.put("timeoutDays",     timeoutDays);
-            partyExamData.put("userLogin",       userLogin);      
-            dispatcher.runSync("createSetupExam", partyExamData); 
+            Map<String, Object> result = dispatcher.runSync("createSetupExam", setupData);
 
             return ServiceUtil.returnSuccess("Exam setup created successfully");
 			
@@ -97,20 +82,16 @@ public class SetupExam1 {
 			        .where("userLoginId", "admin")
 			        .queryOne();
 
-			Map<String, Object> examSetupDetailsData = new HashMap<>();
-			examSetupDetailsData.put("examId",       examId);       
-			examSetupDetailsData.put("setupType",    setupType);    
-			examSetupDetailsData.put("setupDetails", setupDetails); 
-			examSetupDetailsData.put("userLogin",    userLogin);
-			dispatcher.runSync("updateSetupExam", examSetupDetailsData); 
-
 			Map<String, Object> partyExamData = new HashMap<>();
 			partyExamData.put("examId",          examId);           
-			partyExamData.put("partyId",         partyId);         
+			partyExamData.put("partyId",         partyId);   
+			partyExamData.put("setupType",    setupType);    
+			partyExamData.put("setupDetails", setupDetails); 
 			partyExamData.put("allowedAttempts", allowedAttempts);  
 			partyExamData.put("noOfAttempts",    noOfAttempts);     
 			partyExamData.put("timeoutDays",     timeoutDays);      
 			partyExamData.put("userLogin",       userLogin);
+			
 			dispatcher.runSync("updateSetupExam", partyExamData); 
 
 			return ServiceUtil.returnSuccess("Exam setup updated successfully");
@@ -119,6 +100,64 @@ public class SetupExam1 {
 		}
 		
 		
+	}
+
+	public static Map<String, Object> softUserDeleteSetup(String examId, String partyId, HttpServletRequest request, HttpServletResponse response) {
+		
+	    try {
+	    			
+	    	LocalDispatcher dispatcher = getDispatcher(request);
+
+	        GenericValue userLogin = EntityQuery.use(getDelegator(request))
+	                .from("UserLogin")
+	                .where("userLoginId", "admin")
+	                .queryOne();
+
+	        Map<String, Object> deleteData = new HashMap<>();
+	        deleteData.put("examId",   examId);
+	        deleteData.put("partyId",  partyId);
+	        deleteData.put("userLogin", userLogin);
+
+	        Map<String, Object> result = dispatcher.runSync("softDeletePartyExamRelationship", deleteData);
+
+	        if (ServiceUtil.isError(result)) {
+	            return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+	        }
+	        return ServiceUtil.returnSuccess("User removed from exam successfully");
+
+	    } catch (Exception e) {
+	        return ServiceUtil.returnError("Error: " + e.getMessage());
+	    }
+	    
+	}
+	
+	public static Map<String, Object> softDeleteExamSetup(String examId, HttpServletRequest request, HttpServletResponse response) {
+	   
+		try {
+			
+			
+	        LocalDispatcher dispatcher = getDispatcher(request);
+
+	        GenericValue userLogin = EntityQuery.use(getDelegator(request))
+	                .from("UserLogin")
+	                .where("userLoginId", "admin")
+	                .queryOne();
+
+	        Map<String, Object> softDeleteData = new HashMap<>();
+	        softDeleteData.put("examId",   examId);
+	        softDeleteData.put("userLogin", userLogin);
+
+	        Map<String, Object> result = dispatcher.runSync("softDeleteExamSetupDetails", softDeleteData);
+
+	        if (ServiceUtil.isError(result)) {
+	            return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+	        }
+	        
+	        return ServiceUtil.returnSuccess("Exam setup deactivated successfully");
+
+	    } catch (Exception e) {
+	        return ServiceUtil.returnError("Error: " + e.getMessage());
+	    }
 	}
 	
 

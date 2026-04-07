@@ -61,11 +61,6 @@ public class SetupExamination {
             partyExamData.put("timeoutDays", timeoutDays);
             partyExamData.put("userLogin", userLogin);
             dispatcher.runSync("createPartyExamRelationshipAuto", partyExamData);
-
-			
-			dispatcher.runSync("createExamSetupDetailsAuto", examSetupData);
-			
-			dispatcher.runSync("createPartyExamRelationshipAuto", partyExamData);
 			
 			return ServiceUtil.returnSuccess("Setup exam is successfull");
 			
