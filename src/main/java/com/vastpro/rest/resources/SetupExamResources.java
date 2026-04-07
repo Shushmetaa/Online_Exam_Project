@@ -87,4 +87,30 @@ public class SetupExamResources {
 
 	 	    return SetupExam1.softDeleteExamSetup(examId, request, response);
 	 	}
+	 	
+	 	@POST
+	 	@Produces(MediaType.APPLICATION_JSON)
+	 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	 	@Path("/assignuser")
+	 	public Map<String, Object> assignUser(
+	 	    @FormParam("examId") String examId,
+	 	    @FormParam("partyId") String partyId,
+	 	    @FormParam("allowedAttempts") String allowedAttempts,
+	 	    @FormParam("noOfAttempts") String noOfAttempts,
+	 	    @FormParam("timeoutDays") String timeoutDays,
+	 	    @Context HttpServletRequest request,
+	 	    @Context HttpServletResponse response) {
+	 	    return SetupExam1.assignUser(examId, partyId, allowedAttempts,  noOfAttempts, timeoutDays, 
+	 	    		request, response);
+	 	}
+	 	
+	 	@GET
+	 	@Produces(MediaType.APPLICATION_JSON)
+	 	@Path("/assignedusers/{examId}")
+	 	public Map<String, Object> getAssignedUsers(
+	 	    @PathParam("examId") String examId,
+	 	    @Context HttpServletRequest request,
+	 	    @Context HttpServletResponse response) {
+	 	    return SetupExam1.getAssignedUsers(examId, request, response);
+	 	}
 }

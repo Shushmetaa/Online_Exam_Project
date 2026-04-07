@@ -15,12 +15,12 @@ public class SetupExamination {
 		try {
 			
 			String examId = (String) context.get("examId");
-			String setupType    = (String) context.get("setupType");
+			String setupType = (String) context.get("setupType");
 			String setupDetails = (String) context.get("setupDetails");
-			String partyId         = (String) context.get("partyId");
+			String partyId = (String) context.get("partyId");
 			String allowedAttempts = (String) context.get("allowedAttempts");
-			String noOfAttempts    = (String) context.get("noOfAttempts");
-			String timeoutDays     = (String) context.get("timeoutDays");
+			String noOfAttempts = (String) context.get("noOfAttempts");
+			String timeoutDays = (String) context.get("timeoutDays");
 			
 			if(setupType == null || setupType.isEmpty()) {
 				return ServiceUtil.returnError("Setup type is required");

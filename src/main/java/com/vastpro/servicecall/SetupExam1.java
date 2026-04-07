@@ -1,6 +1,8 @@
 package com.vastpro.servicecall;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -154,6 +156,83 @@ public class SetupExam1 {
 	        }
 	        
 	        return ServiceUtil.returnSuccess("Exam setup deactivated successfully");
+
+	    } catch (Exception e) {
+	        return ServiceUtil.returnError("Error: " + e.getMessage());
+	    }
+	}
+	
+	public static Map<String, Object> assignUser(String examId, String partyId, String allowedAttempts, String noOfAttempts, String timeoutDays,
+	        HttpServletRequest request, HttpServletResponse response) {
+		
+	    try {
+	    	
+	        LocalDispatcher dispatcher = getDispatcher(request);
+
+	        GenericValue userLogin = EntityQuery.use(getDelegator(request))
+	                .from("UserLogin")
+	                .where("userLoginId", "admin")
+	                .queryOne();
+
+	        Map<String, Object> assignData = new HashMap<>();
+	        
+	        assignData.put("examId",          examId);
+	        assignData.put("partyId",         partyId);
+	        assignData.put("allowedAttempts", allowedAttempts);
+	        assignData.put("noOfAttempts",    noOfAttempts);
+	        assignData.put("timeoutDays",     timeoutDays);
+	        assignData.put("userLogin",       userLogin);
+
+	        Map<String, Object> result = dispatcher.runSync("createPartyExamRelationship", assignData);
+
+	        if (ServiceUtil.isError(result)) {
+	            return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+	        }
+	        return ServiceUtil.returnSuccess("User assigned successfully");
+
+	    } catch (Exception e) {
+	        return ServiceUtil.returnError("Error: " + e.getMessage());
+	    }
+	}
+	
+	public static Map<String, Object> getAssignedUsers(String examId, HttpServletRequest request, HttpServletResponse response) {
+	    
+		try {
+			
+	        Delegator delegator = getDelegator(request);
+
+	        //searching for the users with the examid
+	        List<GenericValue> assigned = EntityQuery.use(delegator)
+	                .from("PartyExamRelationship")
+	                .where("examId", examId)
+	                .queryList();
+
+	        List<Map<String, Object>> userList = new ArrayList<>();
+
+	        //putting all the partyid in the list
+	        for (GenericValue per : assigned) {
+	            String partyId = per.getString("partyId");
+
+	            //fetch person details using partyId
+	            GenericValue person = EntityQuery.use(delegator)
+	                    .from("Person")
+	                    .where("partyId", partyId)
+	                    .queryOne();
+
+	            Map<String, Object> user = new HashMap<>();
+	            user.put("partyId",   partyId);
+
+	            if (person != null) {
+	                user.put("firstName", person.getString("firstName"));
+	                user.put("lastName",  person.getString("lastName"));
+	            }
+
+	            userList.add(user);
+	        }
+
+	        Map<String, Object> result = ServiceUtil.returnSuccess();
+	        result.put("assignedUsers", userList);
+	        return result;
 
 	    } catch (Exception e) {
 	        return ServiceUtil.returnError("Error: " + e.getMessage());
