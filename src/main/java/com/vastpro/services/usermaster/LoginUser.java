@@ -16,6 +16,7 @@ public class LoginUser {
 		
 		 String email = (String) context.get("email");
 	     String password = (String) context.get("password");
+	    
 	     
 	        // Validation
 	        if (email == null || email.isEmpty())
@@ -56,11 +57,23 @@ public class LoginUser {
 
 	            // Step 4: Fetch Person details using partyId
 	            String partyId = userLogin.getString("partyId");
+	            String role = "USER"; // default
 
+	            GenericValue partyRole = EntityQuery.use(delegator)
+	                    .from("PartyRole")
+	                    .where("partyId", partyId)
+	                    .queryFirst();
+	            
+	            if (partyRole != null) {
+	                role = "ADMIN";
+	            }
+
+	            
 	            // Step 5: Return success with user info
 	            Map<String, Object> result = ServiceUtil.returnSuccess("Login successful");
 	            result.put("partyId",  partyId);
 	            result.put("email",    email);
+	            result.put("role",    role); 
 	            return result;
 
 	        } catch (GenericEntityException e) {

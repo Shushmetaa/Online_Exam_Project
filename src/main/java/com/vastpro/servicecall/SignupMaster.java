@@ -5,10 +5,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.ofbiz.entity.Delegator;
-import org.apache.ofbiz.entity.GenericEntityException;
 import org.apache.ofbiz.entity.GenericValue;
 import org.apache.ofbiz.entity.util.EntityQuery;
-import org.apache.ofbiz.service.GenericServiceException;
 import org.apache.ofbiz.service.LocalDispatcher;
 import org.apache.ofbiz.service.ServiceUtil;
 
@@ -44,10 +42,10 @@ public class SignupMaster {
                 return ServiceUtil.returnError("Dispatcher is null");
             }
 
-            GenericValue userLogin = EntityQuery.use(getDelegator(request))
-                    .from("UserLogin")
-                    .where("userLoginId", "admin")
-                    .queryOne();
+//            GenericValue userLogin = EntityQuery.use(getDelegator(request))
+//                    .from("UserLogin")
+//                    .where("userLoginId", "admin")
+//                    .queryOne();
             
             Map<String, Object> input =new HashMap<>();
             input.put("firstName",firstName);
@@ -55,7 +53,7 @@ public class SignupMaster {
             input.put("email",email);
             input.put("password",password);
             input.put("confirmPassword", confirmPassword);
-            input.put("userLogin", userLogin);
+//            input.put("userLogin", userLogin);
 
             Map<String, Object> result = dispatcher.runSync("signupUser", input);
 
@@ -66,9 +64,9 @@ public class SignupMaster {
 		    	return result;
 		    }
 
-        } catch(GenericEntityException | GenericServiceException e) {
-    		return ServiceUtil.returnError("Error creating: " + e.getMessage());
-    	}
+        } catch (Exception e) {
+           return ServiceUtil.returnError("Error message:"+e.getMessage());
+        }
     	
     }
 }
