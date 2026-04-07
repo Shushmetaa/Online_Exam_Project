@@ -261,9 +261,9 @@ under the License.
 	    <attribute name="setupType"  mode="IN" type="String"  optional="false"/>
 	    <attribute name="setupDetails" mode="IN" type="String"  optional="false"/>
 	    <attribute name="partyId" mode="IN" type="String"  optional="false"/>
-	    <attribute name="allowedAttempts" mode="IN" type="Integer" optional="false"/>
-	    <attribute name="noOfAttempts" mode="IN" type="Integer" optional="false"/>
-	    <attribute name="timeoutDays" mode="IN" type="Integer" optional="false"/>
+	    <attribute name="allowedAttempts" mode="IN" type="String" optional="false"/>
+	    <attribute name="noOfAttempts" mode="IN" type="String" optional="false"/>
+	    <attribute name="timeoutDays" mode="IN" type="String" optional="false"/>
 	    <attribute name="userLogin"  mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
     </service>
 
@@ -284,9 +284,9 @@ under the License.
 	    <attribute name="setupType" mode="IN" type="String" optional="true"/>
 	    <attribute name="setupDetails" mode="IN" type="String" optional="true"/>
 	    <attribute name="partyId" mode="IN" type="String"  optional="false"/>
-	    <attribute name="allowedAttempts" mode="IN" type="Integer" optional="true"/>
-	    <attribute name="noOfAttempts" mode="IN" type="Integer" optional="true"/>
-	    <attribute name="timeoutDays" mode="IN" type="Integer" optional="true"/>
+	    <attribute name="allowedAttempts" mode="IN" type="String" optional="true"/>
+	    <attribute name="noOfAttempts" mode="IN" type="String" optional="true"/>
+	    <attribute name="timeoutDays" mode="IN" type="String" optional="true"/>
 	    <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
 	</service>
 	
@@ -300,6 +300,20 @@ under the License.
 	    <auto-attributes include="pk" mode="IN" optional="false"/>
 	    <auto-attributes include="nonpk" mode="IN" optional="true"/>
 	    <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+	</service>
+	
+	<service name="softDeletePartyExamRelationship" engine="java" location="com.vastpro.services.setupexam.SoftDeleteSetupExam" invoke="softDeletePartyExam">
+	    <attribute name="examId" type="String" mode="IN" optional="false"/>
+	    <attribute name="partyId" type="String" mode="IN" optional="false"/>
+	</service>
+	
+	<service name="removePartyExamRelationshipAuto" engine="entity-auto" invoke="delete" default-entity-name="PartyExamRelationship">
+	    <attribute name="examId" type="String" mode="IN" optional="false"/>
+	    <attribute name="partyId" type="String" mode="IN" optional="false"/>
+	</service>
+	
+	<service name="softDeleteExamSetupDetails" engine="java" location="com.vastpro.services.setupexam.SoftDeleteExamSetup" invoke="softDeleteExamSetup">
+    	<attribute name="examId" type="String" mode="IN" optional="false"/>
 	</service>
    
 </services>
