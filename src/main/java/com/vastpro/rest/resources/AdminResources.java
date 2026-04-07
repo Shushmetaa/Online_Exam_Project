@@ -13,6 +13,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+
 import com.vastpro.servicecall.ExamMaster;
 
 
@@ -66,5 +67,13 @@ public class AdminResources {
 	       
 	        return ExamMaster.getExams(request, response);
 	    }
-
+//       @POST
+//       @Path("/assignExams")
+//       @Produces(MediaType.APPLICATION_JSON)
+//	   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+//       public Map<String, Object> assignExams(@Context HttpServletRequest request,
+//	                                         @Context HttpServletResponse response) {
+//	       
+//	        return AssignExam.assignExam(request, response);
+//	    }
 }

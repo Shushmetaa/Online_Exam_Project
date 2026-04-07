@@ -98,6 +98,7 @@ public static Map<String, Object> signupUser(DispatchContext dctx, Map<String, ?
 	    loginContext.put("userLoginId", email);
 	    loginContext.put("currentPassword", hashedPassword);
 	    loginContext.put("partyId", partyId);
+	    loginContext.put("enabled", "Y");
 	    loginContext.put("userLogin", context.get("userLogin"));
 	    dispatcher.runSync("signupUserLogin", loginContext);
 		

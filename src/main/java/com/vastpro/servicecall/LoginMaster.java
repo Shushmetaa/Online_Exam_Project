@@ -1,6 +1,8 @@
 package com.vastpro.servicecall;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -45,7 +47,6 @@ public class LoginMaster {
             input.put("email",     email);
             input.put("password",  password);
             input.put("userLogin", userLogin);
-            
 
             Map<String, Object> result = dispatcher.runSync("loginUser", input);
 
@@ -57,6 +58,34 @@ public class LoginMaster {
         } catch (Exception e) {
             e.printStackTrace();
             return ServiceUtil.returnError("Unexpected error: " + e.getMessage());
+        }
+    }
+    public static Map<String, Object> getUsers(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            Delegator delegator = getDelegator(request);
+            List<GenericValue> users = EntityQuery.use(delegator)
+                    .from("UserLogin")
+                    .where("enabled", "Y")
+                    .queryList();
+
+            List<Map<String, Object>> userList = new ArrayList<>();
+            for (GenericValue user : users) {
+                Map<String, Object> u = new HashMap<>();
+                u.put("partyId",user.getString("partyId"));
+                u.put("email", user.getString("userLoginId"));
+                userList.add(u);
+            }
+
+            Map<String, Object> result = ServiceUtil.returnSuccess();
+            result.put("userList", userList);
+            
+            if (ServiceUtil.isError(result))
+                return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+            
+            return result;
+            
+        } catch (Exception e) {
+            return ServiceUtil.returnError("Error: " + e.getMessage());
         }
     }
 }

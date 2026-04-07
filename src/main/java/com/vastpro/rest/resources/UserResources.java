@@ -40,4 +40,11 @@ public class UserResources {
     	return LoginMaster.loginUser(request, response);
 
     }
+    @GET
+    @Path("/getUsers")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Map<String, Object> getUsers(@Context HttpServletRequest request,
+                                         @Context HttpServletResponse response) {
+        return LoginMaster.getUsers(request, response);
+    }
 }
