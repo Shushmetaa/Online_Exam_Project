@@ -174,14 +174,26 @@ public class SetupExam1 {
 	                .where("userLoginId", "admin")
 	                .queryOne();
 
+	        Long noOfAttemptsLong;
+	        Long timeoutDaysLong;
+	        Long allowedAttemptsLong;
+
+	        try {
+	            noOfAttemptsLong = Long.valueOf(noOfAttempts);
+	            timeoutDaysLong = Long.valueOf(timeoutDays);
+	            allowedAttemptsLong = allowedAttempts.equalsIgnoreCase("yes") ? 1L : 0L;
+	        } catch (NumberFormatException e) {
+	            return ServiceUtil.returnError("allowedAttempts, noOfAttempts, timeoutDays must be numbers only");
+	        }
+
 	        Map<String, Object> assignData = new HashMap<>();
 	        
-	        assignData.put("examId",          examId);
-	        assignData.put("partyId",         partyId);
-	        assignData.put("allowedAttempts", allowedAttempts);
-	        assignData.put("noOfAttempts",    noOfAttempts);
-	        assignData.put("timeoutDays",     timeoutDays);
-	        assignData.put("userLogin",       userLogin);
+	        assignData.put("examId", examId);
+	        assignData.put("partyId", partyId);
+	        assignData.put("allowedAttempts", allowedAttemptsLong);
+	        assignData.put("noOfAttempts", noOfAttemptsLong);
+	        assignData.put("timeoutDays", timeoutDaysLong);
+	        assignData.put("userLogin", userLogin);
 
 	        Map<String, Object> result = dispatcher.runSync("createPartyExamRelationship", assignData);
 

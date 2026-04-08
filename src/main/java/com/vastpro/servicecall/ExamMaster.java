@@ -1,5 +1,6 @@
 package com.vastpro.servicecall;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -200,8 +201,7 @@ public class ExamMaster {
 		        return ServiceUtil.returnError(e.getMessage());
 		    }
 		}
-		public static Map<String, Object> getExams(HttpServletRequest request,
-                HttpServletResponse response) {
+		public static Map<String, Object> getExams(HttpServletRequest request, HttpServletResponse response) {
              try {
                   Delegator delegator = getDelegator(request);
 
@@ -218,4 +218,50 @@ public class ExamMaster {
                    return ServiceUtil.returnError("Failed: " + e.getMessage());
               }
          }
+		
+		public static Map<String, Object> getUsers(HttpServletRequest request, HttpServletResponse response) {
+		    
+			try {
+				
+		        Delegator delegator = getDelegator(request);
+
+		        List<GenericValue> userLogins = EntityQuery.use(delegator)
+		                .from("UserLogin")
+		                .where("enabled", "Y")
+		                .queryList();
+
+		        List<Map<String, Object>> userList = new ArrayList<>();
+
+		        for (GenericValue ul : userLogins) {
+
+		            String partyId = ul.getString("partyId");
+		            String userLoginId = ul.getString("userLoginId");
+
+		            if (partyId == null) continue;
+
+		            GenericValue person = EntityQuery.use(delegator)
+		                    .from("Person")
+		                    .where("partyId", partyId)
+		                    .queryOne();
+
+		            if (person != null) {
+		                Map<String, Object> user = new HashMap<>();
+
+		                user.put("partyId", partyId);
+		                user.put("userLoginId", userLoginId);
+		                user.put("firstName", person.getString("firstName"));
+		                user.put("lastName", person.getString("lastName"));
+
+		                userList.add(user);
+		            }
+		        }
+
+		        Map<String, Object> result = ServiceUtil.returnSuccess();
+		        result.put("userList", userList);
+		        return result;
+
+		    } catch (Exception e) {
+		        return ServiceUtil.returnError("Error fetching users: " + e.getMessage());
+		    }
+		}
 }

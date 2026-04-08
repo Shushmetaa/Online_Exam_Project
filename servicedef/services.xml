@@ -323,8 +323,8 @@ under the License.
 	<service name="createPartyExamRelationship" engine="java" location="com.vastpro.services.setupexam.AssignUsers" invoke="assignUsers" auth="true">
 		<attribute name="examId" type="String" mode="IN" optional="false"/>
 	    <attribute name="partyId" type="String" mode="IN" optional="false"/>
-	    <attribute name="allowedAttempts" mode="IN" type="string" />
-	    <attribute name="noOfAttempts" mode="IN" type="string" />
+	    <attribute name="allowedAttempts" mode="IN" type="String" />
+	    <attribute name="noOfAttempts" mode="IN" type="String" />
 	    <attribute name="timeoutDays" mode="IN" type="String" />
 	    <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
 	</service>

@@ -50,18 +50,18 @@ public class ExcelBulkUpload {
                 Row row = sheet.getRow(i);
                 if (row == null) continue;
 
-                String topicId         = row.getCell(0)  != null ? row.getCell(0).toString()  : "";
-                String questions       = row.getCell(1)  != null ? row.getCell(1).toString()  : "";
-                String optiona         = row.getCell(2)  != null ? row.getCell(2).toString()  : "";
-                String optionb         = row.getCell(3)  != null ? row.getCell(3).toString()  : "";
-                String optionc         = row.getCell(4)  != null ? row.getCell(4).toString()  : "";
-                String optiond         = row.getCell(5)  != null ? row.getCell(5).toString()  : "";
-                String optione         = row.getCell(6)  != null ? row.getCell(6).toString()  : "";
-                String answer          = row.getCell(7)  != null ? row.getCell(7).toString()  : "";
-                String numAnswerStr       = row.getCell(8)  != null ? row.getCell(8).toString()  : "";
-                String questionType    = row.getCell(9)  != null ? row.getCell(9).toString()  : "";
+                String topicId = row.getCell(0)  != null ? row.getCell(0).toString()  : "";
+                String questions = row.getCell(1)  != null ? row.getCell(1).toString()  : "";
+                String optiona = row.getCell(2)  != null ? row.getCell(2).toString()  : "";
+                String optionb = row.getCell(3)  != null ? row.getCell(3).toString()  : "";
+                String optionc = row.getCell(4)  != null ? row.getCell(4).toString()  : "";
+                String optiond = row.getCell(5)  != null ? row.getCell(5).toString()  : "";
+                String optione = row.getCell(6)  != null ? row.getCell(6).toString()  : "";
+                String answer = row.getCell(7)  != null ? row.getCell(7).toString()  : "";
+                String numAnswerStr = row.getCell(8)  != null ? row.getCell(8).toString()  : "";
+                String questionType = row.getCell(9)  != null ? row.getCell(9).toString()  : "";
                 String difficultyLevel = row.getCell(10) != null ? row.getCell(10).toString() : "";
-                String answerValueStr   = row.getCell(11) != null ? row.getCell(11).toString() : "0";
+                String answerValueStr = row.getCell(11) != null ? row.getCell(11).toString() : "0";
                 String negativeMarksStr = row.getCell(12) != null ? row.getCell(12).toString() : "0";
                 
                 Long numAnswer = (long) Double.parseDouble(numAnswerStr.isEmpty()     ? "0" : numAnswerStr);
