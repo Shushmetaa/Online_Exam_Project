@@ -115,4 +115,17 @@ public class SetupExamResources {
 	 	    return SetupExam1.getAssignedUsers(examId, request, response);
 	 	}
 	 	
+<<<<<<< Updated upstream
+=======
+	 	@POST
+	 	@Produces(MediaType.APPLICATION_JSON)
+	 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	 	@Path("/sendemail")
+	 	public Map<String, Object> sendExamEmail(@FormParam("examId")  String examId,@FormParam("partyId") String partyId,
+	 			@Context HttpServletRequest request,@Context HttpServletResponse response) {
+
+	 	    return SetupExam1.sendExamAssignmentEmail(
+	 	        examId, partyId, request, response);
+	 	}
+>>>>>>> Stashed changes
 }
