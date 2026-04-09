@@ -83,5 +83,4 @@ public class TopicMasterCall {
             return ServiceUtil.returnError(e.getMessage());
         }
     }
-    
 }

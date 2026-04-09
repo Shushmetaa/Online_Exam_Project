@@ -233,7 +233,7 @@ under the License.
         <field name="lastPerformanceDate" type="date-time"/>
         <field name="certificatePrinted" type="numeric"/>
         <field name="timeoutDays" type="numeric" not-null="true"/>
-        <field name="passwordChangesAuto" type="numeric"/>
+        <field name="passwordChangesAuto" type="long-varchar"/>
         <field name="canSplitExams" type="numeric"/>
         <field name="canSeeDetailedResults" type="numeric"/>
         <field name="maxSplitAttempts" type="numeric"/>

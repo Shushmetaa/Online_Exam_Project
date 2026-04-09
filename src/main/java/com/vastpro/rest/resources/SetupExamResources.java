@@ -115,8 +115,6 @@ public class SetupExamResources {
 	 	    return SetupExam1.getAssignedUsers(examId, request, response);
 	 	}
 	 	
-<<<<<<< Updated upstream
-=======
 	 	@POST
 	 	@Produces(MediaType.APPLICATION_JSON)
 	 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
@@ -127,5 +125,4 @@ public class SetupExamResources {
 	 	    return SetupExam1.sendExamAssignmentEmail(
 	 	        examId, partyId, request, response);
 	 	}
->>>>>>> Stashed changes
 }

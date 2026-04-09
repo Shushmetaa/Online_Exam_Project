@@ -264,4 +264,31 @@ public class ExamMaster {
 		        return ServiceUtil.returnError("Error fetching users: " + e.getMessage());
 		    }
 		}
+		public static Map<String, Object> getNums(
+			    HttpServletRequest request, HttpServletResponse response) {
+			    try {
+			        Delegator delegator = getDelegator(request);
+
+			        long totalExams = EntityQuery.use(delegator)
+			            .from("ExamMaster")
+			            .queryCount();
+
+			        long totalUsers = EntityQuery.use(delegator)
+			            .from("PartyExamRelationship")
+			            .queryCount();
+
+			        long totalQuestions = EntityQuery.use(delegator)
+			            .from("QuestionBankMaster")
+			            .queryCount();
+
+			        Map<String, Object> result = ServiceUtil.returnSuccess();
+			        result.put("totalExams", totalExams);
+			        result.put("totalUsers", totalUsers);
+			        result.put("totalQuestions", totalQuestions);
+			        return result;
+
+			    } catch (GenericEntityException e) {
+			        return ServiceUtil.returnError("Failed: " + e.getMessage());
+			    }
+			}
 }

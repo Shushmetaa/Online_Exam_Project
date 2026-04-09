@@ -417,4 +417,47 @@
         <attribute name="userLogin"       mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
     </service>
 
+	<service name="updatePartyExamRelationshipAuto" engine="entity-auto" invoke="update" default-entity-name="PartyExamRelationship">
+	    <auto-attributes include="pk" mode="IN" optional="false"/>
+	    <auto-attributes include="nonpk" mode="IN" optional="true"/>
+	    <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+	</service>
+	
+	<service name="softDeletePartyExamRelationship" engine="java" location="com.vastpro.services.setupexam.SoftDeleteSetupExam" invoke="softDeletePartyExam">
+	    <attribute name="examId" type="String" mode="IN" optional="false"/>
+	    <attribute name="partyId" type="String" mode="IN" optional="false"/>
+	    <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+	</service>
+	
+	<service name="removePartyExamRelationshipAuto" engine="entity-auto" invoke="delete" default-entity-name="PartyExamRelationship">
+	    <attribute name="examId" type="String" mode="IN" optional="false"/>
+	    <attribute name="partyId" type="String" mode="IN" optional="false"/>
+	    <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+	</service>
+	
+	<service name="softDeleteExamSetupDetails" engine="java" location="com.vastpro.services.setupexam.SoftDeleteExamSetup" invoke="softDeleteExamSetup">
+    	<attribute name="examId" type="String" mode="IN" optional="false"/>
+    	<attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+	</service>
+	
+	<service name="createPartyExamRelationship" engine="java" location="com.vastpro.services.setupexam.AssignUsers" invoke="assignUsers" auth="true">
+		<attribute name="examId" type="String" mode="IN" optional="false"/>
+	    <attribute name="partyId" type="String" mode="IN" optional="false"/>
+	    <attribute name="allowedAttempts" mode="IN" type="String" />
+	    <attribute name="noOfAttempts" mode="IN" type="String" />
+	    <attribute name="timeoutDays" mode="IN" type="String" />
+	    <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+	</service>
+	
+	<service name="createPartyExamRelationshipAuto" engine="entity-auto" invoke="create" default-entity-name="PartyExamRelationship">
+	    <auto-attributes include="pk" mode="IN" optional="false"/>
+	    <auto-attributes include="nonpk" mode="IN" optional="true"/>
+	    <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+	</service>
+   <service name="updatePartyExamPassword" engine="entity-auto" invoke="update" auth="true" default-entity-name="PartyExamRelationship">
+    <auto-attributes include="pk" mode="IN" optional="false"/>
+    <attribute name="passwordChangesAuto" type="String" mode="IN" optional="true"/>
+    <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+</service>
+
 </services>
