@@ -285,5 +285,11 @@ under the License.
                 rel-field-name="performanceId"/>
         </relation>
     </entity>
+    
+    <entity entity-name="TopicMaster" package-name="ofbiz.exam" table-name="topic_master">
+	    <field name="topicId" col-name="topic_id" type="id"/>
+	    <field name="topicName" col-name="topic_name" type="name"/>
+	    <prim-key field="topicId"/>
+	</entity>
 
 </entitymodel>
