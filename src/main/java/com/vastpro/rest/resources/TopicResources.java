@@ -26,9 +26,19 @@ public class TopicResources {
 	    @Produces(MediaType.APPLICATION_JSON)
 	    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	    @Path("/create")
-	    public Map<String, Object> createTopics(@Context HttpServletRequest request, @Context HttpServletResponse response){
+	    public Map<String, Object> createTopics(
+	    		 @FormParam("examId") String examId,
+	    	     @FormParam("topicId") String topicId,
+	    	     @FormParam("topicName") String topicName,
+	    	     @FormParam("percentage") String percentage,
+	    	     @FormParam("startingQid") String startingQid,
+	    	     @FormParam("endingQid") String endingQid,
+	    	     @FormParam("questionsPerExam") String questionsPerExam,
+	    	     @FormParam("topicPassPercentage") String topicPassPercentage,
+	    	     @Context HttpServletRequest request, @Context HttpServletResponse response){
 	    	
-	    	return TopicMaster.createTopic(request, response);
+	    	return TopicMaster.createTopic(examId, topicId, topicName, percentage, startingQid, endingQid, questionsPerExam, topicPassPercentage, 
+	    			request, response);
 	    }
 	    
 	    @GET

@@ -32,17 +32,10 @@ public class TopicMaster {
         return delegator;
     }
 	
-	public static Map<String, Object> createTopic(HttpServletRequest request, HttpServletResponse response){
+	public static Map<String, Object> createTopic(String examId, String topicId, String topicName, String percentage,
+			String startingQid, String endingQid, String questionsPerExam, String topicPassPercentage, HttpServletRequest request, HttpServletResponse response){
 		
 		try {
-			String examId = request.getParameter("examId");
-			String topicId = request.getParameter("topicId");
-			String topicName = request.getParameter("topicName");
-			String percentage = request.getParameter("percentage");
-			String startingQid = request.getParameter("startingQid");
-			String endingQid = request.getParameter("endingQid");
-			String questionsPerExam = request.getParameter("questionsPerExam");
-			String topicPassPercentage = request.getParameter("topicPassPercentage");
 			
 			LocalDispatcher dispatcher=getDispatcher(request);
 		    
@@ -63,7 +56,7 @@ public class TopicMaster {
 		    topicData.put("topicPassPercentage", topicPassPercentage);
 		    topicData.put("userLogin", userLogin);
 		    
-		    Map<String, Object> result = dispatcher.runSync("createTopicMaster", topicData);
+		    Map<String, Object> result = dispatcher.runSync("createExamTopicDetails", topicData);
 		    
 		    if(ServiceUtil.isError(result)) {
 		    	return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
@@ -99,9 +92,10 @@ public class TopicMaster {
 		    	return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
 		    }
 		    
-		    Map<String, Object> response2 = ServiceUtil.returnSuccess();
-            response2.put("topicList", result.get("topicList"));
-            return response2;
+		    Map<String, Object> response2 = new HashMap<>();
+		    response2.put("responseMessage", "success");
+		    response2.put("topicList", result.get("topicList"));
+		    return response2;
 			
 		}catch(GenericEntityException | GenericServiceException e) {
 			return ServiceUtil.returnError(e.getMessage());
