@@ -76,4 +76,12 @@ public class AdminResources {
 	    	return ExamMaster.getUsers(request, response);
 	    	
 	    }
+	    @GET
+	    @Produces(MediaType.APPLICATION_JSON)
+	    @Path("/getNum")
+	    public Map<String, Object> getStats(
+	        @Context HttpServletRequest request,
+	        @Context HttpServletResponse response) {
+	        return ExamMaster.getNums(request, response);
+	    }
 }

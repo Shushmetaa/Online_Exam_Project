@@ -1,5 +1,6 @@
 package com.vastpro.services.questionmaster;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.ofbiz.entity.Delegator;
@@ -13,7 +14,7 @@ import org.apache.ofbiz.service.ServiceUtil;
 
 public class UpdateQuestionMaster {
 	
-	public Map<String, Object> updateQuestions(DispatchContext dctx, Map<String, ? extends Object> context){
+	public static Map<String, Object> updateQuestions(DispatchContext dctx, Map<String, ? extends Object> context){
 		
 		try {
 			
@@ -29,6 +30,7 @@ public class UpdateQuestionMaster {
 			String answer = (String) context.get("answer");
 			Long numAnswers = (Long) context.get("numAnswers");
 			String questionType = (String) context.get("questionType");
+			String questiontype = (String) context.get("questiontype");
 			String difficultyLevel = (String) context.get("difficultyLevel");
 			Double answerValue = (Double) context.get("answerValue");
 			Double negativeMarkValue = (Double) context.get("negativeMarkValue");
@@ -80,46 +82,15 @@ public class UpdateQuestionMaster {
 			
 			if(questionType == null || questionType.isEmpty()) {
 				return ServiceUtil.returnError("Question typ is required");
+			
 			}
 			
-			if(difficultyLevel == null) {
-				return ServiceUtil.returnError("Difficuilty type is required");
-			}
-			
-			if(answerValue == null) {
-				return ServiceUtil.returnError("Answer is required");
-			}
-			
-			if(negativeMarkValue == null) {
-				return ServiceUtil.returnError("Negative marks value is required");
-			}
-			
-			Delegator delegator = dctx.getDelegator();
-			
-			LocalDispatcher dispatcher = dctx.getDispatcher();
-			
-			GenericValue existing_data = EntityQuery.use(delegator)
-					                           .from("QuestionBankMasterB")
-					                           .where("examId", examId, "qId", qId)
-					                           .queryOne();
-			
-			if(existing_data == null) {
-				return ServiceUtil.returnError("Questions not found");
-			}
-			
-			Map<String, Object> result = dispatcher.runSync("updateQuestionMasterAuto", context);
-			
-			if(ServiceUtil.isError(result)) {
-			    return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
-			}
-			
-			return ServiceUtil.returnSuccess("Question updated successfully");
-			
-			
-			
-		}catch(GenericEntityException | GenericServiceException e) {
+		}
+			catch(Exception e) {
 			return ServiceUtil.returnError("Questions failed to update: " + e.getMessage());
 		}
+		return null;
+		
 	}
-
+	
 }

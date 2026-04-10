@@ -13,12 +13,14 @@ import org.apache.ofbiz.service.LocalDispatcher;
 import org.apache.ofbiz.service.ServiceUtil;
 
 public class DeleteQuestionMaster {
-      public  Map<String,Object> deleteQuestions(DispatchContext dctx, Map<String, ? extends Object> context ){
+      public  static Map<String,Object> deleteQuestions(DispatchContext dctx, Map<String, ? extends Object> context ){
     	  String examId =(String) context.get("examId");
     	  String qId = (String) context.get("qId");
     	  
     	  Delegator delegator = dctx.getDelegator();
     	  LocalDispatcher dispatcher = dctx.getDispatcher();
+    	  
+    	  GenericValue userLogin = (GenericValue) context.get("userLogin");
     	  
     		if(examId == null || examId.isEmpty()) {
 				return ServiceUtil.returnError("Exam Id is required");
@@ -40,6 +42,7 @@ public class DeleteQuestionMaster {
     	  Map<String,Object> input= new HashMap<>();
           input.put("examId", examId);
           input.put("qId",qId);
+          input.put("userLogin", userLogin);
           
           Map<String, Object> result = dispatcher.runSync("deleteQuestionMasterAuto", input);
           

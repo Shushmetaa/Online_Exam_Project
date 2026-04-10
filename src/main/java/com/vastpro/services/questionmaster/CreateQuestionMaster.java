@@ -1,5 +1,7 @@
 package com.vastpro.services.questionmaster;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.ofbiz.entity.Delegator;
@@ -13,7 +15,7 @@ import org.apache.ofbiz.service.ServiceUtil;
 
 public class CreateQuestionMaster {
 	
-	public Map<String, Object> createQuestions(DispatchContext dctx, Map<String, ? extends Object> context){
+	public static Map<String, Object> createQuestions(DispatchContext dctx, Map<String, ? extends Object> context){
 		
 		try {
 	
@@ -29,6 +31,7 @@ public class CreateQuestionMaster {
 			String answer = (String) context.get("answer");
 			Long numAnswers = (Long) context.get("numAnswers");
 			String questionType = (String) context.get("questionType");
+			String questiontype = (String) context.get("questiontype");
 			String difficultyLevel = (String) context.get("difficultyLevel");
 			Double answerValue = (Double) context.get("answerValue");
 			Double negativeMarkValue = (Double) context.get("negativeMarkValue");
@@ -77,24 +80,7 @@ public class CreateQuestionMaster {
 			
 			if(questionType == null || questionType.isEmpty() ) {
 				return ServiceUtil.returnError("Question typ is required");
-			}
-			
-			if(difficultyLevel == null) {
-				return ServiceUtil.returnError("Difficuilty type is required");
-			}
-			
-			if(answerValue == null) {
-				return ServiceUtil.returnError("Answer is required");
-			}
-			
-			if(negativeMarkValue == null) {
-				return ServiceUtil.returnError("Negative marks value is required");
-			}
-			
-			Delegator delegator = dctx.getDelegator();
-			
-			LocalDispatcher dispatcher = dctx.getDispatcher();
-			
+
 //			GenericValue existing = EntityQuery.use(delegator)
 //					                       .from("QuestionBankMasterB")
 //					                       .where("examId", examId, "topicId", topicId)
@@ -102,19 +88,12 @@ public class CreateQuestionMaster {
 //			if(existing != null){
 //			    return ServiceUtil.returnError("Question already exists");
 //			}
-			
-			Map<String, Object> result = dispatcher.runSync("createQuestionMasterAuto", context);
-			
-			if(ServiceUtil.isError(result)) {
-				return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+
 			}
-			else {
-				return ServiceUtil.returnSuccess("Questions created successfully");
-			}
-			
-		}catch( GenericServiceException e) {
+		}catch( Exception e) {
 			return ServiceUtil.returnError("Error in creating questions" + e.getMessage());
 		}
+		return null;
+	
 	}
-
 }

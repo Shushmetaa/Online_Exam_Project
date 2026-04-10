@@ -62,7 +62,6 @@ public class QuestionMaster {
 			Map<String, Object> createData = new HashMap<>();
 			
 			createData.put("examId", examId);
-			createData.put("qId", qId);
 			createData.put("topicId", topicId);
 			createData.put("questionDetail", questionDetail);
 			createData.put("optiona", optiona);
@@ -155,11 +154,23 @@ public class QuestionMaster {
 			String optiond = request.getParameter("optiond");
 			String optione = request.getParameter("optione");
 			String answer = request.getParameter("answer");
-			Long numAnswers = Long.parseLong(request.getParameter("numAnswers").trim());
 			String questionType = request.getParameter("questionType");
 			String difficultyLevel = request.getParameter("difficultyLevel").trim();
-			Double answerValue = Double.parseDouble(request.getParameter("answerValue").trim());
-			Double negativeMarkValue = Double.parseDouble(request.getParameter("negativeMarkValue").trim());
+		
+			if(difficultyLevel != null) difficultyLevel = difficultyLevel.trim();
+
+			String answerValueStr = request.getParameter("answerValue");
+			Double answerValue = (answerValueStr != null && !answerValueStr.trim().isEmpty()) 
+					? Double.parseDouble(answerValueStr.trim()) : null;
+
+			String negativeMarkStr = request.getParameter("negativeMarkValue");
+			Double negativeMarkValue = (negativeMarkStr != null && !negativeMarkStr.trim().isEmpty()) 
+			                           ? Double.parseDouble(negativeMarkStr.trim()) : null;
+
+			String numAnswersStr = request.getParameter("numAnswers");
+			Long numAnswers = (numAnswersStr != null && !numAnswersStr.trim().isEmpty()) 
+			                  ? Long.parseLong(numAnswersStr.trim()) : null;
+
 			
 			LocalDispatcher dispatcher= getDispatcher(request);
 	

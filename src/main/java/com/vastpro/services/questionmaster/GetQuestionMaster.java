@@ -1,7 +1,10 @@
 package com.vastpro.services.questionmaster;
 
 import java.util.ArrayList;
+<<<<<<< HEAD
 import java.util.HashMap;
+=======
+>>>>>>> ab39aef32a2ddebad017356681dcfa068110ce91
 import java.util.List;
 import java.util.Map;
 
@@ -14,15 +17,19 @@ import org.apache.ofbiz.service.ServiceUtil;
 
 public class GetQuestionMaster {
 	
-	public Map<String, Object> getQuestions(DispatchContext dctx, Map<String, ? extends Object> context){
+	public static Map<String, Object> getQuestions(DispatchContext dctx, Map<String, ? extends Object> context){
 		
 		try {
 			
 			String examId = (String) context.get("examId");
 			String topicId = (String) context.get("topicId");
+<<<<<<< HEAD
 //			String questionType = (String) context.get("questionType"); 
 //		    String difficultyLevel = (String) context.get("difficultyLevel");
 
+=======
+			
+>>>>>>> ab39aef32a2ddebad017356681dcfa068110ce91
 			if(examId == null || examId.isEmpty()) {
 				return ServiceUtil.returnError("Exam Id is required");
 			}
@@ -33,6 +40,7 @@ public class GetQuestionMaster {
 			
 			Delegator delegator = dctx.getDelegator();
 			
+<<<<<<< HEAD
 			 Map<String, Object> conditions = new HashMap<>();
 	        conditions.put("examId", examId);
 
@@ -57,6 +65,16 @@ public class GetQuestionMaster {
 	        result.put("questionList", getData != null ? getData : new ArrayList<>());
 	        return result;
 
+=======
+			List<GenericValue> getData = EntityQuery.use(delegator)
+					                                .from("QuestionBankMasterB")
+					                                .where("examId", examId, "topicId", topicId)
+					                                .queryList();
+			
+			Map<String, Object> result = ServiceUtil.returnSuccess();
+			result.put("questionList", getData != null ? getData : new ArrayList<>());
+			return result;
+>>>>>>> ab39aef32a2ddebad017356681dcfa068110ce91
 	         
 		}catch (GenericEntityException e) {
 			return ServiceUtil.returnError("Error fetching topics: " + e.getMessage());

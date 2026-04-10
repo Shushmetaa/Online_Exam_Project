@@ -79,26 +79,24 @@ public class CreateTopicMaster {
 			}
 
 			// CASE 1 — topicId is empty = NEW topic typed by admin, auto generate ID
-	        if (topicId == null || topicId.isEmpty()) {
+			if (topicId == null || topicId.isEmpty()) {
 
-	        	// Find max topicId from TopicMaster DB and generate next
-	            List<GenericValue> allTopics = EntityQuery.use(delegator)
-	                    .from("TopicMaster")
-	                    .queryList();
+			    List<GenericValue> allTopics = EntityQuery.use(delegator)
+			            .from("TopicMaster")
+			            .queryList();
 
-	            long maxTopicId = 0;
-	            for (GenericValue t : allTopics) {
-	                try {
-	                    long id = Long.parseLong(t.getString("topicId"));
-	                    if (id > maxTopicId) maxTopicId = id;
-	                } catch (NumberFormatException e) {
-	                    // skip non-numeric ids
-	                }
-	            }
+			    long maxTopicId = 0;
+			    for (GenericValue t : allTopics) {
+			        try {
+			            long id = Long.parseLong(t.getString("topicId"));
+			            if (id > maxTopicId) maxTopicId = id;
+			        } catch (NumberFormatException e) {
+			        }
+			    }
 
-	            // Next topicId = max + 1
-	            topicId = String.valueOf(maxTopicId + 1);
-
+			    // Generate next topicId = max + 1
+			    topicId = String.valueOf(maxTopicId + 1);
+			    
 	            // Save new topic to TopicMaster with generated topicId
 	            Map<String, Object> topicMasterData = new HashMap<>();
 	            topicMasterData.put("topicId", topicId);

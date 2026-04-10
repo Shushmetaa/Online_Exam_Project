@@ -329,12 +329,9 @@
     <!--                      QUESTION SERVICES                        -->
     <!-- ═══════════════════════════════════════════════════════════════ -->
 
-    <service name="createQuestionMaster" engine="java"
-             location="com.vastpro.services.questionmaster.CreateQuestionMaster"
-             invoke="createQuestions" auth="true">
+    <service name="createQuestionMaster" engine="java" location="com.vastpro.services.questionmaster.CreateQuestionMaster" invoke="createQuestions" auth="true">
         <attribute name="examId"            mode="IN" type="String"/>
-        <attribute name="qId"               mode="IN" type="Long"/>
-        <attribute name="topicId"           mode="IN" type="Long"/>
+        <attribute name="topicId"           mode="IN" type="String"/>
         <attribute name="questionDetail"    mode="IN" type="String"/>
         <attribute name="optiona"           mode="IN" type="String"/>
         <attribute name="optionb"           mode="IN" type="String"/>
@@ -343,34 +340,29 @@
         <attribute name="optione"           mode="IN" type="String"/>
         <attribute name="answer"            mode="IN" type="String"/>
         <attribute name="numAnswers"        mode="IN" type="Long"/>
-        <attribute name="questionType"      mode="IN" type="Long"/>
+        <attribute name="questiontype"      mode="IN" type="String"/>
         <attribute name="difficultyLevel"   mode="IN" type="String"/>
         <attribute name="answerValue"       mode="IN" type="Double"/>
         <attribute name="negativeMarkValue" mode="IN" type="Double"/>
         <attribute name="userLogin"         mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
     </service>
 
-    <service name="createQuestionMasterAuto" engine="entity-auto"
-             invoke="create" default-entity-name="QuestionBankMaster" auth="true">
+    <service name="createQuestionMasterAuto" engine="entity-auto" invoke="create" default-entity-name="QuestionBankMasterB" auth="true">
         <auto-attributes include="pk"    mode="IN"/>
         <auto-attributes include="nonpk" mode="IN"/>
     </service>
 
-    <service name="getQuestionMaster" engine="java"
-             location="com.vastpro.services.questionmaster.GetQuestionMaster"
-             invoke="getQuestions" auth="true">
+    <service name="getQuestionMaster" engine="java" location="com.vastpro.services.questionmaster.GetQuestionMaster" invoke="getQuestions" auth="true">
         <attribute name="examId"       mode="IN"  type="String"/>
-        <attribute name="topicId"      mode="IN"  type="Long"/>
+        <attribute name="topicId"      mode="IN"  type="String"/>
         <attribute name="questionList" mode="OUT" type="List"/>
         <attribute name="userLogin"    mode="IN"  type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
     </service>
 
-    <service name="updateQuestionMaster" engine="java"
-             location="com.vastpro.services.questionmaster.UpdateQuestionMaster"
-             invoke="updateQuestions" auth="true">
+    <service name="updateQuestionMaster" engine="java" location="com.vastpro.services.questionmaster.UpdateQuestionMaster" invoke="updateQuestions" auth="true">
         <attribute name="examId"            mode="IN" type="String"/>
-        <attribute name="qId"               mode="IN" type="Long"/>
-        <attribute name="topicId"           mode="IN" type="Long"/>
+        <attribute name="qId"               mode="IN" type="String"/>
+        <attribute name="topicId"           mode="IN" type="String"/>
         <attribute name="questionDetail"    mode="IN" type="String"/>
         <attribute name="optiona"           mode="IN" type="String"/>
         <attribute name="optionb"           mode="IN" type="String"/>
@@ -379,30 +371,27 @@
         <attribute name="optione"           mode="IN" type="String"/>
         <attribute name="answer"            mode="IN" type="String"/>
         <attribute name="numAnswers"        mode="IN" type="Long"/>
-        <attribute name="questionType"      mode="IN" type="Long"/>
-        <attribute name="difficultyLevel"   mode="IN" type="Long"/>
+        <attribute name="questiontype"      mode="IN" type="String"/>
+        <attribute name="difficultyLevel"   mode="IN" type="String"/>
         <attribute name="answerValue"       mode="IN" type="Double"/>
         <attribute name="negativeMarkValue" mode="IN" type="Double"/>
         <attribute name="userLogin"         mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
     </service>
 
-    <service name="updateQuestionMasterAuto" engine="entity-auto"
-             invoke="update" default-entity-name="QuestionBankMaster" auth="true">
+    <service name="updateQuestionMasterAuto" engine="entity-auto" invoke="update" default-entity-name="QuestionBankMasterB" auth="true">
         <auto-attributes include="pk"    mode="IN"/>
         <auto-attributes include="nonpk" mode="IN"/>
     </service>
 
-    <service name="deleteQuestionMaster" engine="java"
-             location="com.vastpro.services.questionmaster.DeleteQuestionMaster"
-             invoke="deleteQuestions" auth="true">
+    <service name="deleteQuestionMaster" engine="java" location="com.vastpro.services.questionmaster.DeleteQuestionMaster" invoke="deleteQuestions" auth="true">
         <attribute name="examId"    mode="IN" type="String"/>
-        <attribute name="qId"       mode="IN" type="Long"/>
+        <attribute name="qId"       mode="IN" type="String"/>
         <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
     </service>
 
-    <service name="deleteQuestionMasterAuto" engine="entity-auto"
-             invoke="delete" default-entity-name="QuestionBankMaster" auth="true">
+    <service name="deleteQuestionMasterAuto" engine="entity-auto" invoke="delete" default-entity-name="QuestionBankMasterB" auth="true">
         <auto-attributes include="pk" mode="IN"/>
+        <attribute name="userLogin"         mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
     </service>
 
     <!-- ═══════════════════════════════════════════════════════════════ -->
@@ -535,5 +524,48 @@
         <attribute name="timeoutDays"     mode="IN"     type="String"/>
         <attribute name="userLogin"       mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
     </service>
+
+	<service name="updatePartyExamRelationshipAuto" engine="entity-auto" invoke="update" default-entity-name="PartyExamRelationship">
+	    <auto-attributes include="pk" mode="IN" optional="false"/>
+	    <auto-attributes include="nonpk" mode="IN" optional="true"/>
+	    <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+	</service>
+	
+	<service name="softDeletePartyExamRelationship" engine="java" location="com.vastpro.services.setupexam.SoftDeleteSetupExam" invoke="softDeletePartyExam">
+	    <attribute name="examId" type="String" mode="IN" optional="false"/>
+	    <attribute name="partyId" type="String" mode="IN" optional="false"/>
+	    <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+	</service>
+	
+	<service name="removePartyExamRelationshipAuto" engine="entity-auto" invoke="delete" default-entity-name="PartyExamRelationship">
+	    <attribute name="examId" type="String" mode="IN" optional="false"/>
+	    <attribute name="partyId" type="String" mode="IN" optional="false"/>
+	    <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+	</service>
+	
+	<service name="softDeleteExamSetupDetails" engine="java" location="com.vastpro.services.setupexam.SoftDeleteExamSetup" invoke="softDeleteExamSetup">
+    	<attribute name="examId" type="String" mode="IN" optional="false"/>
+    	<attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+	</service>
+	
+	<service name="createPartyExamRelationship" engine="java" location="com.vastpro.services.setupexam.AssignUsers" invoke="assignUsers" auth="true">
+		<attribute name="examId" type="String" mode="IN" optional="false"/>
+	    <attribute name="partyId" type="String" mode="IN" optional="false"/>
+	    <attribute name="allowedAttempts" mode="IN" type="String" />
+	    <attribute name="noOfAttempts" mode="IN" type="String" />
+	    <attribute name="timeoutDays" mode="IN" type="String" />
+	    <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+	</service>
+	
+	<service name="createPartyExamRelationshipAuto" engine="entity-auto" invoke="create" default-entity-name="PartyExamRelationship">
+	    <auto-attributes include="pk" mode="IN" optional="false"/>
+	    <auto-attributes include="nonpk" mode="IN" optional="true"/>
+	    <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+	</service>
+   <service name="updatePartyExamPassword" engine="entity-auto" invoke="update" auth="true" default-entity-name="PartyExamRelationship">
+    <auto-attributes include="pk" mode="IN" optional="false"/>
+    <attribute name="passwordChangesAuto" type="String" mode="IN" optional="true"/>
+    <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+</service>
 
 </services>
