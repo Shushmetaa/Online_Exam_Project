@@ -1,5 +1,7 @@
 package com.vastpro.services.questionmaster;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.ofbiz.entity.Delegator;
@@ -13,13 +15,12 @@ import org.apache.ofbiz.service.ServiceUtil;
 
 public class CreateQuestionMaster {
 	
-	public Map<String, Object> createQuestions(DispatchContext dctx, Map<String, ? extends Object> context){
+	public static Map<String, Object> createQuestions(DispatchContext dctx, Map<String, ? extends Object> context){
 		
 		try {
 	
 			String examId = (String) context.get("examId");
-			Long qId = (Long) context.get("qId");
-			Long topicId = (Long) context.get("topicId");
+			String topicId = (String) context.get("topicId");
 			String questionDetail = (String) context.get("questionDetail");
 			String optiona = (String) context.get("optiona");
 			String optionb = (String) context.get("optionb");
@@ -28,17 +29,13 @@ public class CreateQuestionMaster {
 			String optione = (String) context.get("optione");
 			String answer = (String) context.get("answer");
 			Long numAnswers = (Long) context.get("numAnswers");
-			Long questionType = (Long) context.get("questionType");
+			String questiontype = (String) context.get("questiontype");
 			String difficultyLevel = (String) context.get("difficultyLevel");
 			Double answerValue = (Double) context.get("answerValue");
 			Double negativeMarkValue = (Double) context.get("negativeMarkValue");
 			
 			if(examId == null || examId.isEmpty()) {
 				return ServiceUtil.returnError("Exam Id is required");
-			}
-			
-			if(qId == null ) {
-				return ServiceUtil.returnError("QId is required");
 			}
 			
 			if(topicId == null) {
@@ -75,8 +72,8 @@ public class CreateQuestionMaster {
 				return ServiceUtil.returnError("Number of answers is required");
 			}
 			
-			if(questionType == null) {
-				return ServiceUtil.returnError("Question typ is required");
+			if(questiontype == null) {
+				return ServiceUtil.returnError("Question type is required");
 			}
 			
 			if(difficultyLevel == null) {
@@ -95,15 +92,31 @@ public class CreateQuestionMaster {
 			
 			LocalDispatcher dispatcher = dctx.getDispatcher();
 			
-			GenericValue existing = EntityQuery.use(delegator)
-					                       .from("QuestionBankMaster")
-					                       .where("examId", examId, "topicId", topicId)
-					                       .queryOne();
-			if(existing != null){
-			    return ServiceUtil.returnError("Question already exists");
-			}
+			GenericValue userLogin = (GenericValue) context.get("userLogin");
 			
-			Map<String, Object> result = dispatcher.runSync("createQuestionMasterAuto", context);
+			 List<GenericValue> allQuestions = EntityQuery.use(delegator)
+		                .from("QuestionBankMasterB")
+		                .where("examId", examId)
+		                .queryList();
+
+		        long maxQId = 0;
+		        for (GenericValue q : allQuestions) {
+		            try {
+		                long id = Long.parseLong(q.getString("qId"));
+		                if (id > maxQId) maxQId = id;
+		            } catch (NumberFormatException e) {
+		                return ServiceUtil.returnError("Check wheather the number you passed is numeric");
+		            }
+		        }
+		        String qId = String.valueOf(maxQId + 1);
+
+		        // Build insert data
+		        Map<String, Object> createData = new HashMap<>(context);
+		        createData.put("qId", qId);        
+		        createData.put("topicId", topicId); 
+		        createData.put("userLogin", userLogin);
+		        
+			Map<String, Object> result = dispatcher.runSync("createQuestionMasterAuto", createData);
 			
 			if(ServiceUtil.isError(result)) {
 				return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));

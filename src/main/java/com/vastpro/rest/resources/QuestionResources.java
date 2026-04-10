@@ -37,7 +37,7 @@ public class QuestionResources {
     	
     }
     
-    @PUT
+    @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Path("/update")

@@ -1,5 +1,6 @@
 package com.vastpro.services.questionmaster;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.ofbiz.entity.Delegator;
@@ -13,13 +14,13 @@ import org.apache.ofbiz.service.ServiceUtil;
 
 public class UpdateQuestionMaster {
 	
-	public Map<String, Object> updateQuestions(DispatchContext dctx, Map<String, ? extends Object> context){
+	public static Map<String, Object> updateQuestions(DispatchContext dctx, Map<String, ? extends Object> context){
 		
 		try {
 			
 			String examId = (String) context.get("examId");
-			Long qId = (Long) context.get("qId");
-			Long topicId = (Long) context.get("topicId");
+			String qId = (String) context.get("qId");
+			String topicId = (String) context.get("topicId");
 			String questionDetail = (String) context.get("questionDetail");
 			String optiona = (String) context.get("optiona");
 			String optionb = (String) context.get("optionb");
@@ -28,7 +29,7 @@ public class UpdateQuestionMaster {
 			String optione = (String) context.get("optione");
 			String answer = (String) context.get("answer");
 			Long numAnswers = (Long) context.get("numAnswers");
-			Long questionType = (Long) context.get("questionType");
+			String questiontype = (String) context.get("questiontype");
 			String difficultyLevel = (String) context.get("difficultyLevel");
 			Double answerValue = (Double) context.get("answerValue");
 			Double negativeMarkValue = (Double) context.get("negativeMarkValue");
@@ -78,8 +79,8 @@ public class UpdateQuestionMaster {
 				return ServiceUtil.returnError("Number of answers is required");
 			}
 			
-			if(questionType == null) {
-				return ServiceUtil.returnError("Question typ is required");
+			if(questiontype == null) {
+				return ServiceUtil.returnError("Question type is required");
 			}
 			
 			if(difficultyLevel == null) {
@@ -99,7 +100,7 @@ public class UpdateQuestionMaster {
 			LocalDispatcher dispatcher = dctx.getDispatcher();
 			
 			GenericValue existing_data = EntityQuery.use(delegator)
-					                           .from("QuestionBankMaster")
+					                           .from("QuestionBankMasterB")
 					                           .where("examId", examId, "qId", qId)
 					                           .queryOne();
 			
@@ -107,7 +108,25 @@ public class UpdateQuestionMaster {
 				return ServiceUtil.returnError("Questions not found");
 			}
 			
-			Map<String, Object> result = dispatcher.runSync("updateQuestionMasterAuto", context);
+			Map<String, Object> updateMap = new HashMap<>();
+			updateMap.put("examId", examId);
+			updateMap.put("qId", qId);
+			updateMap.put("topicId", topicId);
+			updateMap.put("questionDetail", questionDetail);
+			updateMap.put("optiona", optiona);
+			updateMap.put("optionb", optionb);
+			updateMap.put("optionc", optionc);
+			updateMap.put("optiond", optiond);
+			updateMap.put("optione", optione);
+			updateMap.put("answer", answer);
+			updateMap.put("numAnswers", numAnswers);
+			updateMap.put("questiontype", questiontype);
+			updateMap.put("difficultyLevel", difficultyLevel);
+			updateMap.put("answerValue", answerValue);
+			updateMap.put("negativeMarkValue", negativeMarkValue);
+			updateMap.put("userLogin", context.get("userLogin")); 
+			
+			Map<String, Object> result = dispatcher.runSync("updateQuestionMasterAuto", updateMap);
 			
 			if(ServiceUtil.isError(result)) {
 			    return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
