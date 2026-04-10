@@ -1,5 +1,7 @@
 package com.vastpro.services.questionmaster;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,30 +19,44 @@ public class GetQuestionMaster {
 		try {
 			
 			String examId = (String) context.get("examId");
-			Long topicId = (Long) context.get("topicId");
-			
+			String topicId = (String) context.get("topicId");
+//			String questionType = (String) context.get("questionType"); 
+//		    String difficultyLevel = (String) context.get("difficultyLevel");
+
 			if(examId == null || examId.isEmpty()) {
 				return ServiceUtil.returnError("Exam Id is required");
 			}
 			
 			if(topicId == null) {
 				return ServiceUtil.returnError("Topic Id is required");
-			}
+		   }
 			
 			Delegator delegator = dctx.getDelegator();
 			
-			List<GenericValue> getData = EntityQuery.use(delegator)
-					                                .from("QuestionBankMaster")
-					                                .where("examId", examId, "topicId", topicId)
-					                                .queryList();
-			
-			if(getData == null || getData.isEmpty()) {
-				return ServiceUtil.returnError("Questions not found");
-			}
-			
-			Map<String, Object> result = ServiceUtil.returnSuccess("Questions fetched successfully");
-	        result.put("questionList", getData);
+			 Map<String, Object> conditions = new HashMap<>();
+	        conditions.put("examId", examId);
+
+	        if (topicId != null && !topicId.isEmpty()) {
+	            conditions.put("topicId", topicId);
+	        }
+
+//	        if (questionType != null && !questionType.isEmpty()) {
+//	            conditions.put("questionType", questionType);
+//	        }
+//
+//	        if (difficultyLevel != null && !difficultyLevel.isEmpty()) {
+//	            conditions.put("difficultyLevel", difficultyLevel);
+//	        }
+
+	        List<GenericValue> getData = EntityQuery.use(delegator)
+	                .from("QuestionBankMasterB")
+	                .where(conditions)
+	                .queryList();
+
+	        Map<String, Object> result = ServiceUtil.returnSuccess("Questions fetched successfully");
+	        result.put("questionList", getData != null ? getData : new ArrayList<>());
 	        return result;
+
 	         
 		}catch (GenericEntityException e) {
 			return ServiceUtil.returnError("Error fetching topics: " + e.getMessage());

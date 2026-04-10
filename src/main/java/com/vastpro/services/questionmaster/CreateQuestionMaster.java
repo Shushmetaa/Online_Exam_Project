@@ -18,8 +18,8 @@ public class CreateQuestionMaster {
 		try {
 	
 			String examId = (String) context.get("examId");
-			Long qId = (Long) context.get("qId");
-			Long topicId = (Long) context.get("topicId");
+			String qId = (String) context.get("qId");
+			String topicId = (String) context.get("topicId");
 			String questionDetail = (String) context.get("questionDetail");
 			String optiona = (String) context.get("optiona");
 			String optionb = (String) context.get("optionb");
@@ -28,7 +28,7 @@ public class CreateQuestionMaster {
 			String optione = (String) context.get("optione");
 			String answer = (String) context.get("answer");
 			Long numAnswers = (Long) context.get("numAnswers");
-			Long questionType = (Long) context.get("questionType");
+			String questionType = (String) context.get("questionType");
 			String difficultyLevel = (String) context.get("difficultyLevel");
 			Double answerValue = (Double) context.get("answerValue");
 			Double negativeMarkValue = (Double) context.get("negativeMarkValue");
@@ -37,11 +37,11 @@ public class CreateQuestionMaster {
 				return ServiceUtil.returnError("Exam Id is required");
 			}
 			
-			if(qId == null ) {
+			if(qId == null || qId.isEmpty()) {
 				return ServiceUtil.returnError("QId is required");
 			}
 			
-			if(topicId == null) {
+			if(topicId == null || topicId.isEmpty()) {
 				return ServiceUtil.returnError("Topic Id is required");
 			}
 			
@@ -75,7 +75,7 @@ public class CreateQuestionMaster {
 				return ServiceUtil.returnError("Number of answers is required");
 			}
 			
-			if(questionType == null) {
+			if(questionType == null || questionType.isEmpty() ) {
 				return ServiceUtil.returnError("Question typ is required");
 			}
 			
@@ -95,13 +95,13 @@ public class CreateQuestionMaster {
 			
 			LocalDispatcher dispatcher = dctx.getDispatcher();
 			
-			GenericValue existing = EntityQuery.use(delegator)
-					                       .from("QuestionBankMaster")
-					                       .where("examId", examId, "topicId", topicId)
-					                       .queryOne();
-			if(existing != null){
-			    return ServiceUtil.returnError("Question already exists");
-			}
+//			GenericValue existing = EntityQuery.use(delegator)
+//					                       .from("QuestionBankMasterB")
+//					                       .where("examId", examId, "topicId", topicId)
+//					                       .queryOne();
+//			if(existing != null){
+//			    return ServiceUtil.returnError("Question already exists");
+//			}
 			
 			Map<String, Object> result = dispatcher.runSync("createQuestionMasterAuto", context);
 			
@@ -112,7 +112,7 @@ public class CreateQuestionMaster {
 				return ServiceUtil.returnSuccess("Questions created successfully");
 			}
 			
-		}catch(GenericEntityException | GenericServiceException e) {
+		}catch( GenericServiceException e) {
 			return ServiceUtil.returnError("Error in creating questions" + e.getMessage());
 		}
 	}

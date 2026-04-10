@@ -59,6 +59,7 @@ public class CreateTopicMaster {
             }
 			
 			String noOfQuestions = exam.getString("noOfQuestions");
+
 			double pct = Double.parseDouble(percentage);
 			double questions = Double.parseDouble(noOfQuestions);
 			long calculatedQuestionsPerExam = Math.round((pct/100) * questions);

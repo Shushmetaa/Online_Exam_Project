@@ -197,6 +197,125 @@
         <attribute name="examId"    mode="IN" type="String" optional="false"/>
         <attribute name="topicId"   mode="IN" type="String" optional="false"/>
         <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+
+         </service>
+   <service name="deleteTopicMasterAuto" engine="entity-auto" default-entity-name="ExamTopicDetails" invoke="delete" auth="true">
+     	<auto-attributes include="pk" mode="IN"></auto-attributes>
+     	<attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+   </service>
+   
+	<service name="createQuestionMaster" engine="java" location="com.vastpro.services.questionmaster.CreateQuestionMaster" invoke="createQuestions" auth="true">
+		<attribute name="examId" mode="IN" type="String"></attribute>
+		<attribute name="qId" mode="IN" type="String"></attribute>
+		<attribute name="topicId" mode="IN" type="String"></attribute>
+		<attribute name="questionDetail" mode="IN" type="String"></attribute>
+		<attribute name="optiona" mode="IN" type="String"></attribute>
+		<attribute name="optionb" mode="IN" type="String"></attribute>
+		<attribute name="optionc" mode="IN" type="String"></attribute>
+		<attribute name="optiond" mode="IN" type="String"></attribute>
+		<attribute name="optione" mode="IN" type="String"></attribute>
+		<attribute name="answer" mode="IN" type="String"></attribute>
+		<attribute name="numAnswers" mode="IN" type="Long"></attribute>
+		<attribute name="questionType" mode="IN" type="String"></attribute>
+		<attribute name="difficultyLevel" mode="IN" type="String"></attribute>
+		<attribute name="answerValue" mode="IN" type="Double"></attribute>
+		<attribute name="negativeMarkValue" mode="IN" type="Double"></attribute>
+		<attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+	</service>
+	
+    <service name="createQuestionMasterAuto" engine="entity-auto" invoke="create" default-entity-name="QuestionBankMasterB" auth="true">
+    	<auto-attributes mode="IN" include="pk"></auto-attributes>
+    	<auto-attributes mode="IN" include="nonpk"></auto-attributes>
+    </service>
+
+    
+    <service name="getQuestionMaster" engine="java" location="com.vastpro.services.questionmaster.GetQuestionMaster" auth="true" invoke="getQuestions">
+    	<attribute name="examId" mode="IN" type="String" optional="false"></attribute>
+    	<attribute name="topicId" mode="IN" type="String" optional="false"></attribute>
+    	<!-- 
+    	<attribute name="questionType" mode="IN" type="String" optional="true"/>
+    	<attribute name="difficultyLevel" mode="IN" type="String" optional="true"/>
+    	 -->
+    	<attribute name="questionList" mode="OUT" type="List"></attribute>
+    	<attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+    </service>
+    
+    <service name="updateQuestionMaster" engine="java" location="com.vastpro.services.questionmaster.UpdateQuestionMaster" invoke="updateQuestions" auth="true">
+	    <attribute name="examId" mode="IN" type="String"></attribute>
+		<attribute name="qId" mode="IN" type="String"></attribute>
+		<attribute name="topicId" mode="IN" type="String"></attribute>
+		<attribute name="questionDetail" mode="IN" type="String"></attribute>
+		<attribute name="optiona" mode="IN" type="String"></attribute>
+		<attribute name="optionb" mode="IN" type="String"></attribute>
+		<attribute name="optionc" mode="IN" type="String"></attribute>
+		<attribute name="optiond" mode="IN" type="String"></attribute>
+		<attribute name="optione" mode="IN" type="String"></attribute>
+		<attribute name="answer" mode="IN" type="String"></attribute>
+		<attribute name="numAnswers" mode="IN" type="Long"></attribute>
+		<attribute name="questionType" mode="IN" type="String"></attribute>
+		<attribute name="difficultyLevel" mode="IN" type="Long"></attribute>
+		<attribute name="answerValue" mode="IN" type="Double"></attribute>
+		<attribute name="negativeMarkValue" mode="IN" type="Double"></attribute>
+		<attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+	</service>
+    
+   <service name="updateQuestionMasterAuto" engine="entity-auto"  invoke="update" default-entity-name="QuestionBankMasterB" auth="true">
+   	<auto-attributes include="pk" mode="IN"></auto-attributes>
+   	<auto-attributes include="nonpk" mode="IN"></auto-attributes>
+   </service> 
+
+   <service name="deleteQuestionMaster" engine="java" location="com.vastpro.services.questionmaster.DeleteQuestionMaster" invoke="deleteQuestions" auth="true">
+		 <attribute name="examId" mode="IN" type="String"/>
+    	 <attribute name="qId" mode="IN" type="String"/>
+    	 <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+	</service>
+	
+	<service name="deleteQuestionMasterAuto" engine="entity-auto" invoke="delete" auth="true" default-entity-name="QuestionBankMasterB">
+		<auto-attributes include="pk" mode="IN" />
+    		
+	</service>
+   <service name= "excelUpload" engine="java" location="com.vastpro.services.excelupload.ExcelBulkUpload" invoke="excelUpload" auth="true">
+
+   		<attribute name="examId" mode="IN" type="String" />
+	    <attribute name="qId" mode="IN" type="Long" />
+	    <attribute name="topicId" mode="IN" type="Long"/>
+	    <attribute name="questionDetail" mode="IN" type="String" />
+	    <attribute name="optiona" mode="IN" type="String" />
+	    <attribute name="optionb" mode="IN" type="String" />
+	    <attribute name="optionc" mode="IN" type="String" />
+	    <attribute name="optiond" mode="IN" type="String"/>
+	    <attribute name="optione" mode="IN" type="String" />
+	    <attribute name="answer" mode="IN" type="String" />
+	    <attribute name="numAnswers" mode="IN" type="Long" />
+	    <attribute name="questiontype" mode="IN" type="Long" />
+	    <attribute name="difficultyLevel" mode="IN" type="Long" />
+	    <attribute name="answerValue" mode="IN" type="Double" />
+	    <attribute name="negativeMarkValue" mode="IN" type="Double" />
+	    <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+   </service>
+   
+   <service name="excelBulkUpload" engine="java" location="com.vastpro.services.excelupload.ExcelBulkUpload" invoke="excelUpload" auth="true">
+	    <attribute name="examId"   mode="IN" type="String"/>
+	    <attribute name="file"     mode="IN" type="java.io.InputStream"/>
+	    <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+	</service>
+   
+	 <service name="excelUploadAuto" engine="entity-auto" invoke="create" auth="true" default-entity-name="QuestionBankMasterB">
+	    <auto-attributes include="pk"    mode="IN"/>
+	    <auto-attributes include="nonpk" mode="IN" optional="true"/>
+	    <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+	</service>
+	
+	<service name="createSetupExam" engine="java" location="com.vastpro.services.setupexam.SetupExamination" invoke="createSetupExam" auth="true">
+	    <attribute name="examId" mode="IN" type="String"  optional="false"/>
+	    <attribute name="setupType"  mode="IN" type="String"  optional="false"/>
+	    <attribute name="setupDetails" mode="IN" type="String"  optional="false"/>
+	    <attribute name="partyId" mode="IN" type="String"  optional="false"/>
+	    <attribute name="allowedAttempts" mode="IN" type="Integer" optional="false"/>
+	    <attribute name="noOfAttempts" mode="IN" type="Integer" optional="false"/>
+	    <attribute name="timeoutDays" mode="IN" type="Integer" optional="false"/>
+	    <attribute name="userLogin"  mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+
     </service>
 
     <!-- entity-auto — DELETE from ExamTopicDetails -->
