@@ -32,6 +32,7 @@
         <attribute name="email"           mode="IN"  type="String" optional="false"/>
         <attribute name="password"        mode="IN"  type="String" optional="false"/>
         <attribute name="confirmPassword" mode="IN"  type="String" optional="false"/>
+        <attribute name="roleTypeId"      mode="IN"  type="String" optional="false"/>
         <attribute name="partyId"         mode="OUT" type="String" optional="true"/>
     </service>
     
