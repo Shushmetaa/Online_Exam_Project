@@ -26,7 +26,7 @@ public class DeleteQuestionMaster {
 				return ServiceUtil.returnError("Exam Id is required");
 			}
 			
-			if(qId == null || qId.isEmpty()) {
+			if(qId == null) {
 				return ServiceUtil.returnError("QId is required");
 			}
 			

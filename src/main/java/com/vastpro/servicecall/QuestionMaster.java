@@ -37,7 +37,6 @@ public class QuestionMaster {
 		try {
 			
 			String examId = request.getParameter("examId");
-			String qId = request.getParameter("qId");
 			String topicId = request.getParameter("topicId");
 			String questionDetail = request.getParameter("questionDetail");
 			String optiona = request.getParameter("optiona");
@@ -97,19 +96,22 @@ public class QuestionMaster {
 	public static Map<String, Object> getQuestion(HttpServletRequest request, HttpServletResponse response){
 		
 		try {
+			
 			String examId = request.getParameter("examId");
-			String topicId = request.getParameter("topicId");
-//			String questionType = request.getParameter("questionType"); 
-//	        String difficultyLevel = request.getParameter("difficultyLevel"); 
-	        
-			System.out.println("DEBUG examId received: " + examId); 
+			
 			if (examId == null || examId.trim().isEmpty()) {
 	            return ServiceUtil.returnError("examId is required");
 	        }
-			if(topicId == null || topicId.trim().isEmpty()) {
-			    return ServiceUtil.returnError("Topic Id is required");
+
+			String topicIdStr = request.getParameter("topicId");
+
+			if (topicIdStr == null || topicIdStr.trim().isEmpty()) {
+			    return ServiceUtil.returnError("topicId is required");
 			}
-			
+
+			String topicId = topicIdStr.trim();
+//			String questionType = request.getParameter("questionType"); 
+//	        String difficultyLevel = request.getParameter("difficultyLevel"); 
 			LocalDispatcher dispatcher= getDispatcher(request);
 	
 			
@@ -155,8 +157,8 @@ public class QuestionMaster {
 			String optione = request.getParameter("optione");
 			String answer = request.getParameter("answer");
 			String questionType = request.getParameter("questionType");
-			String difficultyLevel = request.getParameter("difficultyLevel").trim();
-		
+			String difficultyLevel = request.getParameter("difficultyLevel");
+			
 			if(difficultyLevel != null) difficultyLevel = difficultyLevel.trim();
 
 			String answerValueStr = request.getParameter("answerValue");
@@ -170,7 +172,6 @@ public class QuestionMaster {
 			String numAnswersStr = request.getParameter("numAnswers");
 			Long numAnswers = (numAnswersStr != null && !numAnswersStr.trim().isEmpty()) 
 			                  ? Long.parseLong(numAnswersStr.trim()) : null;
-
 			
 			LocalDispatcher dispatcher= getDispatcher(request);
 	
@@ -250,3 +251,5 @@ public class QuestionMaster {
 	}
 
 }
+	        
+		    

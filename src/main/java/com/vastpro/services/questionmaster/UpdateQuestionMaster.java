@@ -30,7 +30,6 @@ public class UpdateQuestionMaster {
 			String answer = (String) context.get("answer");
 			Long numAnswers = (Long) context.get("numAnswers");
 			String questionType = (String) context.get("questionType");
-			String questiontype = (String) context.get("questiontype");
 			String difficultyLevel = (String) context.get("difficultyLevel");
 			Double answerValue = (Double) context.get("answerValue");
 			Double negativeMarkValue = (Double) context.get("negativeMarkValue");
@@ -40,11 +39,11 @@ public class UpdateQuestionMaster {
 				return ServiceUtil.returnError("Exam Id is required");
 			}
 			
-			if(qId == null || qId.isEmpty() ) {
+			if(qId == null ) {
 				return ServiceUtil.returnError("QId is required");
 			}
 			
-			if(topicId == null || topicId.isEmpty()) {
+			if(topicId == null) {
 				return ServiceUtil.returnError("Topic Id is required");
 			}
 			
@@ -80,17 +79,66 @@ public class UpdateQuestionMaster {
 				return ServiceUtil.returnError("Number of answers is required");
 			}
 			
-			if(questionType == null || questionType.isEmpty()) {
-				return ServiceUtil.returnError("Question typ is required");
-			
+			if(questionType == null) {
+				return ServiceUtil.returnError("Question type is required");
 			}
 			
-		}
-			catch(Exception e) {
+			if(difficultyLevel == null) {
+				return ServiceUtil.returnError("Difficuilty type is required");
+			}
+			
+			if(answerValue == null) {
+				return ServiceUtil.returnError("Answer is required");
+			}
+			
+			if(negativeMarkValue == null) {
+				return ServiceUtil.returnError("Negative marks value is required");
+			}
+			
+			Delegator delegator = dctx.getDelegator();
+			
+			LocalDispatcher dispatcher = dctx.getDispatcher();
+			System.out.println("====> examId: [" + examId + "] qId: [" + qId + "]");
+			GenericValue existing_data = EntityQuery.use(delegator)
+					                           .from("QuestionBankMasterB")
+					                           .where("examId", examId, "qId", qId)
+					                           .queryOne();
+			
+			if(existing_data == null) {
+				return ServiceUtil.returnError("Questions not found");
+			}
+			
+			Map<String, Object> updateMap = new HashMap<>();
+			updateMap.put("examId", examId);
+			updateMap.put("qId", qId);
+			updateMap.put("topicId", topicId);
+			updateMap.put("questionDetail", questionDetail);
+			updateMap.put("optiona", optiona);
+			updateMap.put("optionb", optionb);
+			updateMap.put("optionc", optionc);
+			updateMap.put("optiond", optiond);
+			updateMap.put("optione", optione);
+			updateMap.put("answer", answer);
+			updateMap.put("numAnswers", numAnswers);
+			updateMap.put("questionType", questionType);
+			updateMap.put("difficultyLevel", difficultyLevel);
+			updateMap.put("answerValue", answerValue);
+			updateMap.put("negativeMarkValue", negativeMarkValue);
+			updateMap.put("userLogin", context.get("userLogin")); 
+			
+			Map<String, Object> result = dispatcher.runSync("updateQuestionMasterAuto", updateMap);
+			
+			if(ServiceUtil.isError(result)) {
+			    return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+			}
+			
+			return ServiceUtil.returnSuccess("Question updated successfully");
+			
+			
+			
+		}catch(GenericEntityException | GenericServiceException e) {
 			return ServiceUtil.returnError("Questions failed to update: " + e.getMessage());
 		}
-		return null;
-		
 	}
-	
+
 }

@@ -1,10 +1,6 @@
 package com.vastpro.services.questionmaster;
 
 import java.util.ArrayList;
-<<<<<<< HEAD
-import java.util.HashMap;
-=======
->>>>>>> ab39aef32a2ddebad017356681dcfa068110ce91
 import java.util.List;
 import java.util.Map;
 
@@ -23,30 +19,15 @@ public class GetQuestionMaster {
 			
 			String examId = (String) context.get("examId");
 			String topicId = (String) context.get("topicId");
-<<<<<<< HEAD
 //			String questionType = (String) context.get("questionType"); 
 //		    String difficultyLevel = (String) context.get("difficultyLevel");
-
-=======
-			
->>>>>>> ab39aef32a2ddebad017356681dcfa068110ce91
 			if(examId == null || examId.isEmpty()) {
 				return ServiceUtil.returnError("Exam Id is required");
 			}
 			
 			if(topicId == null) {
 				return ServiceUtil.returnError("Topic Id is required");
-		   }
-			
-			Delegator delegator = dctx.getDelegator();
-			
-<<<<<<< HEAD
-			 Map<String, Object> conditions = new HashMap<>();
-	        conditions.put("examId", examId);
-
-	        if (topicId != null && !topicId.isEmpty()) {
-	            conditions.put("topicId", topicId);
-	        }
+			}
 
 //	        if (questionType != null && !questionType.isEmpty()) {
 //	            conditions.put("questionType", questionType);
@@ -55,17 +36,8 @@ public class GetQuestionMaster {
 //	        if (difficultyLevel != null && !difficultyLevel.isEmpty()) {
 //	            conditions.put("difficultyLevel", difficultyLevel);
 //	        }
-
-	        List<GenericValue> getData = EntityQuery.use(delegator)
-	                .from("QuestionBankMasterB")
-	                .where(conditions)
-	                .queryList();
-
-	        Map<String, Object> result = ServiceUtil.returnSuccess("Questions fetched successfully");
-	        result.put("questionList", getData != null ? getData : new ArrayList<>());
-	        return result;
-
-=======
+			Delegator delegator = dctx.getDelegator();
+			
 			List<GenericValue> getData = EntityQuery.use(delegator)
 					                                .from("QuestionBankMasterB")
 					                                .where("examId", examId, "topicId", topicId)
@@ -74,7 +46,6 @@ public class GetQuestionMaster {
 			Map<String, Object> result = ServiceUtil.returnSuccess();
 			result.put("questionList", getData != null ? getData : new ArrayList<>());
 			return result;
->>>>>>> ab39aef32a2ddebad017356681dcfa068110ce91
 	         
 		}catch (GenericEntityException e) {
 			return ServiceUtil.returnError("Error fetching topics: " + e.getMessage());

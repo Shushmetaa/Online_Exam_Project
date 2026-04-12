@@ -20,7 +20,6 @@ public class CreateQuestionMaster {
 		try {
 	
 			String examId = (String) context.get("examId");
-			String qId = (String) context.get("qId");
 			String topicId = (String) context.get("topicId");
 			String questionDetail = (String) context.get("questionDetail");
 			String optiona = (String) context.get("optiona");
@@ -31,7 +30,6 @@ public class CreateQuestionMaster {
 			String answer = (String) context.get("answer");
 			Long numAnswers = (Long) context.get("numAnswers");
 			String questionType = (String) context.get("questionType");
-			String questiontype = (String) context.get("questiontype");
 			String difficultyLevel = (String) context.get("difficultyLevel");
 			Double answerValue = (Double) context.get("answerValue");
 			Double negativeMarkValue = (Double) context.get("negativeMarkValue");
@@ -40,11 +38,7 @@ public class CreateQuestionMaster {
 				return ServiceUtil.returnError("Exam Id is required");
 			}
 			
-			if(qId == null || qId.isEmpty()) {
-				return ServiceUtil.returnError("QId is required");
-			}
-			
-			if(topicId == null || topicId.isEmpty()) {
+			if(topicId == null) {
 				return ServiceUtil.returnError("Topic Id is required");
 			}
 			
@@ -78,22 +72,62 @@ public class CreateQuestionMaster {
 				return ServiceUtil.returnError("Number of answers is required");
 			}
 			
-			if(questionType == null || questionType.isEmpty() ) {
-				return ServiceUtil.returnError("Question typ is required");
-
-//			GenericValue existing = EntityQuery.use(delegator)
-//					                       .from("QuestionBankMasterB")
-//					                       .where("examId", examId, "topicId", topicId)
-//					                       .queryOne();
-//			if(existing != null){
-//			    return ServiceUtil.returnError("Question already exists");
-//			}
-
+			if(questionType == null) {
+				return ServiceUtil.returnError("Question type is required");
 			}
-		}catch( Exception e) {
+			
+			if(difficultyLevel == null) {
+				return ServiceUtil.returnError("Difficuilty type is required");
+			}
+			
+			if(answerValue == null) {
+				return ServiceUtil.returnError("Answer is required");
+			}
+			
+			if(negativeMarkValue == null) {
+				return ServiceUtil.returnError("Negative marks value is required");
+			}
+			
+			Delegator delegator = dctx.getDelegator();
+			
+			LocalDispatcher dispatcher = dctx.getDispatcher();
+			
+			GenericValue userLogin = (GenericValue) context.get("userLogin");
+			
+			 List<GenericValue> allQuestions = EntityQuery.use(delegator)
+		                .from("QuestionBankMasterB")
+		                .where("examId", examId)
+		                .queryList();
+
+		        long maxQId = 0;
+		        for (GenericValue q : allQuestions) {
+		            try {
+		                long id = Long.parseLong(q.getString("qId"));
+		                if (id > maxQId) maxQId = id;
+		            } catch (NumberFormatException e) {
+		                return ServiceUtil.returnError("Check wheather the number you passed is numeric");
+		            }
+		        }
+		        String qId = String.valueOf(maxQId + 1);
+
+		        // Build insert data
+		        Map<String, Object> createData = new HashMap<>(context);
+		        createData.put("qId", qId);        
+		        createData.put("topicId", topicId); 
+		        createData.put("userLogin", userLogin);
+		        
+			Map<String, Object> result = dispatcher.runSync("createQuestionMasterAuto", createData);
+			
+			if(ServiceUtil.isError(result)) {
+				return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+			}
+			else {
+				return ServiceUtil.returnSuccess("Questions created successfully");
+			}
+			
+		}catch(GenericEntityException | GenericServiceException e) {
 			return ServiceUtil.returnError("Error in creating questions" + e.getMessage());
 		}
-		return null;
-	
 	}
+
 }
