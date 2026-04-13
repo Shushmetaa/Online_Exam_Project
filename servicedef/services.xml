@@ -288,41 +288,21 @@
     <!--                      EXCEL UPLOAD SERVICES                    -->
     <!-- ═══════════════════════════════════════════════════════════════ -->
 
-    <service name="excelUpload" engine="java"
-             location="com.vastpro.services.excelupload.ExcelBulkUpload"
-             invoke="excelUpload" auth="true">
-        <attribute name="examId"            mode="IN" type="String"/>
-        <attribute name="qId"               mode="IN" type="Long"/>
-        <attribute name="topicId"           mode="IN" type="Long"/>
-        <attribute name="questionDetail"    mode="IN" type="String"/>
-        <attribute name="optiona"           mode="IN" type="String"/>
-        <attribute name="optionb"           mode="IN" type="String"/>
-        <attribute name="optionc"           mode="IN" type="String"/>
-        <attribute name="optiond"           mode="IN" type="String"/>
-        <attribute name="optione"           mode="IN" type="String"/>
-        <attribute name="answer"            mode="IN" type="String"/>
-        <attribute name="numAnswers"        mode="IN" type="Long"/>
-        <attribute name="questiontype"      mode="IN" type="Long"/>
-        <attribute name="difficultyLevel"   mode="IN" type="Long"/>
-        <attribute name="answerValue"       mode="IN" type="Double"/>
-        <attribute name="negativeMarkValue" mode="IN" type="Double"/>
-        <attribute name="userLogin"         mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
-    </service>
 
-    <service name="excelBulkUpload" engine="java"
-             location="com.vastpro.services.excelupload.ExcelBulkUpload"
-             invoke="excelUpload" auth="true">
-        <attribute name="examId"    mode="IN" type="String"/>
-        <attribute name="file"      mode="IN" type="java.io.InputStream"/>
-        <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
-    </service>
-
-    <service name="excelUploadAuto" engine="entity-auto"
-             invoke="create" default-entity-name="QuestionBankMasterB" auth="true">
-        <auto-attributes include="pk"    mode="IN"/>
-        <auto-attributes include="nonpk" mode="IN" optional="true"/>
-        <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
-    </service>
+	<service name="excelBulkUpload" engine="java"
+	         location="com.vastpro.services.excelupload.ExcelBulkUpload"
+	         invoke="excelUpload" auth="true">
+	    <attribute name="examId"    mode="IN" type="String"/>
+	    <attribute name="file"      mode="IN" type="java.io.InputStream"/>
+	    <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+	</service>
+	
+	<service name="excelUploadAuto" engine="entity-auto"
+	         invoke="create" default-entity-name="QuestionBankMasterB" auth="true">
+	    <auto-attributes include="pk"    mode="IN"/>
+	    <auto-attributes include="nonpk" mode="IN" optional="true"/>
+	    <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+	</service>
 
 	<!-- ═══════════════════════════════════════════════════════════════ -->
 	<!--                     SETUP EXAM SERVICES                       -->

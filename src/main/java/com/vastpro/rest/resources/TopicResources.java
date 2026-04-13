@@ -12,6 +12,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import com.vastpro.servicecall.TopicMaster;
@@ -71,13 +72,14 @@ public class TopicResources {
 	    
 	    @DELETE
 	    @Produces(MediaType.APPLICATION_JSON)
-	    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	    @Path("/delete")
-	    public Map<String, Object> deleteTopics(@FormParam("examId")  String examId, @FormParam("topicId") String topicId, 
-	    		@Context HttpServletRequest request, @Context HttpServletResponse response){
-	    	
-	    	return TopicMaster.deleteTopic(examId, topicId, request, response);
-	    	
+	    public Map<String, Object> deleteTopics(
+	        @QueryParam("examId") String examId, 
+	        @QueryParam("topicId") String topicId, 
+	        @Context HttpServletRequest request, 
+	        @Context HttpServletResponse response) {
+	        
+	        return TopicMaster.deleteTopic(examId, topicId, request, response);
 	    }
 	    
 }

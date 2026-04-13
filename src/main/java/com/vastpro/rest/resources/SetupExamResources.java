@@ -117,17 +117,6 @@ public class SetupExamResources {
 	 	@POST
 	 	@Produces(MediaType.APPLICATION_JSON)
 	 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	 	@Path("/sendemail")
-	 	public Map<String, Object> sendExamEmail(@FormParam("examId")  String examId,@FormParam("partyId") String partyId,
-	 			@Context HttpServletRequest request,@Context HttpServletResponse response) {
-
-	 	    return SetupExam1.sendExamAssignmentEmail(
-	 	        examId, partyId, request, response);
-	 	}
-	 	
-	 	@POST
-	 	@Produces(MediaType.APPLICATION_JSON)
-	 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	 	@Path("/saveandpublish")
 	 	public Map<String, Object> saveAndPublish(
 	 	        @FormParam("examId")          String examId,
