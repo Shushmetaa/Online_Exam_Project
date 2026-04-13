@@ -22,6 +22,7 @@ public static Map<String, Object> signupUser(DispatchContext dctx, Map<String, ?
 	String email = (String) context.get("email");
 	String password = (String) context.get("password");	
 	String confirmPassword = (String) context.get("confirmPassword");	
+	String role=(String) context.get("roleTypeId");
 	
 	//validation
 	if(firstName == null || firstName.isEmpty()) {
@@ -102,7 +103,11 @@ public static Map<String, Object> signupUser(DispatchContext dctx, Map<String, ?
 	    loginContext.put("userLogin", context.get("userLogin"));
 	    dispatcher.runSync("signupUserLogin", loginContext);
 		
-		
+	    //create role
+	    Map<String, Object> partyRoleInput = new HashMap<>();
+		partyRoleInput.put("partyId", partyId);
+		partyRoleInput.put("roleTypeId", role);
+		Map<String, Object> partyRoleResult = dispatcher.runSync("createPartyRole", partyRoleInput);
 		Map<String, Object> result = ServiceUtil.returnSuccess();
 		return result;
 				

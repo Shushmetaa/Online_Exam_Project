@@ -24,6 +24,14 @@
         <auto-attributes include="nonpk" mode="IN" optional="true"/>
     </service>
 
+<service name="createPartyRole" engine="entity-auto"
+		invoke="create" default-entity-name="PartyRole">
+		<auto-attributes mode="IN" include="pk"
+			optional="false"></auto-attributes>
+		<auto-attributes mode="IN" include="nonpk"
+			optional="true"></auto-attributes>
+	</service>
+	
     <service name="signupUser" engine="java"
              location="com.vastpro.services.usermaster.SignupUser"
              invoke="signupUser" auth="false">
@@ -541,5 +549,9 @@
 	    <attribute name="attemptsLeft"    type="Long"   mode="OUT" optional="true"/>
 	    <attribute name="expired"         type="String" mode="OUT" optional="true"/>
 	</service>
-
+   <service name="updatePartyExamPassword" engine="entity-auto" invoke="update" auth="true" default-entity-name="PartyExamRelationship">
+    <auto-attributes include="pk" mode="IN" optional="false"/>
+    <attribute name="passwordChangesAuto" type="String" mode="IN" optional="true"/>
+    <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+</service>
 </services>
