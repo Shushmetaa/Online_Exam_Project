@@ -12,6 +12,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
@@ -59,31 +60,29 @@ public class SetupExamResources {
 	    	
 	    }
 	 
-	 	@GET
-	    @Path("/getExams")
-	    @Produces(MediaType.APPLICATION_JSON)
-	    public Map<String, Object> getExams(@Context HttpServletRequest request, @Context HttpServletResponse response) {
-	       
-	        return ExamMaster.getExams(request, response);
-	    }
-	 	
-	 	// user removal
-	 	@DELETE
-	 	@Produces(MediaType.APPLICATION_JSON)
-	 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	 	@Path("/userdelete")
-	 	public Map<String, Object> softDeleteSetup(@FormParam("examId")  String examId,@FormParam("partyId") String partyId,
-	 			@Context HttpServletRequest request, @Context HttpServletResponse response) {
+		 @GET
+		 @Path("/getUnsetupExams")
+		 @Produces(MediaType.APPLICATION_JSON)
+		 public Map<String, Object> getUnsetupExams(@Context HttpServletRequest request, @Context HttpServletResponse response) {
+			 
+		     return SetupExam1.getUnsetupExams(request, response);
+		 }
+		 	
+		 // user removal
+		 @DELETE
+		 @Produces(MediaType.APPLICATION_JSON)
+		 @Path("/userdelete")
+		 public Map<String, Object> softDeleteSetup(@QueryParam("examId") String examId, @QueryParam("partyId") String partyId,
+		         @Context HttpServletRequest request, @Context HttpServletResponse response) {
 
-	 	    return SetupExam1.softUserDeleteSetup(examId, partyId, request, response);
-	 	}
+		     return SetupExam1.softUserDeleteSetup(examId, partyId, request, response);
+		 }
 	 	
 	 	//setup exam removes completely
-	 	@DELETE
+	 	@POST
 	 	@Produces(MediaType.APPLICATION_JSON)
-	 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	 	@Path("/softdelete")
-	 	public Map<String, Object> softDeleteExamSetup(@FormParam("examId") String examId, @Context HttpServletRequest request, @Context HttpServletResponse response) {
+	 	public Map<String, Object> softDeleteExamSetup(@QueryParam("examId") String examId, @Context HttpServletRequest request, @Context HttpServletResponse response){
 
 	 	    return SetupExam1.softDeleteExamSetup(examId, request, response);
 	 	}
@@ -124,5 +123,41 @@ public class SetupExamResources {
 
 	 	    return SetupExam1.sendExamAssignmentEmail(
 	 	        examId, partyId, request, response);
+	 	}
+	 	
+	 	@POST
+	 	@Produces(MediaType.APPLICATION_JSON)
+	 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	 	@Path("/saveandpublish")
+	 	public Map<String, Object> saveAndPublish(
+	 	        @FormParam("examId")          String examId,
+	 	        @FormParam("status") String status,
+	 	        @FormParam("partyIds")        String partyIds,
+	 	        @FormParam("allowedAttempts") String allowedAttempts,
+	 	        @FormParam("noOfAttempts")    String noOfAttempts,
+	 	        @FormParam("timeoutDays")     String timeoutDays,
+	 	        @FormParam("openDate")        String openDate,
+	 	        @FormParam("closeDate")       String closeDate,
+	 	        @FormParam("whenExpires")     String whenExpires,
+	 	        @FormParam("gradingMethod")   String gradingMethod,
+	 	        @FormParam("shuffleQ")        String shuffleQ,
+	 	        @FormParam("shuffleA")        String shuffleA,
+	 	        @FormParam("sequential")      String sequential,
+	 	        @FormParam("showResults")     String showResults,
+	 	        @Context HttpServletRequest request,
+	 	        @Context HttpServletResponse response) {
+
+	 	    return SetupExam1.saveAndPublish( examId, status, partyIds, allowedAttempts, noOfAttempts, timeoutDays, openDate, closeDate, whenExpires, gradingMethod,
+	 	        shuffleQ, shuffleA, sequential, showResults,
+	 	        request, response);
+	 	}
+	 	
+	 	@GET
+	 	@Produces(MediaType.APPLICATION_JSON)
+	 	@Path("/getAllAssignedUsers")
+	 	public Map<String, Object> getAllAssignedUsers(
+	 	    @Context HttpServletRequest request,
+	 	    @Context HttpServletResponse response) {
+	 	    return SetupExam1.getAllAssignedUsers(request, response);
 	 	}
 }

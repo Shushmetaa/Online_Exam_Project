@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.ofbiz.base.crypto.HashCrypt;
 import org.apache.ofbiz.entity.Delegator;
+import org.apache.ofbiz.entity.GenericEntityException;
 import org.apache.ofbiz.entity.GenericValue;
 import org.apache.ofbiz.entity.util.EntityQuery;
 import org.apache.ofbiz.service.LocalDispatcher;
@@ -334,5 +335,157 @@ public class SetupExam1 {
 	    }
 	    return password.toString();
 	}
+	
+	public static Map<String, Object> saveAndPublish(
+	        String examId, String status, String partyIds,
+	        String allowedAttempts, String noOfAttempts, String timeoutDays,
+	        String openDate, String closeDate, String whenExpires, String gradingMethod,
+	        String shuffleQ, String shuffleA, String sequential, String showResults,
+	        HttpServletRequest request, HttpServletResponse response) {
+	    try {
+	        LocalDispatcher dispatcher = getDispatcher(request);
+	        GenericValue userLogin = EntityQuery.use(getDelegator(request))
+	                .from("UserLogin").where("userLoginId", "admin").queryOne();
 
+	        Map<String, Object> data = new HashMap<>();
+	        data.put("examId",          examId);
+	        data.put("status", status);
+	        data.put("partyIds",        partyIds);
+	        data.put("allowedAttempts", allowedAttempts);
+	        data.put("noOfAttempts",    noOfAttempts);
+	        data.put("timeoutDays",     timeoutDays);
+	        data.put("openDate",        openDate);
+	        data.put("closeDate",       closeDate);
+	        data.put("whenExpires",     whenExpires);
+	        data.put("gradingMethod",   gradingMethod);
+	        data.put("shuffleQ",        shuffleQ);
+	        data.put("shuffleA",        shuffleA);
+	        data.put("sequential",      sequential);
+	        data.put("showResults",     showResults);
+	        data.put("userLogin",       userLogin);
+
+	        Map<String, Object> result = dispatcher.runSync("saveAndPublishExam", data);
+	        if (ServiceUtil.isError(result))
+	            return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+	        return ServiceUtil.returnSuccess("Exam saved and published successfully!");
+	    } catch (Exception e) {
+	        return ServiceUtil.returnError("Error: " + e.getMessage());
+	    }
+	}
+	
+	public static Map<String, Object> getUnsetupExams(
+	        HttpServletRequest request, HttpServletResponse response) {
+	    try {
+	        Delegator delegator = getDelegator(request);
+
+	        // Get ALL exams
+	        List<GenericValue> allExams = EntityQuery.use(delegator)
+	                .from("ExamMaster")
+	                .orderBy("examId")
+	                .queryList();
+
+	        List<Map<String, Object>> examList = new ArrayList<>();
+
+	        for (GenericValue exam : allExams) {
+	            String examId = exam.getString("examId");
+
+	            // Check if already setup
+	            GenericValue setupRecord = EntityQuery.use(delegator)
+	                    .from("ExamSetupDetails")
+	                    .where("examId", examId)
+	                    .queryOne();
+
+	            // Only add if NOT yet setup
+	            if (setupRecord == null) {
+	                Map<String, Object> examMap = new HashMap<>();
+	                examMap.put("examId",        examId);
+	                examMap.put("examName",       exam.getString("examName"));
+	                examMap.put("noOfQuestions",  exam.getLong("noOfQuestions"));
+	                examMap.put("duration",       exam.getLong("duration"));
+	                examMap.put("passPercentage", exam.getLong("passPercentage"));
+	                examMap.put("description",    exam.getString("description"));
+	                examList.add(examMap);
+	            }
+	        }
+
+	        Map<String, Object> result = ServiceUtil.returnSuccess();
+	        result.put("examList", examList);
+	        return result;
+
+	    } catch (GenericEntityException e) {
+	        return ServiceUtil.returnError("Failed: " + e.getMessage());
+	    }
+	}
+	
+	public static Map<String, Object> getAllAssignedUsers(HttpServletRequest request, HttpServletResponse response) {
+	    try {
+	        Delegator delegator = getDelegator(request);
+
+	        // 1. Get all setup exams
+	        List<GenericValue> setupExams = EntityQuery.use(delegator)
+	                .from("ExamSetupDetails")
+	                .queryList();
+
+	        List<Map<String, Object>> examCards = new ArrayList<>();
+
+	        for (GenericValue setup : setupExams) {
+	            String examId = setup.getString("examId");
+
+	            // 2. Get exam details from ExamMaster
+	            GenericValue exam = EntityQuery.use(delegator)
+	                    .from("ExamMaster")
+	                    .where("examId", examId)
+	                    .queryOne();
+
+	            if (exam == null) continue;
+
+	            // 3. Get all assigned users for this exam
+	            List<GenericValue> relationships = EntityQuery.use(delegator)
+	                    .from("PartyExamRelationship")
+	                    .where("examId", examId)
+	                    .queryList();
+
+	            List<Map<String, Object>> userList = new ArrayList<>();
+
+	            for (GenericValue rel : relationships) {
+	                String partyId = rel.getString("partyId");
+
+	                // 4. Get name from Person table
+	                GenericValue person = EntityQuery.use(delegator)
+	                        .from("Person")
+	                        .where("partyId", partyId)
+	                        .queryOne();
+
+	                Map<String, Object> userMap = new HashMap<>();
+	                userMap.put("partyId", partyId);
+	                userMap.put("noOfAttempts", rel.getLong("noOfAttempts"));
+	                userMap.put("timeoutDays",  rel.getLong("timeoutDays"));
+
+	                if (person != null) {
+	                    userMap.put("firstName", person.getString("firstName"));
+	                    userMap.put("lastName",  person.getString("lastName"));
+	                }
+
+	                userList.add(userMap);
+	            }
+
+	            Map<String, Object> examCard = new HashMap<>();
+	            examCard.put("examId",        examId);
+	            examCard.put("examName",      exam.getString("examName"));
+	            examCard.put("noOfQuestions", exam.getLong("noOfQuestions"));
+	            examCard.put("duration",      exam.getLong("duration"));
+	            examCard.put("passPercentage",exam.getLong("passPercentage"));
+	            examCard.put("assignedUsers", userList);
+
+	            examCards.add(examCard);
+	        }
+
+	        Map<String, Object> result = ServiceUtil.returnSuccess();
+	        result.put("examCards", examCards);
+	        return result;
+
+	    } catch (GenericEntityException e) {
+	        return ServiceUtil.returnError("Failed: " + e.getMessage());
+	    }
+	}
 }

@@ -56,9 +56,9 @@ public class SetupExamination {
             Map<String, Object> partyExamData = new HashMap<>();
             partyExamData.put("examId", examId);
             partyExamData.put("partyId", partyId);
-            partyExamData.put("allowedAttempts", allowedAttempts);
-            partyExamData.put("noOfAttempts", noOfAttempts);
-            partyExamData.put("timeoutDays", timeoutDays);
+            partyExamData.put("allowedAttempts", Long.parseLong(allowedAttempts)); 
+            partyExamData.put("noOfAttempts", Long.parseLong(noOfAttempts));       
+            partyExamData.put("timeoutDays", Long.parseLong(timeoutDays));  
             partyExamData.put("userLogin", userLogin);
             dispatcher.runSync("createPartyExamRelationshipAuto", partyExamData);
 			

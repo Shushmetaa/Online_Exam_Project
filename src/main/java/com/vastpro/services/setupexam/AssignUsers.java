@@ -41,11 +41,11 @@ public class AssignUsers {
 			
 			users.put("examId", examId);
 			users.put("partyId", partyId);
-			users.put("allowedAttempts", allowedAttempts);
-			users.put("noOfAttempts", noOfAttempts);
-			users.put("timeoutDays", timeoutDays);
+			users.put("allowedAttempts", Long.parseLong(allowedAttempts));
+			users.put("noOfAttempts", Long.parseLong(noOfAttempts));
+			users.put("timeoutDays", Long.parseLong(timeoutDays));
 			users.put("userLogin", userLogin);
-			dispatcher.runAsync("createPartyExamRelationshipAuto", users);
+			dispatcher.runSync("createPartyExamRelationshipAuto", users);
 			
 			return ServiceUtil.returnSuccess("User is assigned successfull");
 			
