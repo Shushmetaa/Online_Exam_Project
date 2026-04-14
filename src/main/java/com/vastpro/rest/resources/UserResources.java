@@ -1,6 +1,5 @@
 package com.vastpro.rest.resources;
 
-
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -8,6 +7,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import com.vastpro.servicecall.LoginMaster;
 import com.vastpro.servicecall.SignupMaster;
+import com.vastpro.servicecall.UserMaster;
 
 @Path("/user")
 
@@ -39,4 +39,27 @@ public class UserResources {
                                          @Context HttpServletResponse response) {
         return LoginMaster.getUsers(request, response);
     }
+    @GET
+    @Path("/getExams")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Map<String, Object> getAssignedExams(@Context HttpServletRequest request,@Context HttpServletResponse response) {
+        return UserMaster.getAssignedExams(request, response);
+    }
+    
+    @GET
+    @Path("/getNum")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Map<String, Object> getUserStats(@Context HttpServletRequest request,@Context HttpServletResponse response) {
+        return UserMaster.getUserStats(request, response);
+    }
+    
+    @POST
+    @Path("/verifyExamPassword")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Map<String, Object> verifyExamPassword(@Context HttpServletRequest request,
+                                                   @Context HttpServletResponse response) {
+        return UserMaster.verifyExamPassword(request, response);
+    }
+    
 }

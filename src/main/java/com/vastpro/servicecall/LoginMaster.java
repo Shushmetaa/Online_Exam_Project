@@ -52,7 +52,10 @@ public class LoginMaster {
 
             if (ServiceUtil.isError(result))
                 return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
-
+            String partyId = (String) result.get("partyId");
+            if (partyId != null) {
+                request.getSession().setAttribute("partyId", partyId);
+            }
             return result;
 
         } catch (Exception e) {

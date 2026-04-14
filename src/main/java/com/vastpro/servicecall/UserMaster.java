@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.entity.GenericValue;
@@ -65,8 +66,8 @@ public class UserMaster {
 	            Delegator delegator        = getDelegator(request);
 
 	            String partyId = (String) request.getSession().getAttribute("partyId");
-	            if (partyId == null)
-	                return ServiceUtil.returnError("User not logged in.");
+//	            if (partyId == null)
+//	                return ServiceUtil.returnError("User not logged in.");
 
 	            GenericValue userLogin = EntityQuery.use(delegator)
 	                    .from("UserLogin").where("userLoginId", "admin").queryOne();
@@ -88,53 +89,40 @@ public class UserMaster {
 	            return ServiceUtil.returnError("Error: " + e.getMessage());
 	        }
 	    }
-	    public static Map<String, Object> login(
+	    
+	    public static Map<String, Object> verifyExamPassword(
 	            HttpServletRequest request, HttpServletResponse response) {
 	        try {
 	            LocalDispatcher dispatcher = getDispatcher(request);
 	            Delegator delegator        = getDelegator(request);
 
-	            String email    = request.getParameter("email");
+	            String partyId  = (String) request.getSession().getAttribute("partyId");
+	            String examId   = request.getParameter("examId");
 	            String password = request.getParameter("password");
 
-	            if (email == null || password == null)
-	                return ServiceUtil.returnError("Email and password are required.");
+	            if (partyId == null)
+	                return ServiceUtil.returnError("User not logged in.");
+	            if (examId == null || password == null)
+	                return ServiceUtil.returnError("examId and password are required.");
 
-	            // Find UserLogin by email (stored in Party/ContactMech or directly)
-	            GenericValue userLogin = EntityQuery.use(delegator)
-	                    .from("UserLogin")
-	                    .where("userLoginId", email)
-	                    .queryOne();
-
-	            if (userLogin == null)
-	                return ServiceUtil.returnError("Invalid credentials.");
-
-	            // Verify password via OFBiz login service
 	            GenericValue adminLogin = EntityQuery.use(delegator)
 	                    .from("UserLogin").where("userLoginId", "admin").queryOne();
 
 	            Map<String, Object> data = new HashMap<>();
-	            data.put("login.username", email);
-	            data.put("login.password", password);
-	            data.put("userLogin",      adminLogin);
+	            data.put("partyId",   partyId);
+	            data.put("examId",    examId);
+	            data.put("password",  password);
+	            data.put("userLogin", adminLogin);
 
-	            Map<String, Object> result = dispatcher.runSync("userLogin", data);
+	            Map<String, Object> result = dispatcher.runSync("verifyExamPassword", data);
 	            if (ServiceUtil.isError(result))
-	                return ServiceUtil.returnError("Invalid credentials.");
+	                return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
 
-	            // Store partyId in session on successful login
-	            String partyId = userLogin.getString("partyId");
-	            request.getSession().setAttribute("partyId",      partyId);
-	            request.getSession().setAttribute("userLoginId",  email);
-
-	            Map<String, Object> resp = ServiceUtil.returnSuccess();
-	            resp.put("partyId",     partyId);
-	            resp.put("role",        userLogin.getString("partyId"));
-	            resp.put("userName",    email);
-	            return resp;
+	            return ServiceUtil.returnSuccess("Password verified.");
 
 	        } catch (Exception e) {
 	            return ServiceUtil.returnError("Error: " + e.getMessage());
 	        }
 	    }
+	    
 }
