@@ -9,6 +9,7 @@ import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.entity.GenericEntityException;
 import org.apache.ofbiz.entity.GenericValue;
 import org.apache.ofbiz.entity.util.EntityQuery;
+import org.apache.ofbiz.entity.util.EntityUtilProperties;
 import org.apache.ofbiz.service.DispatchContext;
 import org.apache.ofbiz.service.GenericServiceException;
 import org.apache.ofbiz.service.LocalDispatcher;
@@ -16,237 +17,257 @@ import org.apache.ofbiz.service.ServiceUtil;
 
 public class SaveAndPublishExam {
 
-	public static Map<String, Object> saveAndPublish(
-	        DispatchContext dctx, Map<String, ? extends Object> context) {
+    public static Map<String, Object> saveAndPublish(
+            DispatchContext dctx, Map<String, ? extends Object> context) {
 
-	    try {
-	        String examId          = (String) context.get("examId");
-	        String partyIdsStr     = (String) context.get("partyIds");
-	        String allowedAttempts = (String) context.get("allowedAttempts");
-	        String noOfAttempts    = (String) context.get("noOfAttempts");
-	        String timeoutDays     = (String) context.get("timeoutDays");
-	        String openDate        = (String) context.get("openDate");
-	        String closeDate       = (String) context.get("closeDate");
-	        String whenExpires     = (String) context.get("whenExpires");
-	        String gradingMethod   = (String) context.get("gradingMethod");
-	        String shuffleQ        = (String) context.get("shuffleQ");
-	        String shuffleA        = (String) context.get("shuffleA");
-	        String sequential      = (String) context.get("sequential");
-	        String showResults     = (String) context.get("showResults");
-	        String status          = (String) context.get("status");
-	        GenericValue userLogin = (GenericValue) context.get("userLogin");
+        try {
+            String examId          = (String) context.get("examId");
+            String partyIdsStr     = (String) context.get("partyIds");
+            String allowedAttempts = (String) context.get("allowedAttempts");
+            String noOfAttempts    = (String) context.get("noOfAttempts");
+            String timeoutDays     = (String) context.get("timeoutDays");
+            String openDate        = (String) context.get("openDate");
+            String closeDate       = (String) context.get("closeDate");
+            String whenExpires     = (String) context.get("whenExpires");
+            String gradingMethod   = (String) context.get("gradingMethod");
+            String shuffleQ        = (String) context.get("shuffleQ");
+            String shuffleA        = (String) context.get("shuffleA");
+            String sequential      = (String) context.get("sequential");
+            String showResults     = (String) context.get("showResults");
+            String status          = (String) context.get("status");
+            GenericValue userLogin = (GenericValue) context.get("userLogin");
 
-	        boolean isActive = "ACTIVE".equals(status);
+            boolean isActive = "ACTIVE".equals(status);
 
-	        if (examId == null || examId.isEmpty())
-	            return ServiceUtil.returnError("Exam ID is required");
-	        if (partyIdsStr == null || partyIdsStr.isEmpty())
-	            return ServiceUtil.returnError("At least one user must be assigned");
+            if (examId == null || examId.isEmpty())
+                return ServiceUtil.returnError("Exam ID is required");
+            if (partyIdsStr == null || partyIdsStr.isEmpty())
+                return ServiceUtil.returnError("At least one user must be assigned");
 
-	        Delegator delegator        = dctx.getDelegator();
-	        LocalDispatcher dispatcher = dctx.getDispatcher();
+            Delegator delegator        = dctx.getDelegator();
+            LocalDispatcher dispatcher = dctx.getDispatcher();
 
-	        // ── STEP 1: Save exam config ──────────────────────────────
-	        String setupDetails =
-	            "{" +
-	            "\"openDate\":\""      + (openDate      != null ? openDate      : "") + "\"," +
-	            "\"closeDate\":\""     + (closeDate     != null ? closeDate     : "") + "\"," +
-	            "\"whenExpires\":\""   + (whenExpires   != null ? whenExpires   : "") + "\"," +
-	            "\"gradingMethod\":\"" + (gradingMethod != null ? gradingMethod : "") + "\"," +
-	            "\"shuffleQ\":"        + (shuffleQ      != null ? shuffleQ      : "true")  + "," +
-	            "\"shuffleA\":"        + (shuffleA      != null ? shuffleA      : "true")  + "," +
-	            "\"sequential\":"      + (sequential    != null ? sequential    : "false") + "," +
-	            "\"showResults\":"     + (showResults   != null ? showResults   : "true")  + "," +
-	            "\"status\":\""        + (status        != null ? status        : "DRAFT") + "\"" +
-	            "}";
+            // ── STEP 1: Save exam config ──────────────────────────────
+            String setupDetails =
+                "{" +
+                "\"openDate\":\""      + (openDate      != null ? openDate      : "") + "\"," +
+                "\"closeDate\":\""     + (closeDate     != null ? closeDate     : "") + "\"," +
+                "\"whenExpires\":\""   + (whenExpires   != null ? whenExpires   : "") + "\"," +
+                "\"gradingMethod\":\"" + (gradingMethod != null ? gradingMethod : "") + "\"," +
+                "\"shuffleQ\":"        + (shuffleQ      != null ? shuffleQ      : "true")  + "," +
+                "\"shuffleA\":"        + (shuffleA      != null ? shuffleA      : "true")  + "," +
+                "\"sequential\":"      + (sequential    != null ? sequential    : "false") + "," +
+                "\"showResults\":"     + (showResults   != null ? showResults   : "true")  + "," +
+                "\"status\":\""        + (status        != null ? status        : "DRAFT") + "\"" +
+                "}";
 
-	        Map<String, Object> setupData = new HashMap<>();
-	        setupData.put("examId",       examId);
-	        setupData.put("setupType",    "EXAM_CONFIG");
-	        setupData.put("setupDetails", setupDetails);
-	        setupData.put("userLogin",    userLogin);
+            Map<String, Object> setupData = new HashMap<>();
+            setupData.put("examId",       examId);
+            setupData.put("setupType",    "EXAM_CONFIG");
+            setupData.put("setupDetails", setupDetails);
+            setupData.put("userLogin",    userLogin);
 
-	        GenericValue existingSetup = EntityQuery.use(delegator)
-	                .from("ExamSetupDetails")
-	                .where("examId", examId)
-	                .queryOne();
+            GenericValue existingSetup = EntityQuery.use(delegator)
+                    .from("ExamSetupDetails")
+                    .where("examId", examId)
+                    .queryOne();
 
-	        if (existingSetup != null) {
-	            dispatcher.runSync("updateExamSetupDetailsAuto", setupData);
-	        } else {
-	            dispatcher.runSync("createExamSetupDetailsAuto", setupData);
-	        }
+            if (existingSetup != null) {
+                dispatcher.runSync("updateExamSetupDetailsAuto", setupData);
+            } else {
+                dispatcher.runSync("createExamSetupDetailsAuto", setupData);
+            }
 
-	        // ── STEP 2: Copy questions ONLY if ACTIVE ─────────────────
-	        long globalQId = 1;
+            // ── STEP 2: Copy questions ONLY if ACTIVE ─────────────────
+            long globalQId = 1;
 
-	        if (isActive) {
-	            // Delete old questions first
-	            List<GenericValue> oldQuestions = EntityQuery.use(delegator)
-	                    .from("QuestionBankMaster")
-	                    .where("examId", examId)
-	                    .queryList();
-	            for (GenericValue old : oldQuestions) {
-	                old.remove();
-	            }
+            if (isActive) {
+                // Delete old questions first
+                List<GenericValue> oldQuestions = EntityQuery.use(delegator)
+                        .from("QuestionBankMaster")
+                        .where("examId", examId)
+                        .queryList();
+                for (GenericValue old : oldQuestions) {
+                    old.remove();
+                }
 
-	            // Get topics for this exam
-	            List<GenericValue> topics = EntityQuery.use(delegator)
-	                    .from("ExamTopicDetails")
-	                    .where("examId", examId)
-	                    .queryList();
+                // Get topics for this exam
+                List<GenericValue> topics = EntityQuery.use(delegator)
+                        .from("ExamTopicDetails")
+                        .where("examId", examId)
+                        .queryList();
 
-	            if (topics == null || topics.isEmpty())
-	                return ServiceUtil.returnError(
-	                    "No topics found for examId: " + examId +
-	                    ". Please add topics before publishing.");
+                if (topics == null || topics.isEmpty())
+                    return ServiceUtil.returnError(
+                        "No topics found for examId: " + examId +
+                        ". Please add topics before publishing.");
 
-	            for (GenericValue topic : topics) {
-	                String topicId       = topic.getString("topicId");
-	                String topicName     = topic.getString("topicName");
-	                Long questionsNeeded = topic.getLong("questionsPerExam");
+                for (GenericValue topic : topics) {
+                    String topicId       = topic.getString("topicId");
+                    String topicName     = topic.getString("topicName");
+                    Long questionsNeeded = topic.getLong("questionsPerExam");
 
-	                if (questionsNeeded == null || questionsNeeded == 0)
-	                    return ServiceUtil.returnError(
-	                        "questionsPerExam is 0 for topic: " + topicName);
+                    if (questionsNeeded == null || questionsNeeded == 0)
+                        return ServiceUtil.returnError(
+                            "questionsPerExam is 0 for topic: " + topicName);
 
-	                List<GenericValue> pool = EntityQuery.use(delegator)
-	                        .from("QuestionBankMasterB")
-	                        .where("examId", examId, "topicId", topicId)
-	                        .queryList();
+                    List<GenericValue> pool = EntityQuery.use(delegator)
+                            .from("QuestionBankMasterB")
+                            .where("examId", examId, "topicId", topicId)
+                            .queryList();
 
-	                if (pool == null || pool.size() < questionsNeeded)
-	                    return ServiceUtil.returnError(
-	                        "Not enough questions for topic: " + topicName +
-	                        ". Need: " + questionsNeeded +
-	                        " | Available: " + (pool != null ? pool.size() : 0));
+                    if (pool == null || pool.size() < questionsNeeded)
+                        return ServiceUtil.returnError(
+                            "Not enough questions for topic: " + topicName +
+                            ". Need: " + questionsNeeded +
+                            " | Available: " + (pool != null ? pool.size() : 0));
 
-	                Collections.shuffle(pool);
-	                List<GenericValue> selected = 
-	                    pool.subList(0, questionsNeeded.intValue());
+                    Collections.shuffle(pool);
+                    List<GenericValue> selected =
+                        pool.subList(0, questionsNeeded.intValue());
 
-	                for (GenericValue q : selected) {
-	                    Map<String, Object> liveQ = new HashMap<>();
-	                    liveQ.put("examId",            examId);
-	                    liveQ.put("qId",               String.valueOf(globalQId++));
-	                    liveQ.put("topicId",           topicId);  // ← String now
-	                    liveQ.put("questionDetail",    q.getString("questionDetail"));
-	                    liveQ.put("optiona",           q.getString("optiona"));
-	                    liveQ.put("optionb",           q.getString("optionb"));
-	                    liveQ.put("optionc",           q.getString("optionc"));
-	                    liveQ.put("optiond",           q.getString("optiond"));
-	                    liveQ.put("optione",           q.getString("optione"));
-	                    liveQ.put("answer",            q.getString("answer"));
-	                    liveQ.put("numAnswers",        q.getLong("numAnswers"));
-	                    liveQ.put("questionType",      q.getString("questionType")); // ← String
-	                    liveQ.put("difficultyLevel",   q.getString("difficultyLevel")); // ← String
-	                    liveQ.put("answerValue",       q.getBigDecimal("answerValue"));
-	                    liveQ.put("negativeMarkValue", q.getBigDecimal("negativeMarkValue"));
-	                    liveQ.put("userLogin",         userLogin);
+                    for (GenericValue q : selected) {
+                        Map<String, Object> liveQ = new HashMap<>();
+                        liveQ.put("examId",            examId);
+                        liveQ.put("qId",               String.valueOf(globalQId++));
+                        liveQ.put("topicId",           topicId);
+                        liveQ.put("questionDetail",    q.getString("questionDetail"));
+                        liveQ.put("optiona",           q.getString("optiona"));
+                        liveQ.put("optionb",           q.getString("optionb"));
+                        liveQ.put("optionc",           q.getString("optionc"));
+                        liveQ.put("optiond",           q.getString("optiond"));
+                        liveQ.put("optione",           q.getString("optione"));
+                        liveQ.put("answer",            q.getString("answer"));
+                        liveQ.put("numAnswers",        q.getLong("numAnswers"));
+                        liveQ.put("questionType",      q.getString("questionType"));
+                        liveQ.put("difficultyLevel",   q.getString("difficultyLevel"));
+                        liveQ.put("answerValue",       q.getBigDecimal("answerValue"));
+                        liveQ.put("negativeMarkValue", q.getBigDecimal("negativeMarkValue"));
+                        liveQ.put("userLogin",         userLogin);
 
-	                    Map<String, Object> createResult = dispatcher.runSync(
-	                            "createQuestionBankMasterAuto", liveQ);
+                        Map<String, Object> createResult = dispatcher.runSync(
+                                "createQuestionBankMasterAuto", liveQ);
 
-	                    if (ServiceUtil.isError(createResult))
-	                        return ServiceUtil.returnError(
-	                            "Failed to copy question: " +
-	                            ServiceUtil.getErrorMessage(createResult));
-	                }
-	            }
-	        }
+                        if (ServiceUtil.isError(createResult))
+                            return ServiceUtil.returnError(
+                                "Failed to copy question: " +
+                                ServiceUtil.getErrorMessage(createResult));
+                    }
+                }
+            }
 
-	     // ── STEP 3: Assign users ONLY if ACTIVE
-	        if (isActive) {
-	            String[] partyIds = partyIdsStr.split(",");
+            // ── STEP 3: Assign users and send email ONLY if ACTIVE ────
+            if (isActive) {
 
-	            for (String partyId : partyIds) {
-	                partyId = partyId.trim();
-	                if (partyId.isEmpty()) continue;
+                // Read email settings from sphinx.properties ONCE
+                // outside the loop — no need to read it 100 times
+                // if there are 100 users
+                String mailFrom = EntityUtilProperties.getPropertyValue(
+                        "sphinx", "mail.from",
+                        "sphinxofbizz@gmail.com", delegator);
 
-	                GenericValue existing = EntityQuery.use(delegator)
-	                        .from("PartyExamRelationship")
-	                        .where("examId", examId, "partyId", partyId)
-	                        .queryOne();
+                String mailSubject = EntityUtilProperties.getPropertyValue(
+                        "sphinx", "mail.exam.subject",
+                        "You have been assigned an Exam", delegator);
 
-	                if (existing == null) {
-	                    Map<String, Object> assignData = new HashMap<>();
-	                    assignData.put("examId",          examId);
-	                    assignData.put("partyId",         partyId);
-	                    assignData.put("allowedAttempts",
-	                        Long.parseLong(allowedAttempts != null ? allowedAttempts : "1"));
-	                    assignData.put("noOfAttempts",
-	                        Long.parseLong(noOfAttempts != null ? noOfAttempts : "1"));
-	                    assignData.put("timeoutDays",
-	                        Long.parseLong(timeoutDays != null ? timeoutDays : "30"));
-	                    assignData.put("userLogin", userLogin);
+                String[] partyIds = partyIdsStr.split(",");
 
-	                    Map<String, Object> assignResult = dispatcher.runSync(
-	                            "createPartyExamRelationshipAuto", assignData);
+                for (String partyId : partyIds) {
+                    partyId = partyId.trim();
+                    if (partyId.isEmpty()) continue;
 
-	                    if (ServiceUtil.isError(assignResult))
-	                        return ServiceUtil.returnError(
-	                            "Failed to assign user " + partyId + ": " +
-	                            ServiceUtil.getErrorMessage(assignResult));
-	                }
+                    // ── Assign user if not already assigned ───────────
+                    GenericValue existing = EntityQuery.use(delegator)
+                            .from("PartyExamRelationship")
+                            .where("examId", examId, "partyId", partyId)
+                            .queryOne();
 
-	                // Send email
-	                GenericValue assignedUser = EntityQuery.use(delegator)
-	                        .from("UserLogin")
-	                        .where("partyId", partyId)
-	                        .queryFirst();
+                    if (existing == null) {
+                        Map<String, Object> assignData = new HashMap<>();
+                        assignData.put("examId",          examId);
+                        assignData.put("partyId",         partyId);
+                        assignData.put("allowedAttempts",
+                            Long.parseLong(allowedAttempts != null ? allowedAttempts : "1"));
+                        assignData.put("noOfAttempts",
+                            Long.parseLong(noOfAttempts != null ? noOfAttempts : "1"));
+                        assignData.put("timeoutDays",
+                            Long.parseLong(timeoutDays != null ? timeoutDays : "30"));
+                        assignData.put("userLogin", userLogin);
 
-	                GenericValue exam = EntityQuery.use(delegator)
-	                        .from("ExamMaster")
-	                        .where("examId", examId)
-	                        .queryOne();
+                        Map<String, Object> assignResult = dispatcher.runSync(
+                                "createPartyExamRelationshipAuto", assignData);
 
-	                if (assignedUser == null || exam == null) continue;
+                        if (ServiceUtil.isError(assignResult))
+                            return ServiceUtil.returnError(
+                                "Failed to assign user " + partyId + ": " +
+                                ServiceUtil.getErrorMessage(assignResult));
+                    }
 
-	                String email    = assignedUser.getString("userLoginId");
-	                String examName = exam.getString("examName");
+                    // ── Fetch user and exam details ───────────────────
+                    GenericValue assignedUser = EntityQuery.use(delegator)
+                            .from("UserLogin")
+                            .where("partyId", partyId)
+                            .queryFirst();
 
-	                String rawPassword = generatePassword();
-	                String hashedPassword = org.apache.ofbiz.base.crypto.HashCrypt
-	                        .cryptUTF8("SHA", null, rawPassword);
+                    GenericValue exam = EntityQuery.use(delegator)
+                            .from("ExamMaster")
+                            .where("examId", examId)
+                            .queryOne();
 
-	                Map<String, Object> pwdData = new HashMap<>();
-	                pwdData.put("examId",              examId);
-	                pwdData.put("partyId",             partyId);
-	                pwdData.put("passwordChangesAuto", hashedPassword);
-	                pwdData.put("userLogin",           userLogin);
-	                dispatcher.runSync("updatePartyExamPassword", pwdData);
+                    if (assignedUser == null || exam == null) continue;
 
-	             String safeExamName = examName != null 
-	                 ? examName.replaceAll("[^a-zA-Z0-9 ]", "").trim() 
-	                 : "Exam";
+                    String email    = assignedUser.getString("userLoginId");
+                    String examName = exam.getString("examName");
 
-	             Map<String, Object> emailCtx = new HashMap<>();
-	             emailCtx.put("sendTo",      email);
-	             emailCtx.put("sendFrom",    "sphinx.ofbizz.com"); 
-	             emailCtx.put("subject",     "Exam Assignment " + safeExamName);
-	             emailCtx.put("body",
-	                 "Hello\n\n" +
-	                 "You have been assigned to " + safeExamName + "\n\n" +
-	                 "Username " + email + "\n" +
-	                 "Password " + rawPassword + "\n\n" +
-	                 "Regards\nAdmin");
-	             emailCtx.put("contentType", "text/plain");
-	             dispatcher.runAsync("sendMail", emailCtx);
-	            }
-	        } 
+                    // ── Generate and save password ────────────────────
+                    String rawPassword    = generatePassword();
+                    String hashedPassword = org.apache.ofbiz.base.crypto.HashCrypt
+                            .cryptUTF8("SHA", null, rawPassword);
 
-	        return ServiceUtil.returnSuccess(
-	            isActive
-	                ? "Exam published! Questions locked. Emails sent."
-	                : "Draft saved! Users assigned. No emails sent."
-	        );
+                    Map<String, Object> pwdData = new HashMap<>();
+                    pwdData.put("examId",              examId);
+                    pwdData.put("partyId",             partyId);
+                    pwdData.put("passwordChangesAuto", hashedPassword);
+                    pwdData.put("userLogin",           userLogin);
+                    dispatcher.runSync("updatePartyExamPassword", pwdData);
 
-	    } catch (GenericEntityException | GenericServiceException e) {
-	        return ServiceUtil.returnError("Error: " + e.getMessage());
-	    }
-	}
-	
-	private static String generatePassword() {
+                    String safeExamName = (examName != null)
+                            ? examName.replaceAll("[^a-zA-Z0-9 ]", "").trim()
+                            : "Exam";
+
+                    // ── Send email using OFBiz built-in sendMail ──────
+                    // OFBiz automatically uses SMTP settings from
+                    // general.properties — we only pass the content
+                    Map<String, Object> emailCtx = new HashMap<>();
+                    emailCtx.put("sendTo",      email);
+                    emailCtx.put("sendFrom",    mailFrom);
+                    emailCtx.put("subject",     mailSubject);
+                    emailCtx.put("contentType", "text/plain");
+                    emailCtx.put("body",
+                            "Hello,\n\n" +
+                            "You have been assigned to the exam: " + safeExamName + "\n\n" +
+                            "Username : " + email + "\n" +
+                            "Password : " + rawPassword + "\n\n" +
+                            "Please login and complete your exam before the deadline.\n\n" +
+                            "Regards,\nAdmin");
+
+                    // runAsync — fires in background, does not block
+                    dispatcher.runAsync("sendMail", emailCtx);
+                }
+            }
+
+            return ServiceUtil.returnSuccess(
+                isActive
+                    ? "Exam published! Questions locked. Emails sent."
+                    : "Draft saved! No emails sent."
+            );
+
+        } catch (GenericEntityException | GenericServiceException e) {
+            return ServiceUtil.returnError("Error: " + e.getMessage());
+        }
+    }
+
+    private static String generatePassword() {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@$!%*?&";
         java.security.SecureRandom random = new java.security.SecureRandom();
         StringBuilder password = new StringBuilder();
