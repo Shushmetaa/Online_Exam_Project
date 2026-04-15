@@ -253,6 +253,88 @@ public class SetupExam1 {
 	        return ServiceUtil.returnError("Error: " + e.getMessage());
 	    }
 	}
+	public static Map<String, Object> sendExamAssignmentEmail(
+	        String examId, String partyId, HttpServletRequest request, HttpServletResponse response) {
+
+	    try {
+	        LocalDispatcher dispatcher = getDispatcher(request);
+	        Delegator delegator = getDelegator(request);
+
+	        GenericValue userLogin = EntityQuery.use(delegator)
+	                .from("UserLogin").where("userLoginId", "admin").queryOne();
+
+	        // get user email
+	        GenericValue assignedUser = EntityQuery.use(delegator)
+	                .from("UserLogin").where("partyId", partyId).queryFirst();
+
+	        // get exam name
+	        GenericValue exam = EntityQuery.use(delegator)
+	                .from("ExamMaster").where("examId", examId).queryOne();
+	       
+	        if (assignedUser == null) {
+	            return ServiceUtil.returnError("User not found");
+	        }
+	        if (exam == null) {
+	            return ServiceUtil.returnError("Exam not found");
+	        }
+
+	        String email    = assignedUser.getString("userLoginId");
+	        String examName = exam.getString("examName");
+            
+	        // generate password
+	        String rawPassword = generatePassword();
+            String hashedPassword=HashCrypt.cryptUTF8("SHA", null, rawPassword);
+            
+            //save password to db
+            Map<String,Object> updateData=new HashMap<>();
+            updateData.put("examId", examId);
+            updateData.put("partyId",partyId);
+            updateData.put("passwordChangesAuto", hashedPassword);
+            updateData.put("userLogin",           userLogin);
+
+            Map<String, Object> updateResult = dispatcher.runSync(
+                "updatePartyExamPassword", updateData);
+
+            if (ServiceUtil.isError(updateResult)) {
+                return ServiceUtil.returnError("Failed to save password: "+ ServiceUtil.getErrorMessage(updateResult));
+            }
+            
+	        // send rawpassword 
+	        Map<String, Object> emailCtx = new HashMap<>();
+	        emailCtx.put("sendTo", email);
+	        emailCtx.put("subject",  "You have been assigned to Exam: " + examName);
+	        emailCtx.put("body",
+	                "Hello,\n\n" +
+	                "You have been assigned to: " + examName + "\n\n" +
+	                "Username: " + email + "\n" +
+	                "Exam Password: " + rawPassword + "\n\n" +
+	                "Use these to start your exam.\n\n" +
+	                "Regards,\nAdmin");
+	        emailCtx.put("contentType", "text/plain");
+
+	        Map<String, Object> mailResult = dispatcher.runSync("sendMail", emailCtx);
+	        if (ServiceUtil.isError(mailResult)) {
+	            return ServiceUtil.returnError("Email failed: "
+	                + ServiceUtil.getErrorMessage(mailResult));
+	        }
+
+	        return ServiceUtil.returnSuccess("Email sent successfully");
+
+	    } catch (Exception e) {
+	        return ServiceUtil.returnError("Error: " + e.getMessage());
+	    }
+	}
+	
+	private static String generatePassword() {
+	    String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@$!%*?&";
+	   SecureRandom random = new SecureRandom();
+	    StringBuilder password = new StringBuilder();
+	    for (int i = 0; i < 8; i++) {
+	    	//it will select the random index
+	        password.append(chars.charAt(random.nextInt(chars.length())));
+	    }
+	    return password.toString();
+	}
 	
 	public static Map<String, Object> saveAndPublish(
 	        String examId, String status, String partyIds,
@@ -313,21 +395,8 @@ public class SetupExam1 {
 	                    .where("examId", examId)
 	                    .queryOne();
 
-	            boolean showInSetup = false;
-	            String examStatus   = "PENDING";
-
+	            // Only add if NOT yet setup
 	            if (setupRecord == null) {
-	                showInSetup = true;
-	                examStatus  = "PENDING";
-	            } else {
-	                String setupDetails = setupRecord.getString("setupDetails");
-	                if (setupDetails != null && setupDetails.contains("\"status\":\"DRAFT\"")) {
-	                    showInSetup = true;
-	                    examStatus  = "DRAFT";
-	                }
-	            }
-
-	            if (showInSetup) {
 	                Map<String, Object> examMap = new HashMap<>();
 	                examMap.put("examId",        examId);
 	                examMap.put("examName",       exam.getString("examName"));
@@ -335,7 +404,6 @@ public class SetupExam1 {
 	                examMap.put("duration",       exam.getLong("duration"));
 	                examMap.put("passPercentage", exam.getLong("passPercentage"));
 	                examMap.put("description",    exam.getString("description"));
-	                examMap.put("status",         examStatus);
 	                examList.add(examMap);
 	            }
 	        }
@@ -350,29 +418,20 @@ public class SetupExam1 {
 	}
 	
 	public static Map<String, Object> getAllAssignedUsers(HttpServletRequest request, HttpServletResponse response) {
-	   
-		try {
+	    try {
 	        Delegator delegator = getDelegator(request);
+
+	        // 1. Get all setup exams
+	        List<GenericValue> setupExams = EntityQuery.use(delegator)
+	                .from("ExamSetupDetails")
+	                .queryList();
 
 	        List<Map<String, Object>> examCards = new ArrayList<>();
 
-	        // Get only exams that are assigned
-	        List<GenericValue> relationships = EntityQuery.use(delegator)
-	                .from("PartyExamRelationship")
-	                .queryList();
+	        for (GenericValue setup : setupExams) {
+	            String examId = setup.getString("examId");
 
-	        // Group by examId
-	        Map<String, List<GenericValue>> examUserMap = new HashMap<>();
-
-	        for (GenericValue rel : relationships) {
-	            String examId = rel.getString("examId");
-	            examUserMap.computeIfAbsent(examId, k -> new ArrayList<>()).add(rel);
-	        }
-
-	        // Process each exam
-	        for (String examId : examUserMap.keySet()) {
-
-	            // Get exam details
+	            // 2. Get exam details from ExamMaster
 	            GenericValue exam = EntityQuery.use(delegator)
 	                    .from("ExamMaster")
 	                    .where("examId", examId)
@@ -380,13 +439,18 @@ public class SetupExam1 {
 
 	            if (exam == null) continue;
 
+	            // 3. Get all assigned users for this exam
+	            List<GenericValue> relationships = EntityQuery.use(delegator)
+	                    .from("PartyExamRelationship")
+	                    .where("examId", examId)
+	                    .queryList();
+
 	            List<Map<String, Object>> userList = new ArrayList<>();
 
-	            // Get users for this exam
-	            for (GenericValue rel : examUserMap.get(examId)) {
-
+	            for (GenericValue rel : relationships) {
 	                String partyId = rel.getString("partyId");
 
+	                // 4. Get name from Person table
 	                GenericValue person = EntityQuery.use(delegator)
 	                        .from("Person")
 	                        .where("partyId", partyId)
@@ -395,22 +459,22 @@ public class SetupExam1 {
 	                Map<String, Object> userMap = new HashMap<>();
 	                userMap.put("partyId", partyId);
 	                userMap.put("noOfAttempts", rel.getLong("noOfAttempts"));
-	                userMap.put("timeoutDays", rel.getLong("timeoutDays"));
+	                userMap.put("timeoutDays",  rel.getLong("timeoutDays"));
 
 	                if (person != null) {
 	                    userMap.put("firstName", person.getString("firstName"));
-	                    userMap.put("lastName", person.getString("lastName"));
+	                    userMap.put("lastName",  person.getString("lastName"));
 	                }
 
 	                userList.add(userMap);
 	            }
 
 	            Map<String, Object> examCard = new HashMap<>();
-	            examCard.put("examId", examId);
-	            examCard.put("examName", exam.getString("examName"));
+	            examCard.put("examId",        examId);
+	            examCard.put("examName",      exam.getString("examName"));
 	            examCard.put("noOfQuestions", exam.getLong("noOfQuestions"));
-	            examCard.put("duration", exam.getLong("duration"));
-	            examCard.put("passPercentage", exam.getLong("passPercentage"));
+	            examCard.put("duration",      exam.getLong("duration"));
+	            examCard.put("passPercentage",exam.getLong("passPercentage"));
 	            examCard.put("assignedUsers", userList);
 
 	            examCards.add(examCard);
@@ -420,8 +484,7 @@ public class SetupExam1 {
 	        result.put("examCards", examCards);
 	        return result;
 
-	    } catch (Exception e) {
-	        e.printStackTrace();
+	    } catch (GenericEntityException e) {
 	        return ServiceUtil.returnError("Failed: " + e.getMessage());
 	    }
 	}

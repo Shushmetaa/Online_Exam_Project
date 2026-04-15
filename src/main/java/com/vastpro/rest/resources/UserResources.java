@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import com.vastpro.servicecall.LoginMaster;
+import com.vastpro.servicecall.LogoutMaster;
 import com.vastpro.servicecall.SignupMaster;
 import com.vastpro.servicecall.UserMaster;
 
@@ -32,13 +33,13 @@ public class UserResources {
     	return LoginMaster.loginUser(request, response);
 
     }
-    @GET
-    @Path("/getUsers")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Map<String, Object> getUsers(@Context HttpServletRequest request,
-                                         @Context HttpServletResponse response) {
-        return LoginMaster.getUsers(request, response);
-    }
+//    @GET
+//    @Path("/getUsers")
+//    @Produces(MediaType.APPLICATION_JSON)
+//    public Map<String, Object> getUsers(@Context HttpServletRequest request,
+//                                         @Context HttpServletResponse response) {
+//        return LoginMaster.getUsers(request, response);
+//    }
     @GET
     @Path("/getExams")
     @Produces(MediaType.APPLICATION_JSON)
@@ -61,5 +62,18 @@ public class UserResources {
                                                    @Context HttpServletResponse response) {
         return UserMaster.verifyExamPassword(request, response);
     }
+
+    @GET
+    @Path("/getUserInfo")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Map<String, Object> getUserInfo(@Context HttpServletRequest request,@Context HttpServletResponse response ){
+        return UserMaster.getUserInfo(request, response);	         
+    }
     
+    @POST
+    @Path("/logout")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Map<String,Object> logout(@Context HttpServletRequest request,@Context HttpServletResponse response ){
+        LogoutMaster.logout(request, response);	         
+    }
 }

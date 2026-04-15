@@ -35,13 +35,14 @@ public class UserMaster {
 	            LocalDispatcher dispatcher = getDispatcher(request);
 	            Delegator delegator        = getDelegator(request);
 
-	            // Get partyId from session (set during login)
 	            String partyId = (String) request.getSession().getAttribute("partyId");
 	            if (partyId == null)
 	                return ServiceUtil.returnError("User not logged in.");
 
 	            GenericValue userLogin = EntityQuery.use(delegator)
-	                    .from("UserLogin").where("userLoginId", "admin").queryOne();
+	                    .from("UserLogin")
+	                    .where("userLoginId", "admin")
+	                    .queryOne();
 
 	            Map<String, Object> data = new HashMap<>();
 	            data.put("partyId",   partyId);
@@ -124,5 +125,31 @@ public class UserMaster {
 	            return ServiceUtil.returnError("Error: " + e.getMessage());
 	        }
 	    }
-	    
+	    public static Map<String, Object> getUserInfo(
+	            HttpServletRequest request, HttpServletResponse response) {
+	        try {
+	            Delegator delegator = getDelegator(request);
+	            String partyId = (String) request.getSession().getAttribute("partyId");
+	            if (partyId == null)
+	                return ServiceUtil.returnError("User not logged in.");
+
+	            GenericValue person = EntityQuery.use(delegator)
+	                    .from("Person")
+	                    .where("partyId", partyId)
+	                    .queryOne();
+
+	            if (person == null)
+	                return ServiceUtil.returnError("User not found.");
+
+	            String firstName = person.getString("firstName");
+
+	            Map<String, Object> result = ServiceUtil.returnSuccess("User info fetched.");
+	            result.put("firstName", firstName);
+	            result.put("partyId",   partyId);
+	            return result;
+
+	        } catch (Exception e) {
+	            return ServiceUtil.returnError("Error: " + e.getMessage());
+	        }
+	    }
 }

@@ -53,6 +53,7 @@ public class LoginMaster {
             if (ServiceUtil.isError(result))
                 return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
             String partyId = (String) result.get("partyId");
+            
             if (partyId != null) {
                 request.getSession().setAttribute("partyId", partyId);
             }
@@ -63,32 +64,33 @@ public class LoginMaster {
             return ServiceUtil.returnError("Unexpected error: " + e.getMessage());
         }
     }
-    public static Map<String, Object> getUsers(HttpServletRequest request, HttpServletResponse response) {
-        try {
-            Delegator delegator = getDelegator(request);
-            List<GenericValue> users = EntityQuery.use(delegator)
-                    .from("UserLogin")
-                    .where("enabled", "Y")
-                    .queryList();
-
-            List<Map<String, Object>> userList = new ArrayList<>();
-            for (GenericValue user : users) {
-                Map<String, Object> u = new HashMap<>();
-                u.put("partyId",user.getString("partyId"));
-                u.put("email", user.getString("userLoginId"));
-                userList.add(u);
-            }
-
-            Map<String, Object> result = ServiceUtil.returnSuccess();
-            result.put("userList", userList);
-            
-            if (ServiceUtil.isError(result))
-                return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
-            
-            return result;
-            
-        } catch (Exception e) {
-            return ServiceUtil.returnError("Error: " + e.getMessage());
-        }
-    }
+ 
+//    public static Map<String, Object> getUsers(HttpServletRequest request, HttpServletResponse response) {
+//        try {
+//            Delegator delegator = getDelegator(request);
+//            List<GenericValue> users = EntityQuery.use(delegator)
+//                    .from("UserLogin")
+//                    .where("enabled", "Y")
+//                    .queryList();
+//
+//            List<Map<String, Object>> userList = new ArrayList<>();
+//            for (GenericValue user : users) {
+//                Map<String, Object> u = new HashMap<>();
+//                u.put("partyId",user.getString("partyId"));
+//                u.put("email", user.getString("userLoginId"));
+//                userList.add(u);
+//            }
+//
+//            Map<String, Object> result = ServiceUtil.returnSuccess();
+//            result.put("userList", userList);
+//            
+//            if (ServiceUtil.isError(result))
+//                return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+//            
+//            return result;
+//            
+//        } catch (Exception e) {
+//            return ServiceUtil.returnError("Error: " + e.getMessage());
+//        }
+//    }
 }

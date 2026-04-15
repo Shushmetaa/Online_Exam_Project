@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ofbiz.base.crypto.HashCrypt;
 import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.entity.GenericValue;
 import org.apache.ofbiz.entity.util.EntityQuery;
@@ -18,11 +19,9 @@ public class GetExams {
 	            Delegator delegator = dctx.getDelegator();
 	            String partyId      = (String) context.get("partyId");
 
-	            // All active (non-expired) assignments for this user
 	            List<GenericValue> assignments = EntityQuery.use(delegator)
 	                    .from("PartyExamRelationship")
 	                    .where("partyId", partyId)
-	                    .filterByDate()   // filters out expired thruDate rows
 	                    .queryList();
 
 	            List<Map<String, Object>> examList = new ArrayList<>();
@@ -84,4 +83,35 @@ public class GetExams {
 	            return ServiceUtil.returnError("Error fetching stats: " + e.getMessage());
 	        }
 	    }
+	 public static Map<String,Object>verifyExamPassword(DispatchContext dctx, Map<String, ? extends Object> context) {
+	        try {
+	        	Delegator delegator=dctx.getDelegator();
+	   	        String password = (String) context.get("password");
+                String examId=(String) context.get("examId");
+	        	 String partyId      = (String) context.get("partyId");
+
+		            GenericValue assignment = EntityQuery.use(delegator)
+		                    .from("PartyExamRelatioShip")  
+		                    .where("partyId", partyId,
+		                    		"examId",examId)
+		                    .queryOne();
+		            
+		            if (assignment == null) {
+		                return ServiceUtil.returnError("No exam assigned to this user.");
+		            }
+		            
+		            String storedHashedPassword = assignment.getString("password"); 
+		            
+		            boolean isMatch = HashCrypt.comparePassword(storedHashedPassword, "SHA" , password);
+			           
+		            if (!isMatch)
+		                return ServiceUtil.returnError("Invalid password");
+		            
+		            Map<String, Object> result = ServiceUtil.returnSuccess("Login successful now you allowed to attend the exam");
+		            result.put("partyId",  partyId);
+		            return result;
+	        } catch (Exception e) {
+	            return ServiceUtil.returnError("Error Yout password is incorrect: " + e.getMessage());
+	        }
+	        }
 }

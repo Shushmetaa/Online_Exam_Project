@@ -107,7 +107,7 @@ public static Map<String, Object> signupUser(DispatchContext dctx, Map<String, ?
 	    Map<String, Object> partyRoleInput = new HashMap<>();
 		partyRoleInput.put("partyId", partyId);
 		partyRoleInput.put("roleTypeId", role);
-		Map<String, Object> partyRoleResult = dispatcher.runSync("createPartyRole", partyRoleInput);
+		dispatcher.runSync("createPartyRole", partyRoleInput);
 		Map<String, Object> result = ServiceUtil.returnSuccess();
 		return result;
 				

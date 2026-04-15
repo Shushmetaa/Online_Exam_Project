@@ -529,6 +529,7 @@
 	    <attribute name="attemptsLeft"    type="Long"   mode="OUT" optional="true"/>
 	    <attribute name="expired"         type="String" mode="OUT" optional="true"/>
 	</service>
+
    <service name="updatePartyExamPassword" engine="entity-auto" invoke="update" auth="true" default-entity-name="PartyExamRelationship">
     <auto-attributes include="pk" mode="IN" optional="false"/>
     <attribute name="passwordChangesAuto" type="String" mode="IN" optional="true"/>
@@ -552,11 +553,10 @@
     <attribute name="userLogin" type="org.apache.ofbiz.entity.GenericValue" mode="IN" optional="true"/>
 </service>
 <service name="verifyExamPassword" engine="java"
-         location="com.vastpro.services.userservice.ExamPasswordService"
+         location="com.vastpro.services.userservice.GetExams"
          invoke="verifyExamPassword" auth="true">
     <attribute name="partyId"   type="String"                               mode="IN" optional="false"/>
     <attribute name="examId"    type="String"                               mode="IN" optional="false"/>
     <attribute name="password"  type="String"                               mode="IN" optional="false"/>
     <attribute name="userLogin" type="org.apache.ofbiz.entity.GenericValue" mode="IN" optional="true"/>
-</service>
-</services>
+</service></services>

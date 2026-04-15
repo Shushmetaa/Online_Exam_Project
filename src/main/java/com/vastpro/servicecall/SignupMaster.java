@@ -38,14 +38,6 @@ public class SignupMaster {
            
             LocalDispatcher dispatcher = getDispatcher(request);
 
-            if (dispatcher == null) {
-                return ServiceUtil.returnError("Dispatcher is null");
-            }
-
-//            GenericValue userLogin = EntityQuery.use(getDelegator(request))
-//                    .from("UserLogin")
-//                    .where("userLoginId", "admin")
-//                    .queryOne();
             
             Map<String, Object> input =new HashMap<>();
             input.put("firstName",firstName);
@@ -54,7 +46,6 @@ public class SignupMaster {
             input.put("password",password);
             input.put("confirmPassword", confirmPassword);
             input.put("roleTypeId", roleTypeId);
-//            input.put("userLogin", userLogin);
 
             Map<String, Object> result = dispatcher.runSync("signupUser", input);
 
