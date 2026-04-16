@@ -58,9 +58,10 @@ public class UserResources {
     @Path("/verifyExamPassword")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    public Map<String, Object> verifyExamPassword(@Context HttpServletRequest request,
-                                                   @Context HttpServletResponse response) {
-        return UserMaster.verifyExamPassword(request, response);
+    public Map<String, Object> verifyExamPassword( @FormParam("password") String password, @FormParam("examId") String examId, 
+    		@Context HttpServletRequest request, @Context HttpServletResponse response) {
+            	
+        return UserMaster.verifyExamPassword(password, examId, request, response);
     }
 
     @GET
@@ -70,10 +71,4 @@ public class UserResources {
         return UserMaster.getUserInfo(request, response);	         
     }
     
-    @POST
-    @Path("/logout")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Map<String,Object> logout(@Context HttpServletRequest request,@Context HttpServletResponse response ){
-        LogoutMaster.logout(request, response);	         
-    }
 }

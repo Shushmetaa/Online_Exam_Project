@@ -91,16 +91,14 @@ public class UserMaster {
 	        }
 	    }
 	    
-	    public static Map<String, Object> verifyExamPassword(
+	    public static Map<String, Object> verifyExamPassword(String password, String examId,
 	            HttpServletRequest request, HttpServletResponse response) {
 	        try {
 	            LocalDispatcher dispatcher = getDispatcher(request);
 	            Delegator delegator        = getDelegator(request);
 
 	            String partyId  = (String) request.getSession().getAttribute("partyId");
-	            String examId   = request.getParameter("examId");
-	            String password = request.getParameter("password");
-
+	          
 	            if (partyId == null)
 	                return ServiceUtil.returnError("User not logged in.");
 	            if (examId == null || password == null)
@@ -116,10 +114,12 @@ public class UserMaster {
 	            data.put("userLogin", adminLogin);
 
 	            Map<String, Object> result = dispatcher.runSync("verifyExamPassword", data);
-	            if (ServiceUtil.isError(result))
-	                return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
-
-	            return ServiceUtil.returnSuccess("Password verified.");
+//	            if (ServiceUtil.isError(result))
+//	                return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+//
+//	            return ServiceUtil.returnSuccess("Password verified.");
+	            
+	            return result;
 
 	        } catch (Exception e) {
 	            return ServiceUtil.returnError("Error: " + e.getMessage());

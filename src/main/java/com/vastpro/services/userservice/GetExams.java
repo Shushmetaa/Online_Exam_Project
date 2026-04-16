@@ -91,7 +91,7 @@ public class GetExams {
 	        	 String partyId      = (String) context.get("partyId");
 
 		            GenericValue assignment = EntityQuery.use(delegator)
-		                    .from("PartyExamRelatioShip")  
+		                    .from("PartyExamRelationship")  
 		                    .where("partyId", partyId,
 		                    		"examId",examId)
 		                    .queryOne();
@@ -100,7 +100,7 @@ public class GetExams {
 		                return ServiceUtil.returnError("No exam assigned to this user.");
 		            }
 		            
-		            String storedHashedPassword = assignment.getString("password"); 
+		            String storedHashedPassword = assignment.getString("passwordChangesAuto"); 
 		            
 		            boolean isMatch = HashCrypt.comparePassword(storedHashedPassword, "SHA" , password);
 			           
@@ -109,7 +109,10 @@ public class GetExams {
 		            
 		            Map<String, Object> result = ServiceUtil.returnSuccess("Login successful now you allowed to attend the exam");
 		            result.put("partyId",  partyId);
+		            System.out.println(partyId);
+		            result.put("examId",  examId);
 		            return result;
+		            
 	        } catch (Exception e) {
 	            return ServiceUtil.returnError("Error Yout password is incorrect: " + e.getMessage());
 	        }
