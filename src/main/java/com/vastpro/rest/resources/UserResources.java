@@ -85,4 +85,11 @@ public Map<String, Object> checkSession(@Context HttpServletRequest request,
                                          @Context HttpServletResponse response) {
     return LoginMaster.checkSession(request, response);
 }
+//@GET
+//@Path("/session1")
+//@Produces(MediaType.APPLICATION_JSON)
+//public Map<String, Object> checkSession(@Context HttpServletRequest request,
+//                                         @Context HttpServletResponse response) {
+//    return LoginMaster.checkSession(request, response);
+//}
 }
