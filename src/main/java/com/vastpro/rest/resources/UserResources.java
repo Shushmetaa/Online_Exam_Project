@@ -58,9 +58,10 @@ public class UserResources {
     @Path("/verifyExamPassword")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    public Map<String, Object> verifyExamPassword(@Context HttpServletRequest request,
-                                                   @Context HttpServletResponse response) {
-        return UserMaster.verifyExamPassword(request, response);
+    public Map<String, Object> verifyExamPassword( @FormParam("password") String password, @FormParam("examId") String examId, 
+    		@Context HttpServletRequest request, @Context HttpServletResponse response) {
+            	
+        return UserMaster.verifyExamPassword(password, examId, request, response);
     }
 
     @GET

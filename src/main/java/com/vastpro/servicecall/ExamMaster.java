@@ -339,25 +339,25 @@ public class ExamMaster {
 		        return ServiceUtil.returnError("Search failed: " + e.getMessage());
 		    }
 		}
-//		public static Map<String,Object> getAllUsers(HttpServletRequest request, HttpServletResponse response) {
-//		    try {
-//		        Delegator delegator = getDelegator(request);
-//
-//		        List<GenericValue> users = EntityQuery.use(delegator)
-//		            .from("PartyRole")
-//		            .where("roleTypeId", "SPHINX_USER")
-//		            .queryList();
-//                
+		public static Map<String,Object> getAllUsers(HttpServletRequest request, HttpServletResponse response) {
+		    try {
+		        Delegator delegator = getDelegator(request);
+
+		        List<GenericValue> users = EntityQuery.use(delegator)
+		            .from("PartyRole")
+		            .where("roleTypeId", "SPHINX_USER")
+		            .queryList();
+                
 //		        GenericValue person=EntityQuery.use(delegator)
-//		        		
-//		        		
-//		        Map<String, Object> result = ServiceUtil.returnSuccess();
-//		        result.put("totalUsers", users.size());
-//		        result.put("userList", users);
-//		        return result;
-//
-//		    } catch (Exception e) {
-//		        return ServiceUtil.returnError("Failed: " + e.getMessage());
-//		    }
-//		}
+		        		
+		        		
+		        Map<String, Object> result = ServiceUtil.returnSuccess();
+		        result.put("totalUsers", users.size());
+		        result.put("userList", users);
+		        return result;
+
+		    } catch (Exception e) {
+		        return ServiceUtil.returnError("Failed: " + e.getMessage());
+		    }
+		}
 }

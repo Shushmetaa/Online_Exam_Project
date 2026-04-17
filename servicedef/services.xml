@@ -416,7 +416,7 @@
 	<!-- ═══════════════════════════════════════════════════════════════ -->
 	
 	<service name="startExam" engine="java"
-	         location="com.vastpro.services.exam.StartExam"
+	         location="com.vastpro.services.userservice.StartExam"
 	         invoke="startExam" auth="true">
 	    <attribute name="examId"       type="String" mode="IN"  optional="false"/>
 	    <attribute name="partyId"      type="String" mode="IN"  optional="false"/>
@@ -449,7 +449,7 @@
 	</service>
 	
 	<service name="saveAnswer" engine="java"
-	         location="com.vastpro.services.exam.SaveAnswer"
+	         location="com.vastpro.services.userservice.SaveAnswer"
 	         invoke="saveAnswer" auth="true">
 	    <attribute name="examId"          type="String" mode="IN" optional="false"/>
 	    <attribute name="partyId"         type="String" mode="IN" optional="false"/>
@@ -473,7 +473,7 @@
 	</service>
 	
 	<service name="submitExam" engine="java"
-	         location="com.vastpro.services.exam.SubmitExam"
+	         location="com.vastpro.services.userservice.SubmitExam"
 	         invoke="submitExam" auth="true">
 	    <attribute name="examId"        type="String" mode="IN"  optional="false"/>
 	    <attribute name="partyId"       type="String" mode="IN"  optional="false"/>
@@ -502,7 +502,7 @@
 	</service>
 	
 	<service name="getExamResults" engine="java"
-	         location="com.vastpro.services.exam.GetResults"
+	         location="com.vastpro.services.userservice.GetResults"
 	         invoke="getResults" auth="true">
 	    <attribute name="examId"        type="String" mode="IN"  optional="false"/>
 	    <attribute name="partyId"       type="String" mode="IN"  optional="false"/>
@@ -519,7 +519,7 @@
 	</service>
 	
 	<service name="getAttempts" engine="java"
-	         location="com.vastpro.services.exam.GetAttempts"
+	         location="com.vastpro.services.userservice.GetAttempts"
 	         invoke="getAttempts" auth="true">
 	    <attribute name="examId"          type="String" mode="IN"  optional="false"/>
 	    <attribute name="partyId"         type="String" mode="IN"  optional="false"/>
@@ -534,29 +534,33 @@
     <auto-attributes include="pk" mode="IN" optional="false"/>
     <attribute name="passwordChangesAuto" type="String" mode="IN" optional="true"/>
     <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
-</service>
-
-<service name="getAssignedExams" engine="java"
-         location="com.vastpro.services.userservice.GetExams"
-         invoke="getAssignedExams" auth="true">
-    <attribute name="partyId"   type="String" mode="IN"  optional="false"/>
-    <attribute name="examList"  type="List"   mode="OUT" optional="true"/>
-    <attribute name="userLogin" type="org.apache.ofbiz.entity.GenericValue" mode="IN" optional="true"/>
-</service>
-
-<service name="getUserExamStats" engine="java"
-         location="com.vastpro.services.userservice.GetExams"
-         invoke="getUserExamStats" auth="true">
-    <attribute name="partyId"   type="String" mode="IN"  optional="true"/>
-    <attribute name="completed" type="Long"   mode="OUT" optional="true"/>
-    <attribute name="bestScore" type="Long"   mode="OUT" optional="true"/>
-    <attribute name="userLogin" type="org.apache.ofbiz.entity.GenericValue" mode="IN" optional="true"/>
-</service>
-<service name="verifyExamPassword" engine="java"
-         location="com.vastpro.services.userservice.GetExams"
-         invoke="verifyExamPassword" auth="true">
-    <attribute name="partyId"   type="String"                               mode="IN" optional="false"/>
-    <attribute name="examId"    type="String"                               mode="IN" optional="false"/>
-    <attribute name="password"  type="String"                               mode="IN" optional="false"/>
-    <attribute name="userLogin" type="org.apache.ofbiz.entity.GenericValue" mode="IN" optional="true"/>
-</service></services>
+	</service>
+	
+	<service name="getAssignedExams" engine="java"
+	         location="com.vastpro.services.userservice.GetExams"
+	         invoke="getAssignedExams" auth="true">
+	    <attribute name="partyId"   type="String" mode="IN"  optional="false"/>
+	    <attribute name="examList"  type="List"   mode="OUT" optional="true"/>
+	    <attribute name="userLogin" type="org.apache.ofbiz.entity.GenericValue" mode="IN" optional="true"/>
+	</service>
+	
+	<service name="getUserExamStats" engine="java"
+	         location="com.vastpro.services.userservice.GetExams"
+	         invoke="getUserExamStats" auth="true">
+	    <attribute name="partyId"   type="String" mode="IN"  optional="true"/>
+	    <attribute name="completed" type="Long"   mode="OUT" optional="true"/>
+	    <attribute name="bestScore" type="Long"   mode="OUT" optional="true"/>
+	    <attribute name="userLogin" type="org.apache.ofbiz.entity.GenericValue" mode="IN" optional="true"/>
+	</service>
+	<service name="verifyExamPassword" engine="java"
+	         location="com.vastpro.services.userservice.GetExams"
+	         invoke="verifyExamPassword" auth="true">
+	    <attribute name="partyId"   type="String"                               mode="IN" optional="false"/>
+	    <attribute name="examId"    type="String"                               mode="IN" optional="false"/>
+	    <attribute name="password"  type="String"                               mode="IN" optional="false"/>
+	    <attribute name="userLogin" type="org.apache.ofbiz.entity.GenericValue" mode="IN" optional="true"/>
+	    <attribute name="partyId" type="String" mode="OUT"/>
+    	<attribute name="examId"  type="String" mode="OUT"/>    
+	</service>
+	
+</services>
