@@ -264,31 +264,100 @@ public class ExamMaster {
 		        return ServiceUtil.returnError("Error fetching users: " + e.getMessage());
 		    }
 		}
-		public static Map<String, Object> getNums(
-			    HttpServletRequest request, HttpServletResponse response) {
-			    try {
-			        Delegator delegator = getDelegator(request);
+		public static Map<String, Object> getNums(HttpServletRequest request, HttpServletResponse response) {
+		    try {
+		        Delegator delegator = getDelegator(request);
 
-			        long totalExams = EntityQuery.use(delegator)
-			            .from("ExamMaster")
-			            .queryCount();
+		        long totalExams = EntityQuery.use(delegator)
+		            .from("ExamMaster")
+		            .queryCount();
 
-			        long totalUsers = EntityQuery.use(delegator)
-			            .from("PartyExamRelationship")
-			            .queryCount();
+		        long totalUsers = EntityQuery.use(delegator)
+		            .from("PartyRole")
+		            .where("roleTypeId", "SPHINX_USER")
+		            .queryCount();
 
-			        long totalQuestions = EntityQuery.use(delegator)
-			            .from("QuestionBankMaster")
-			            .queryCount();
+		        long assignedUsers = EntityQuery.use(delegator)
+		            .from("PartyExamRelationship")
+		            .queryCount();
 
-			        Map<String, Object> result = ServiceUtil.returnSuccess();
-			        result.put("totalExams", totalExams);
-			        result.put("totalUsers", totalUsers);
-			        result.put("totalQuestions", totalQuestions);
-			        return result;
+		        long totalQuestions = EntityQuery.use(delegator)
+		            .from("QuestionBankMaster")
+		            .queryCount();
 
-			    } catch (GenericEntityException e) {
-			        return ServiceUtil.returnError("Failed: " + e.getMessage());
-			    }
-			}
+		        Map<String, Object> result = ServiceUtil.returnSuccess();
+		        result.put("totalExams", totalExams);
+		        result.put("totalUsers", totalUsers);
+		        result.put("assignedUsers", assignedUsers);
+		        result.put("totalQuestions", totalQuestions);
+		        return result;
+
+		    } catch (GenericEntityException e) {
+		        return ServiceUtil.returnError("Failed: " + e.getMessage());
+		    }
+		}
+
+		public static Map<String, Object> searchExams(HttpServletRequest request, HttpServletResponse response) {
+		    try {
+		        Delegator delegator = getDelegator(request);
+
+		        String keyword = request.getParameter("keyword") != null 
+		        	    ? request.getParameter("keyword") 
+		        	    : (String) request.getAttribute("keyword");
+
+		        	if (keyword == null) keyword = "";
+
+		        List<GenericValue> allExams = EntityQuery.use(delegator)
+		                .from("ExamMaster")
+		                .queryList();
+
+		        List<Map<String, Object>> filteredExams = new ArrayList<>();
+
+		        for (GenericValue exam : allExams) {
+		            String examName    = exam.getString("examName") != null ? exam.getString("examName").toLowerCase() : "";
+		            String description = exam.getString("description") != null ? exam.getString("description").toLowerCase() : "";
+		            String search      = keyword != null ? keyword.toLowerCase().trim() : "";
+
+		            if (search.isEmpty() || examName.contains(search) || description.contains(search)) {
+		                Map<String, Object> examMap = new HashMap<>();
+		                examMap.put("examId",          exam.getString("examId"));
+		                examMap.put("examName",        exam.getString("examName"));
+		                examMap.put("description",     exam.getString("description"));
+		                examMap.put("noOfQuestions",   exam.getString("noOfQuestions"));
+		                examMap.put("duration",        exam.getString("duration"));
+		                examMap.put("passPercentage",  exam.getString("passPercentage"));
+		                filteredExams.add(examMap);
+		            }
+		        }
+
+		        Map<String, Object> result = ServiceUtil.returnSuccess("success");
+		        result.put("examList", filteredExams);
+		        return result;
+
+		    } catch (Exception e) {
+		        e.printStackTrace();
+		        return ServiceUtil.returnError("Search failed: " + e.getMessage());
+		    }
+		}
+//		public static Map<String,Object> getAllUsers(HttpServletRequest request, HttpServletResponse response) {
+//		    try {
+//		        Delegator delegator = getDelegator(request);
+//
+//		        List<GenericValue> users = EntityQuery.use(delegator)
+//		            .from("PartyRole")
+//		            .where("roleTypeId", "SPHINX_USER")
+//		            .queryList();
+//                
+//		        GenericValue person=EntityQuery.use(delegator)
+//		        		
+//		        		
+//		        Map<String, Object> result = ServiceUtil.returnSuccess();
+//		        result.put("totalUsers", users.size());
+//		        result.put("userList", users);
+//		        return result;
+//
+//		    } catch (Exception e) {
+//		        return ServiceUtil.returnError("Failed: " + e.getMessage());
+//		    }
+//		}
 }

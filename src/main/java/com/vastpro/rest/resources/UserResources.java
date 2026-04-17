@@ -74,6 +74,14 @@ public class UserResources {
     @Path("/logout")
     @Produces(MediaType.APPLICATION_JSON)
     public Map<String,Object> logout(@Context HttpServletRequest request,@Context HttpServletResponse response ){
-        LogoutMaster.logout(request, response);	         
+       return LogoutMaster.logout(request, response);	         
     }
+
+@GET
+@Path("/session")
+@Produces(MediaType.APPLICATION_JSON)
+public Map<String, Object> checkSession(@Context HttpServletRequest request,
+                                         @Context HttpServletResponse response) {
+    return LoginMaster.checkSession(request, response);
+}
 }

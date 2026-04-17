@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.entity.GenericValue;
 import org.apache.ofbiz.entity.util.EntityQuery;
@@ -53,9 +55,10 @@ public class LoginMaster {
             if (ServiceUtil.isError(result))
                 return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
             String partyId = (String) result.get("partyId");
-            
+            String role    = (String) result.get("role"); 
             if (partyId != null) {
                 request.getSession().setAttribute("partyId", partyId);
+                request.getSession().setAttribute("role", role);  
             }
             return result;
 
@@ -65,32 +68,37 @@ public class LoginMaster {
         }
     }
  
-//    public static Map<String, Object> getUsers(HttpServletRequest request, HttpServletResponse response) {
-//        try {
-//            Delegator delegator = getDelegator(request);
-//            List<GenericValue> users = EntityQuery.use(delegator)
-//                    .from("UserLogin")
-//                    .where("enabled", "Y")
-//                    .queryList();
-//
-//            List<Map<String, Object>> userList = new ArrayList<>();
-//            for (GenericValue user : users) {
-//                Map<String, Object> u = new HashMap<>();
-//                u.put("partyId",user.getString("partyId"));
-//                u.put("email", user.getString("userLoginId"));
-//                userList.add(u);
-//            }
-//
-//            Map<String, Object> result = ServiceUtil.returnSuccess();
-//            result.put("userList", userList);
-//            
-//            if (ServiceUtil.isError(result))
-//                return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
-//            
-//            return result;
-//            
-//        } catch (Exception e) {
-//            return ServiceUtil.returnError("Error: " + e.getMessage());
-//        }
-//    }
+    public static Map<String, Object> checkSession(HttpServletRequest request, HttpServletResponse response) {
+        Map<String, Object> result = new HashMap<>();
+     
+        try {
+            HttpSession session = request.getSession(false);
+     
+            if (session == null) {
+                result.put("responseMessage", "error");
+                result.put("message", "No active session");
+                return result;
+            }
+     
+            String partyId = (String) session.getAttribute("partyId");
+            String role    = (String) session.getAttribute("role");
+     
+            if (partyId == null || role == null) {
+                result.put("responseMessage", "error");
+                result.put("message", "Not logged in");
+                return result;
+            }
+     
+            result.put("responseMessage", "success");
+            result.put("partyId", partyId);
+            result.put("role", role);  
+            return result;
+     
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.put("responseMessage", "error");
+            result.put("message", "Session check failed: " + e.getMessage());
+            return result;
+        }
+    }
 }

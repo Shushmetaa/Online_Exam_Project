@@ -6,6 +6,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+
+import com.vastpro.servicecall.ExamMaster;
 import com.vastpro.servicecall.ExamService;
 
 @Path("/user/exam")

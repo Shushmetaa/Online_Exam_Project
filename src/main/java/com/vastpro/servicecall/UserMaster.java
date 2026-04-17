@@ -152,4 +152,10 @@ public class UserMaster {
 	            return ServiceUtil.returnError("Error: " + e.getMessage());
 	        }
 	    }
+
+		public static Object getCertificate(String partyId, String examId, HttpServletRequest request,
+				HttpServletResponse response) {
+			// TODO Auto-generated method stub
+			return null;
+		}
 }

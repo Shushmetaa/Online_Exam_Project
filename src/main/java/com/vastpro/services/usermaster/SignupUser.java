@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.ofbiz.base.crypto.HashCrypt;
+import org.apache.ofbiz.base.util.UtilValidate;
 import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.entity.GenericEntityException;
 import org.apache.ofbiz.entity.GenericValue;
@@ -24,42 +25,42 @@ public static Map<String, Object> signupUser(DispatchContext dctx, Map<String, ?
 	String confirmPassword = (String) context.get("confirmPassword");	
 	String role=(String) context.get("roleTypeId");
 	
-	//validation
-	if(firstName == null || firstName.isEmpty()) {
-		return ServiceUtil.returnError("First name is required");
-	}
-	
-	if (!firstName.matches("[a-zA-Z\\s\\-']{3,50}"))
-	    return ServiceUtil.returnError("Invalid first name. Eg: John");
+	// First Name
+    if (UtilValidate.isEmpty(firstName))
+        return ServiceUtil.returnError("First name is required");
 
-	if(lastName == null || lastName.isEmpty()) {
-		return ServiceUtil.returnError("Last name is required");
-	}
-	
-	if (!lastName.matches("[a-zA-Z\\s\\-']{1,50}"))
-	    return ServiceUtil.returnError("Invalid last name. Eg: Doe");
+    if (!firstName.matches("[a-zA-Z\\s\\-']{3,50}"))
+        return ServiceUtil.returnError("Invalid first name. Eg: John");
 
-	if(email == null || email.isEmpty()) {
-	    return ServiceUtil.returnError("Email is required");
-	}
-	
-	if (!email.matches("[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}"))
-	    return ServiceUtil.returnError("Invalid email format. Eg: john@gmail.com");
-	
-	if(password == null || password.isEmpty()) {
-		return ServiceUtil.returnError("Password is required");
-	}
-	
-	if (!password.matches("(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}"))
-	    return ServiceUtil.returnError("Invalid password. Eg: John@123");
-	
-	if (confirmPassword == null || confirmPassword.isEmpty()) {
-	    return ServiceUtil.returnError("Confirm password is required");
-	}
-	
-	if (!password.equals(confirmPassword)) {
-	    return ServiceUtil.returnError("Password and confirm password do not match");
-	}
+    // Last Name
+    if (UtilValidate.isEmpty(lastName))
+        return ServiceUtil.returnError("Last name is required");
+
+    if (!lastName.matches("[a-zA-Z\\s\\-']{1,50}"))
+        return ServiceUtil.returnError("Invalid last name. Eg: Doe");
+
+    // Email
+    if (UtilValidate.isEmpty(email))
+        return ServiceUtil.returnError("Email is required");
+
+    if (!UtilValidate.isEmail(email))
+        return ServiceUtil.returnError("Invalid email format. Eg: john@gmail.com");
+
+    // Password
+    if (UtilValidate.isEmpty(password))
+        return ServiceUtil.returnError("Password is required");
+
+    // OFBIZ has no password validator custom regex needed
+    if (!password.matches("(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}"))
+        return ServiceUtil.returnError("Invalid password. Eg: John@123");
+
+    // Confirm Password
+    if (UtilValidate.isEmpty(confirmPassword))
+        return ServiceUtil.returnError("Confirm password is required");
+
+    if (!password.equals(confirmPassword))
+        return ServiceUtil.returnError("Password and confirm password do not match");
+    
 	Delegator delegator = dctx.getDelegator();
 	LocalDispatcher dispatcher = dctx.getDispatcher();
 	String hashedPassword = HashCrypt.cryptUTF8("SHA", null, password);

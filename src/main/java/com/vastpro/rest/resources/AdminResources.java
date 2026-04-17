@@ -11,6 +11,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
@@ -84,4 +85,22 @@ public class AdminResources {
 	        @Context HttpServletResponse response) {
 	        return ExamMaster.getNums(request, response);
 	    }
+	    @GET
+	    @Path("/searchExams")
+	    @Produces(MediaType.APPLICATION_JSON)
+	    public Map<String, Object> searchExams(@QueryParam("keyword") String keyword,@Context HttpServletRequest request,
+	            @Context HttpServletResponse response) {
+	        request.setAttribute("keyword", keyword);
+	        return ExamMaster.searchExams(request, response);
+	    }
+	    
+	    @GET
+	    @Path("/getUsers")
+	    @Produces(MediaType.APPLICATION_JSON)
+	    public Map<String, Object> getAllUsers(@QueryParam("keyword") String keyword,@Context HttpServletRequest request,
+	            @Context HttpServletResponse response) {
+	        request.setAttribute("keyword", keyword);
+	        return ExamMaster.getAllUsers(request, response);
+	    }
+	    
 }
