@@ -49,6 +49,6 @@ under the License.
         title="Exam"
         server="default-server"
         location="webapp/exam"
-        base-permission="OFBTOOLS,EXAM"
+        base-permission="EXAM"
         mount-point="/exam"/>
 </ofbiz-component>

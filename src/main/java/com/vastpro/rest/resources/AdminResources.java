@@ -74,7 +74,7 @@ public class AdminResources {
 	    @Produces(MediaType.APPLICATION_JSON)
 	    public Map<String, Object> getUsers(@Context HttpServletRequest request, @Context HttpServletResponse response) {
 	        
-	    	return ExamMaster.getUsers(request, response);
+	    	return ExamMaster.getAssignedUsers(request, response);
 	    	
 	    }
 	    @GET
@@ -95,7 +95,7 @@ public class AdminResources {
 	    }
 	    
 	    @GET
-	    @Path("/getUsers")
+	    @Path("/getAllUsers")
 	    @Produces(MediaType.APPLICATION_JSON)
 	    public Map<String, Object> getAllUsers(@QueryParam("keyword") String keyword,@Context HttpServletRequest request,
 	            @Context HttpServletResponse response) {
