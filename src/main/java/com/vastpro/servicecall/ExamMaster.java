@@ -219,7 +219,7 @@ public class ExamMaster {
               }
          }
 		
-		public static Map<String, Object> getUsers(HttpServletRequest request, HttpServletResponse response) {
+		public static Map<String, Object> getAssignedUsers(HttpServletRequest request, HttpServletResponse response) {
 		    
 			try {
 				
@@ -339,21 +339,43 @@ public class ExamMaster {
 		        return ServiceUtil.returnError("Search failed: " + e.getMessage());
 		    }
 		}
-		public static Map<String,Object> getAllUsers(HttpServletRequest request, HttpServletResponse response) {
+		public static Map<String, Object> getAllUsers(HttpServletRequest request, HttpServletResponse response) {
 		    try {
 		        Delegator delegator = getDelegator(request);
 
-		        List<GenericValue> users = EntityQuery.use(delegator)
+		        List<GenericValue> roles = EntityQuery.use(delegator)
 		            .from("PartyRole")
-		            .where("roleTypeId", "SPHINX_USER")
+		            .where("roleTypeId", "sphinx_user")
 		            .queryList();
-                
-//		        GenericValue person=EntityQuery.use(delegator)
-		        		
-		        		
+
+		        List<Map<String, Object>> userList = new ArrayList<>();
+
+		        for (GenericValue role : roles) {
+		            String partyId = role.getString("partyId");
+		            if (partyId == null) continue;
+
+		            GenericValue person = EntityQuery.use(delegator)
+		                .from("Person")
+		                .where("partyId", partyId)
+		                .queryOne();
+
+		            GenericValue userLogin = EntityQuery.use(delegator)
+		                .from("UserLogin")
+		                .where("partyId", partyId)
+		                .queryFirst();
+
+		            Map<String, Object> user = new HashMap<>();
+		            user.put("partyId", partyId);
+		            user.put("userLoginId", userLogin != null ? userLogin.getString("userLoginId") : "");
+		            user.put("firstName",   person   != null ? person.getString("firstName")   : "");
+		            user.put("lastName",    person   != null ? person.getString("lastName")    : "");
+		            user.put("roleTypeId",  "SPHINX_USER");
+		            userList.add(user);
+		        }
+
 		        Map<String, Object> result = ServiceUtil.returnSuccess();
-		        result.put("totalUsers", users.size());
-		        result.put("userList", users);
+		        result.put("totalUsers", userList.size());
+		        result.put("userList", userList);
 		        return result;
 
 		    } catch (Exception e) {

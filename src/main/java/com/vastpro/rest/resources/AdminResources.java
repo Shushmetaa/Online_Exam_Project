@@ -70,14 +70,6 @@ public class AdminResources {
 	    }
 	    
 	    @GET
-	    @Path("/getUsers")
-	    @Produces(MediaType.APPLICATION_JSON)
-	    public Map<String, Object> getUsers(@Context HttpServletRequest request, @Context HttpServletResponse response) {
-	        
-	    	return ExamMaster.getUsers(request, response);
-	    	
-	    }
-	    @GET
 	    @Produces(MediaType.APPLICATION_JSON)
 	    @Path("/getNum")
 	    public Map<String, Object> getStats(

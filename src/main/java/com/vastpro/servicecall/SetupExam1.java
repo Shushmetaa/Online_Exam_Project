@@ -107,11 +107,10 @@ public class SetupExam1 {
 		
 	}
 
-	public static Map<String, Object> softUserDeleteSetup(String examId, String partyId, HttpServletRequest request, HttpServletResponse response) {
-		
+	public static Map<String, Object> softUserDeleteSetup(String examId, String partyId,
+	        HttpServletRequest request, HttpServletResponse response) {
 	    try {
-	    			
-	    	LocalDispatcher dispatcher = getDispatcher(request);
+	        LocalDispatcher dispatcher = getDispatcher(request);
 
 	        GenericValue userLogin = EntityQuery.use(getDelegator(request))
 	                .from("UserLogin")
@@ -119,11 +118,11 @@ public class SetupExam1 {
 	                .queryOne();
 
 	        Map<String, Object> deleteData = new HashMap<>();
-	        deleteData.put("examId",   examId);
-	        deleteData.put("partyId",  partyId);
+	        deleteData.put("examId",    examId);
+	        deleteData.put("partyId",   partyId);
 	        deleteData.put("userLogin", userLogin);
 
-	        Map<String, Object> result = dispatcher.runSync("softDeletePartyExamRelationship", deleteData);
+	        Map<String, Object> result = dispatcher.runSync("deletePartyExamRelationship", deleteData);
 
 	        if (ServiceUtil.isError(result)) {
 	            return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
@@ -133,7 +132,6 @@ public class SetupExam1 {
 	    } catch (Exception e) {
 	        return ServiceUtil.returnError("Error: " + e.getMessage());
 	    }
-	    
 	}
 	
 	public static Map<String, Object> softDeleteExamSetup(String examId, HttpServletRequest request, HttpServletResponse response) {
@@ -394,9 +392,17 @@ public class SetupExam1 {
 	                    .from("ExamSetupDetails")
 	                    .where("examId", examId)
 	                    .queryOne();
+	            
+	            boolean noSetup  = (setupRecord == null);
+	            boolean isDraft  = false;
+
+	            if (setupRecord != null) {
+	                String setupDetails = setupRecord.getString("setupDetails");
+	                isDraft = setupDetails != null && setupDetails.contains("\"status\":\"DRAFT\"");
+	            }
 
 	            // Only add if NOT yet setup
-	            if (setupRecord == null) {
+	            if (noSetup || isDraft) {
 	                Map<String, Object> examMap = new HashMap<>();
 	                examMap.put("examId",        examId);
 	                examMap.put("examName",       exam.getString("examName"));
@@ -404,6 +410,7 @@ public class SetupExam1 {
 	                examMap.put("duration",       exam.getLong("duration"));
 	                examMap.put("passPercentage", exam.getLong("passPercentage"));
 	                examMap.put("description",    exam.getString("description"));
+	                examMap.put("status",         noSetup ? "PENDING" : "DRAFT");
 	                examList.add(examMap);
 	            }
 	        }
