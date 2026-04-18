@@ -245,8 +245,15 @@
     <service name="getQuestionMaster" engine="java" location="com.vastpro.services.questionmaster.GetQuestionMaster" invoke="getQuestions" auth="true">
         <attribute name="examId"       mode="IN"  type="String"/>
         <attribute name="topicId"      mode="IN"  type="String"/>
-        <attribute name="questionList" mode="OUT" type="List"/>
         <attribute name="userLogin"    mode="IN"  type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+        <attribute name="search"          type="String" mode="IN" optional="true"/>
+		<attribute name="questionType"    type="String" mode="IN" optional="true"/>
+		<attribute name="difficultyLevel" type="String" mode="IN" optional="true"/>
+		<attribute name="viewSize"        type="String" mode="IN" optional="true"/>
+		<attribute name="viewIndex"       type="String" mode="IN" optional="true"/>
+		<attribute name="questionList" mode="OUT" type="List"/>
+		<attribute name="totalSize"       type="Integer" mode="OUT" optional="true"/>
+		<attribute name="totalPages"      type="Integer" mode="OUT" optional="true"/>
     </service>
 
     <service name="updateQuestionMaster" engine="java" location="com.vastpro.services.questionmaster.UpdateQuestionMaster" invoke="updateQuestions" auth="true">
