@@ -266,7 +266,7 @@ under the License.
         <prim-key field="performanceId"/>
     </entity>
 
-    <!-- Detailed user performance -->
+   <!-- Detailed user performance -->
     <entity entity-name="DetailedPartyPerformance">
         <field name="detailedPerformanceId" type="numeric"/>
         <field name="partyId" type="id"/>

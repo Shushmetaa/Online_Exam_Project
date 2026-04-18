@@ -563,4 +563,27 @@
     	<attribute name="examId"  type="String" mode="OUT"/>    
 	</service>
 	
+	   <!-- Reads PartyPerformance WHERE userPassed=1 for this employee 
+	   Returns JSON array of passed exams for the React dropdown -->
+    <service name="getExamsForParty" engine="java" location="com.vastpro.services.userservice.GetExamsForParty"
+             invoke="getExamsForParty" auth="true">
+        <description>Returns all passed exams for an employee as a JSON array</description>
+        <attribute name="partyId"   type="String" mode="IN"  optional="false"/>
+    <attribute name="exams" type="List" mode="OUT" optional="false"/>
+        	    <attribute name="userLogin" type="org.apache.ofbiz.entity.GenericValue" mode="IN" optional="true"/>
+    </service>
+ 
+    <!--
+        Reads PartyPerformance + DetailedPartyPerformance
+        Generates a 2-page PDF certificate using Apache FOP
+    -->
+    <service name="generateUserCertificate" engine="java" location="com.vastpro.services.userservice.GetCertificate"
+             invoke="generateUserCertificate" auth="true">
+        <description>Generates a PDF certificate for a passed exam</description>
+        <attribute name="examId"         type="String" mode="IN"  optional="false"/>
+        <attribute name="partyId"        type="String" mode="IN"  optional="false"/>
+        <attribute name="certificatePdf" type="Object" mode="OUT" optional="false"/>
+        <attribute name="fileName"       type="String" mode="OUT" optional="true"/>
+        	    <attribute name="userLogin" type="org.apache.ofbiz.entity.GenericValue" mode="IN" optional="true"/>
+    </service>
 </services>

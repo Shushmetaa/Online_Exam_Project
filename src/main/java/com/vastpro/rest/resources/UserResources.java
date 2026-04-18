@@ -5,6 +5,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+
+import com.vastpro.servicecall.ExamMaster;
 import com.vastpro.servicecall.LoginMaster;
 import com.vastpro.servicecall.LogoutMaster;
 import com.vastpro.servicecall.SignupMaster;
@@ -84,6 +86,14 @@ public class UserResources {
 public Map<String, Object> checkSession(@Context HttpServletRequest request,
                                          @Context HttpServletResponse response) {
     return LoginMaster.checkSession(request, response);
+}
+@GET
+@Path("/searchExams")
+@Produces(MediaType.APPLICATION_JSON)
+public Map<String, Object> searchExams(@QueryParam("keyword") String keyword,@Context HttpServletRequest request,
+        @Context HttpServletResponse response) {
+    request.setAttribute("keyword", keyword);
+    return ExamMaster.searchAssignedExams(request, response);
 }
 //@GET
 //@Path("/session1")
