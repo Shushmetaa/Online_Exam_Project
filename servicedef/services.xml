@@ -5,54 +5,7 @@
     <vendor></vendor>
     <version>1.0</version>
     
-    <!-- ═══════════════════════════════════════════════════════════════ -->
-    <!--                        USER SERVICES                          -->
-    <!-- ═══════════════════════════════════════════════════════════════ -->
     
-    <service name="signupUserParty" engine="entity-auto" invoke="create" default-entity-name="Party">
-        <auto-attributes include="pk" mode="OUT" optional="false"/>
-        <auto-attributes include="nonpk" mode="IN" optional="true"/>
-    </service>
-    
-    <service name="signupUserPerson" engine="entity-auto" invoke="create" default-entity-name="Person">
-        <auto-attributes include="pk" mode="IN" optional="false"/>
-        <auto-attributes include="nonpk" mode="IN" optional="true"/>
-    </service>
-    
-    <service name="signupUserLogin" engine="entity-auto" invoke="create" default-entity-name="UserLogin">
-        <auto-attributes include="pk" mode="IN" optional="false"/>
-        <auto-attributes include="nonpk" mode="IN" optional="true"/>
-    </service>
-
-<service name="createPartyRole" engine="entity-auto"
-		invoke="create" default-entity-name="PartyRole">
-		<auto-attributes mode="IN" include="pk"
-			optional="false"></auto-attributes>
-		<auto-attributes mode="IN" include="nonpk"
-			optional="true"></auto-attributes>
-	</service>
-	
-    <service name="signupUser" engine="java"
-             location="com.vastpro.services.usermaster.SignupUser"
-             invoke="signupUser" auth="false">
-        <attribute name="firstName"       mode="IN"  type="String" optional="false"/>
-        <attribute name="lastName"        mode="IN"  type="String" optional="false"/>
-        <attribute name="email"           mode="IN"  type="String" optional="false"/>
-        <attribute name="password"        mode="IN"  type="String" optional="false"/>
-        <attribute name="confirmPassword" mode="IN"  type="String" optional="false"/>
-        <attribute name="roleTypeId"      mode="IN"  type="String" optional="false"/>
-        <attribute name="partyId"         mode="OUT" type="String" optional="true"/>
-    </service>
-    
-    <service name="loginUser" engine="java"
-             location="com.vastpro.services.usermaster.LoginUser"
-             invoke="loginUser" auth="false">
-        <attribute name="email"    mode="IN"  type="String" optional="false"/>
-        <attribute name="password" mode="IN"  type="String" optional="false"/>
-        <attribute name="partyId"  mode="OUT" type="String" optional="true"/>
-        <attribute name="role"     mode="OUT" type="String" optional="true"/>
-    </service>
-
     <!-- ═══════════════════════════════════════════════════════════════ -->
     <!--                        EXAM SERVICES                          -->
     <!-- ═══════════════════════════════════════════════════════════════ -->

@@ -95,7 +95,7 @@ public class AdminResources {
 	    }
 	    
 	    @GET
-	    @Path("/getUsers")
+	    @Path("/getAllUsers")
 	    @Produces(MediaType.APPLICATION_JSON)
 	    public Map<String, Object> getAllUsers(@QueryParam("keyword") String keyword,@Context HttpServletRequest request,
 	            @Context HttpServletResponse response) {
