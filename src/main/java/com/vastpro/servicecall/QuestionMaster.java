@@ -93,54 +93,45 @@ public class QuestionMaster {
 		
 	}
 	
-	public static Map<String, Object> getQuestion(HttpServletRequest request, HttpServletResponse response){
-		
-		try {
-			
-			String examId = request.getParameter("examId");
-			
-			if (examId == null || examId.trim().isEmpty()) {
+	public static Map<String, Object> getQuestion(HttpServletRequest request, HttpServletResponse response) {
+	    try {
+	        String examId  = request.getParameter("examId");
+	        String topicId = request.getParameter("topicId");
+
+	        if (examId == null || examId.trim().isEmpty())
 	            return ServiceUtil.returnError("examId is required");
-	        }
+	        if (topicId == null || topicId.trim().isEmpty())
+	            return ServiceUtil.returnError("topicId is required");
 
-			String topicIdStr = request.getParameter("topicId");
+	        LocalDispatcher dispatcher = getDispatcher(request);
+	        GenericValue userLogin = EntityQuery.use(getDelegator(request))
+	                .from("UserLogin").where("userLoginId", "admin").queryOne();
 
-			if (topicIdStr == null || topicIdStr.trim().isEmpty()) {
-			    return ServiceUtil.returnError("topicId is required");
-			}
+	        Map<String, Object> ids = new HashMap<>();
+	        ids.put("examId",  examId);
+	        ids.put("topicId", topicId);
 
-			String topicId = topicIdStr.trim();
-//			String questionType = request.getParameter("questionType"); 
-//	        String difficultyLevel = request.getParameter("difficultyLevel"); 
-			LocalDispatcher dispatcher= getDispatcher(request);
-	
-			
-			GenericValue userLogin=EntityQuery.use(getDelegator(request))
-						.from("UserLogin")
-						.where("userLoginId", "admin")
-						.queryOne();
-			
-			Map<String, Object> ids = new HashMap<>();
-		    
-		    ids.put("examId", examId);
-		    ids.put("topicId", topicId);
-//		    ids.put("questionType", questionType);        
-//	        ids.put("difficultyLevel", difficultyLevel);
-		    ids.put("userLogin", userLogin);
-		    
-		    Map<String, Object> result = dispatcher.runSync("getQuestionMaster", ids);
-		    
-		    if(ServiceUtil.isError(result)) {
-		    	return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
-		    }
-		    else {
-		    	return result;
-		    }
-			
-		}catch(GenericEntityException | GenericServiceException e) {
-			return ServiceUtil.returnError("Questions cannot be fetched" + e.getMessage());
-		}
-		
+	        // NEW — pagination
+	        String viewSize  = request.getParameter("viewSize");
+	        String viewIndex = request.getParameter("viewIndex");
+	        ids.put("viewSize",  viewSize  != null ? viewSize  : "10");
+	        ids.put("viewIndex", viewIndex != null ? viewIndex : "0");
+
+	        // NEW — filters
+	        ids.put("search",          request.getParameter("search"));
+	        ids.put("questionType",    request.getParameter("questionType"));
+	        ids.put("difficultyLevel", request.getParameter("difficultyLevel"));
+
+	        ids.put("userLogin", userLogin);
+
+	        Map<String, Object> result = dispatcher.runSync("getQuestionMaster", ids);
+	        if (ServiceUtil.isError(result))
+	            return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+	        return result;
+
+	    } catch (GenericEntityException | GenericServiceException e) {
+	        return ServiceUtil.returnError("Questions cannot be fetched: " + e.getMessage());
+	    }
 	}
 	
 	public static Map<String, Object> updateQuestion(HttpServletRequest request, HttpServletResponse response){

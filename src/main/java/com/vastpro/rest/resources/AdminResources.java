@@ -83,7 +83,7 @@ public class AdminResources {
 	    public Map<String, Object> searchExams(@QueryParam("keyword") String keyword,@Context HttpServletRequest request,
 	            @Context HttpServletResponse response) {
 	        request.setAttribute("keyword", keyword);
-	        return ExamMaster.searchExams(request, response);
+	        return ExamMaster.searchAllExams(request, response);
 	    }
 	    
 	    @GET

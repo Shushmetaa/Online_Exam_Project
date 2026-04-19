@@ -5,157 +5,248 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
+import org.apache.ofbiz.base.util.UtilMisc;
 import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.entity.GenericValue;
 import org.apache.ofbiz.entity.util.EntityQuery;
 import org.apache.ofbiz.service.LocalDispatcher;
 import org.apache.ofbiz.service.ServiceUtil;
 
+import javax.ws.rs.core.Response;
+
 public class UserMaster {
-	 private static LocalDispatcher getDispatcher(HttpServletRequest request) {
-	        LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
-	        if (dispatcher == null)
-	            dispatcher = (LocalDispatcher) request.getSession()
-	                            .getServletContext().getAttribute("dispatcher");
-	        return dispatcher;
-	    }
 
-	    private static Delegator getDelegator(HttpServletRequest request) {
-	        Delegator delegator = (Delegator) request.getAttribute("delegator");
-	        if (delegator == null)
-	            delegator = (Delegator) request.getSession()
-	                            .getServletContext().getAttribute("delegator");
-	        return delegator;
-	    }
-	    public static Map<String, Object> getAssignedExams(
-	            HttpServletRequest request, HttpServletResponse response) {
-	        try {
-	            LocalDispatcher dispatcher = getDispatcher(request);
-	            Delegator delegator        = getDelegator(request);
+    private static LocalDispatcher getDispatcher(HttpServletRequest request) {
+        LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
+        if (dispatcher == null)
+            dispatcher = (LocalDispatcher) request.getSession()
+                            .getServletContext().getAttribute("dispatcher");
+        return dispatcher;
+    }
 
-	            String partyId = (String) request.getSession().getAttribute("partyId");
-	            if (partyId == null)
-	                return ServiceUtil.returnError("User not logged in.");
+    private static Delegator getDelegator(HttpServletRequest request) {
+        Delegator delegator = (Delegator) request.getAttribute("delegator");
+        if (delegator == null)
+            delegator = (Delegator) request.getSession()
+                            .getServletContext().getAttribute("delegator");
+        return delegator;
+    }
 
-	            GenericValue userLogin = EntityQuery.use(delegator)
-	                    .from("UserLogin")
-	                    .where("userLoginId", "admin")
-	                    .queryOne();
+    public static Map<String, Object> getAssignedExams(
+            HttpServletRequest request, HttpServletResponse response) {
+        try {
+            LocalDispatcher dispatcher = getDispatcher(request);
+            Delegator delegator        = getDelegator(request);
 
-	            Map<String, Object> data = new HashMap<>();
-	            data.put("partyId",   partyId);
-	            data.put("userLogin", userLogin);
+            String partyId = (String) request.getSession().getAttribute("partyId");
+            if (partyId == null)
+                return ServiceUtil.returnError("User not logged in.");
 
-	            Map<String, Object> result = dispatcher.runSync("getAssignedExams", data);
-	            if (ServiceUtil.isError(result))
-	                return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+            GenericValue userLogin = EntityQuery.use(delegator)
+                    .from("UserLogin").where("userLoginId", "admin").queryOne();
 
-	            Map<String, Object> resp = ServiceUtil.returnSuccess();
-	            resp.put("examList", result.get("examList"));
-	            return resp;
+            Map<String, Object> data = new HashMap<>();
+            data.put("partyId",   partyId);
+            data.put("userLogin", userLogin);
 
-	        } catch (Exception e) {
-	            return ServiceUtil.returnError("Error: " + e.getMessage());
-	        }
-	    }
-	    public static Map<String, Object> getUserStats(
-	            HttpServletRequest request, HttpServletResponse response) {
-	        try {
-	            LocalDispatcher dispatcher = getDispatcher(request);
-	            Delegator delegator        = getDelegator(request);
+            Map<String, Object> result = dispatcher.runSync("getAssignedExams", data);
+            if (ServiceUtil.isError(result))
+                return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
 
-	            String partyId = (String) request.getSession().getAttribute("partyId");
-//	            if (partyId == null)
-//	                return ServiceUtil.returnError("User not logged in.");
+            Map<String, Object> resp = ServiceUtil.returnSuccess();
+            resp.put("examList", result.get("examList"));
+            return resp;
 
-	            GenericValue userLogin = EntityQuery.use(delegator)
-	                    .from("UserLogin").where("userLoginId", "admin").queryOne();
+        } catch (Exception e) {
+            return ServiceUtil.returnError("Error: " + e.getMessage());
+        }
+    }
 
-	            Map<String, Object> data = new HashMap<>();
-	            data.put("partyId",   partyId);
-	            data.put("userLogin", userLogin);
+    public static Map<String, Object> getUserStats(
+            HttpServletRequest request, HttpServletResponse response) {
+        try {
+            LocalDispatcher dispatcher = getDispatcher(request);
+            Delegator delegator        = getDelegator(request);
 
-	            Map<String, Object> result = dispatcher.runSync("getUserExamStats", data);
-	            if (ServiceUtil.isError(result))
-	                return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+            String partyId = (String) request.getSession().getAttribute("partyId");
 
-	            Map<String, Object> resp = ServiceUtil.returnSuccess();
-	            resp.put("completed",  result.get("completed"));
-	            resp.put("bestScore",  result.get("bestScore"));
-	            return resp;
+            GenericValue userLogin = EntityQuery.use(delegator)
+                    .from("UserLogin").where("userLoginId", "admin").queryOne();
 
-	        } catch (Exception e) {
-	            return ServiceUtil.returnError("Error: " + e.getMessage());
-	        }
-	    }
-	    
-	    public static Map<String, Object> verifyExamPassword(String password, String examId,
-	            HttpServletRequest request, HttpServletResponse response) {
-	        try {
-	            LocalDispatcher dispatcher = getDispatcher(request);
-	            Delegator delegator        = getDelegator(request);
+            Map<String, Object> data = new HashMap<>();
+            data.put("partyId",   partyId);
+            data.put("userLogin", userLogin);
 
-	            String partyId  = (String) request.getSession().getAttribute("partyId");
-	          
-	            if (partyId == null)
-	                return ServiceUtil.returnError("User not logged in.");
-	            if (examId == null || password == null)
-	                return ServiceUtil.returnError("examId and password are required.");
+            Map<String, Object> result = dispatcher.runSync("getUserExamStats", data);
+            if (ServiceUtil.isError(result))
+                return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
 
-	            GenericValue adminLogin = EntityQuery.use(delegator)
-	                    .from("UserLogin").where("userLoginId", "admin").queryOne();
+            Map<String, Object> resp = ServiceUtil.returnSuccess();
+            resp.put("completed", result.get("completed"));
+            resp.put("bestScore", result.get("bestScore"));
+            return resp;
 
-	            Map<String, Object> data = new HashMap<>();
-	            data.put("partyId",   partyId);
-	            data.put("examId",    examId);
-	            data.put("password",  password);
-	            data.put("userLogin", adminLogin);
+        } catch (Exception e) {
+            return ServiceUtil.returnError("Error: " + e.getMessage());
+        }
+    }
 
-	            Map<String, Object> result = dispatcher.runSync("verifyExamPassword", data);
-//	            if (ServiceUtil.isError(result))
-//	                return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
-//
-//	            return ServiceUtil.returnSuccess("Password verified.");
-	            
+    public static Map<String, Object> verifyExamPassword(String password, String examId,
+            HttpServletRequest request, HttpServletResponse response) {
+        try {
+            LocalDispatcher dispatcher = getDispatcher(request);
+            Delegator delegator        = getDelegator(request);
+
+            String partyId = (String) request.getSession().getAttribute("partyId");
+            if (partyId == null)
+                return ServiceUtil.returnError("User not logged in.");
+            if (examId == null || password == null)
+                return ServiceUtil.returnError("examId and password are required.");
+
+            GenericValue adminLogin = EntityQuery.use(delegator)
+                    .from("UserLogin").where("userLoginId", "admin").queryOne();
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("partyId",   partyId);
+            data.put("examId",    examId);
+            data.put("password",  password);
+            data.put("userLogin", adminLogin);
+
+            return dispatcher.runSync("verifyExamPassword", data);
+
+        } catch (Exception e) {
+            return ServiceUtil.returnError("Error: " + e.getMessage());
+        }
+    }
+
+    public static Map<String, Object> getUserInfo(
+            HttpServletRequest request, HttpServletResponse response) {
+        try {
+            Delegator delegator = getDelegator(request);
+            String partyId = (String) request.getSession().getAttribute("partyId");
+            if (partyId == null)
+                return ServiceUtil.returnError("User not logged in.");
+
+            
+            GenericValue person = EntityQuery.use(delegator)
+                    .from("Person").where("partyId", partyId).queryOne();
+
+            if (person == null)
+                return ServiceUtil.returnError("User not found.");
+
+            Map<String, Object> result = ServiceUtil.returnSuccess("User info fetched.");
+            result.put("firstName", person.getString("firstName"));
+            result.put("partyId",   partyId);   // ← must be here for CertificatePage.jsx
+            return result;
+
+        } catch (Exception e) {
+            return ServiceUtil.returnError("Error: " + e.getMessage());
+        }
+    }
+
+    public static Map<String, Object> getPassedExams(
+            String partyId, HttpServletRequest request) {
+
+        try {
+            if (partyId == null || partyId.trim().isEmpty()) {
+                return ServiceUtil.returnError("partyId is required");
+            }
+
+            LocalDispatcher dispatcher = getDispatcher(request);
+            Delegator delegator        = getDelegator(request);
+
+            if (dispatcher == null) {
+                return ServiceUtil.returnError("Dispatcher not found");
+            }
+
+            GenericValue userLogin = EntityQuery.use(delegator)
+                    .from("UserLogin").where("userLoginId", "admin").queryOne();
+            
+            Map<String, Object> result = dispatcher.runSync(
+                    "getExamsForParty",
+                    UtilMisc.toMap("partyId", partyId.trim(),"userLogin", userLogin)
+            );
+
+            if (ServiceUtil.isError(result)) {
+	            return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+	        } else {
 	            return result;
-
-	        } catch (Exception e) {
-	            return ServiceUtil.returnError("Error: " + e.getMessage());
 	        }
-	    }
-	    public static Map<String, Object> getUserInfo(
-	            HttpServletRequest request, HttpServletResponse response) {
-	        try {
-	            Delegator delegator = getDelegator(request);
-	            String partyId = (String) request.getSession().getAttribute("partyId");
-	            if (partyId == null)
-	                return ServiceUtil.returnError("User not logged in.");
 
-	            GenericValue person = EntityQuery.use(delegator)
-	                    .from("Person")
-	                    .where("partyId", partyId)
-	                    .queryOne();
+        } catch (Exception e) {
+            return ServiceUtil.returnError("Error: " + e.getMessage());
+        }
+    }
+    /**
+     * downloadCertificate
+     * Called by: POST /exam/api/certificate/download
+     */
+    public static Response downloadCertificate(
+            String examId, String partyId, HttpServletRequest request) {
+        try {
+            LocalDispatcher dispatcher = getDispatcher(request);
+            Delegator delegator = getDelegator(request);
+            
+            if (dispatcher == null) {
+                return Response.status(500)
+                        .entity("{\"error\":\"Dispatcher not found\"}")
+                        .type("application/json")
+                        .build();
+            }
 
-	            if (person == null)
-	                return ServiceUtil.returnError("User not found.");
+            if (examId == null || examId.trim().isEmpty() ||
+                partyId == null || partyId.trim().isEmpty()) {
+                return Response.status(400)
+                        .entity("{\"error\":\"examId and partyId are required\"}")
+                        .type("application/json")
+                        .build();
+            }
+        
+            GenericValue userLogin = EntityQuery.use(delegator)
+                    .from("UserLogin").where("userLoginId", "admin").queryOne();
+            
+            Map<String, Object> result = dispatcher.runSync(
+                    "generateUserCertificate",
+                    UtilMisc.toMap(
+                        "examId",  examId.trim(),
+                        "partyId", partyId.trim(),
+                        "userLogin", userLogin
+                    )
+            );
 
-	            String firstName = person.getString("firstName");
+            if (ServiceUtil.isError(result)) {
+                return Response.status(500)
+                        .entity("{\"error\":\"" + ServiceUtil.getErrorMessage(result) + "\"}")
+                        .type("application/json")
+                        .build();
+            }
 
-	            Map<String, Object> result = ServiceUtil.returnSuccess("User info fetched.");
-	            result.put("firstName", firstName);
-	            result.put("partyId",   partyId);
-	            return result;
+            byte[] pdfBytes = (byte[]) result.get("certificatePdf");
+            String fileName = (String) result.get("fileName");
 
-	        } catch (Exception e) {
-	            return ServiceUtil.returnError("Error: " + e.getMessage());
-	        }
-	    }
+            if (pdfBytes == null || pdfBytes.length == 0) {
+                return Response.status(500)
+                        .entity("{\"error\":\"PDF generation returned empty output\"}")
+                        .type("application/json")
+                        .build();
+            }
 
-		public static Object getCertificate(String partyId, String examId, HttpServletRequest request,
-				HttpServletResponse response) {
-			// TODO Auto-generated method stub
-			return null;
-		}
+            if (fileName == null || fileName.isEmpty()) {
+                fileName = "certificate_" + partyId + "_" + examId + ".pdf";
+            }
+
+            return Response.ok(pdfBytes, "application/pdf")
+                    .header("Content-Disposition", "attachment; filename=\"" + fileName + "\"")
+                    .header("Content-Length", pdfBytes.length)
+                    .build();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(500)
+                    .entity("{\"error\":\"" + e.getMessage() + "\"}")
+                    .type("application/json")
+                    .build();
+        }
+    }
 }

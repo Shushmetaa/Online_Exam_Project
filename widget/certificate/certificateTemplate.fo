@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
+
+  <fo:layout-master-set>
+    <fo:simple-page-master master-name="cert"
+        page-height="16cm" page-width="29.7cm"
+        margin-top="1.2cm" margin-bottom="1.2cm"
+        margin-left="1.5cm" margin-right="1.5cm">
+      <fo:region-body/>
+    </fo:simple-page-master>
+  </fo:layout-master-set>
+
+  <fo:page-sequence master-reference="cert">
+    <fo:flow flow-name="xsl-region-body">
+
+      <!-- ═══════════════════════════════════════════
+           PAGE 1 — CERTIFICATE
+      ═══════════════════════════════════════════ -->
+
+      <!-- OUTER BORDER (purple, thick) -->
+      <fo:block-container border="5pt solid #4a2ea0"
+                          background-color="#fffefb"
+                          padding="20pt">
+
+        <!-- INNER BORDER (lighter purple) -->
+        <fo:block-container border="1.5pt solid #7b5ea7"
+                            padding="10pt">
+
+          <!-- Org header -->
+          <fo:block text-align="center"
+                    font-size="7pt"
+                    color="#888888"
+                    letter-spacing="3pt"
+                    font-family="Helvetica"
+                    margin-bottom="6pt">
+            SPHINX ONLINE CERTIFICATION SYSTEM
+          </fo:block>
+
+          <!-- Gold top divider -->
+          <fo:block border-top="1pt solid #c5a028"
+                    margin-bottom="10pt"/>
+
+          <!-- Certificate of Achievement -->
+          <fo:block text-align="center"
+                    font-size="24pt"
+                    font-weight="bold"
+                    color="#4a2ea0"
+                    font-family="Times Roman"
+                    margin-bottom="8pt">
+            Certificate of Achievement
+          </fo:block>
+
+          <!-- This is to certify that -->
+          <fo:block text-align="center"
+                    font-size="11pt"
+                    color="#666666"
+                    font-style="italic"
+                    font-family="Times Roman"
+                    margin-bottom="10pt">
+            This is to certify that
+          </fo:block>
+
+          <!-- User name in gold -->
+          <fo:block text-align="center"
+                    font-size="24pt"
+                    font-weight="bold"
+                    color="#c5a028"
+                    font-family="Times Roman"
+                    border-bottom="1.5pt solid #c5a028"
+                    padding-bottom="4pt"
+                    margin-bottom="6pt">
+            ${userName}
+          </fo:block>
+
+          <!-- Employee ID -->
+          <fo:block text-align="center"
+                    font-size="9pt"
+                    color="#999999"
+                    font-family="Helvetica"
+                    margin-bottom="10pt">
+            Employee ID: ${employeeId}
+          </fo:block>
+
+          <!-- has successfully completed -->
+          <fo:block text-align="center"
+                    font-size="11pt"
+                    color="#666666"
+                    font-style="italic"
+                    font-family="Times Roman"
+                    margin-bottom="6pt">
+            has successfully completed the examination
+          </fo:block>
+
+          <!-- Exam name -->
+          <fo:block text-align="center"
+                    font-size="15pt"
+                    font-weight="bold"
+                    color="#4a2ea0"
+                    font-family="Helvetica"
+                    margin-bottom="16pt">
+            "${examName}"
+          </fo:block>
+
+          <!-- ── Score + Grade boxes centered via 3-col wrapper ── -->
+          <fo:table table-layout="fixed" width="100%" margin-bottom="16pt">
+            <fo:table-column column-width="35%"/>
+            <fo:table-column column-width="30%"/>
+            <fo:table-column column-width="35%"/>
+            <fo:table-body>
+              <fo:table-row>
+
+                <!-- Left spacer -->
+                <fo:table-cell><fo:block/></fo:table-cell>
+
+                <!-- Center: two boxes side by side -->
+                <fo:table-cell>
+                  <fo:table table-layout="fixed" width="100%">
+                    <fo:table-column column-width="50%"/>
+                    <fo:table-column column-width="50%"/>
+                    <fo:table-body>
+                      <fo:table-row>
+
+                        <!-- Score box -->
+                        <fo:table-cell padding-right="4pt">
+                          <fo:block-container
+                              background-color="#e8eaf6"
+                              border="1pt solid #9fa8da"
+                              padding-top="8pt"
+                              padding-bottom="8pt"
+                              padding-left="4pt"
+                              padding-right="4pt">
+                            <fo:block text-align="center"
+                                      font-size="8pt"
+                                      color="#888888"
+                                      font-family="Helvetica"
+                                      margin-bottom="3pt">
+                              Score
+                            </fo:block>
+                            <fo:block text-align="center"
+                                      font-size="20pt"
+                                      font-weight="bold"
+                                      color="#1a237e"
+                                      font-family="Helvetica">
+                              ${score}
+                            </fo:block>
+                          </fo:block-container>
+                        </fo:table-cell>
+
+                        <!-- Grade box -->
+                        <fo:table-cell padding-left="4pt">
+                          <fo:block-container
+                              background-color="#fffde7"
+                              border="1pt solid #ffe082"
+                              padding-top="8pt"
+                              padding-bottom="8pt"
+                              padding-left="4pt"
+                              padding-right="4pt">
+                            <fo:block text-align="center"
+                                      font-size="8pt"
+                                      color="#888888"
+                                      font-family="Helvetica"
+                                      margin-bottom="3pt">
+                              Grade
+                            </fo:block>
+                            <fo:block text-align="center"
+                                      font-size="20pt"
+                                      font-weight="bold"
+                                      color="#c5a028"
+                                      font-family="Helvetica">
+                              ${grade}
+                            </fo:block>
+                          </fo:block-container>
+                        </fo:table-cell>
+
+                      </fo:table-row>
+                    </fo:table-body>
+                  </fo:table>
+                </fo:table-cell>
+
+                <!-- Right spacer -->
+                <fo:table-cell><fo:block/></fo:table-cell>
+
+              </fo:table-row>
+            </fo:table-body>
+          </fo:table>
+
+          <!-- Date centered -->
+          <fo:block text-align="center"
+                    font-size="9pt"
+                    color="#888888"
+                    font-family="Helvetica"
+                    margin-bottom="12pt">
+            Date: ${date}
+          </fo:block>
+
+          <!-- Gold bottom divider -->
+          <fo:block border-top="1pt solid #c5a028"
+                    margin-bottom="6pt"/>
+
+          <!-- Powered by -->
+          <fo:block text-align="center"
+                    font-size="7pt"
+                    color="#bbbbbb"
+                    font-family="Helvetica">
+            Powered by SPHINX Online Certification System
+          </fo:block>
+
+        </fo:block-container>
+      </fo:block-container>
+
+    </fo:flow>
+  </fo:page-sequence>
+</fo:root>

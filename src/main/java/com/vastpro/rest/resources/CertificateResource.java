@@ -1,18 +1,36 @@
 package com.vastpro.rest.resources;
 
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
+import javax.ws.rs.core.*;
 
 import com.vastpro.servicecall.UserMaster;
 
+@Path("/certificate")
 public class CertificateResource {
+
+    // GET /exam/api/certificate/exams/{partyId}
     @GET
-    @Path("/certificate")
+    @Path("/exams/{partyId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Map<String, Object> getExamsForParty(
+            @PathParam("partyId") String partyId,
+            @Context HttpServletRequest request) {
+
+        return UserMaster.getPassedExams(partyId, request);
+    }
+
+    // POST /exam/api/certificate/download
+    @POST
+    @Path("/download")
     @Produces("application/pdf")
-    public Object generateCertificate(@QueryParam("partyId") String partyId,@QueryParam("examId") String examId,@Context 
-    		HttpServletRequest request, @Context HttpServletResponse response) {
-    	return UserMaster.getCertificate(partyId,examId,request,response);
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Response downloadCertificate(
+            @FormParam("examId") String examId,
+            @FormParam("partyId") String partyId,
+            @Context HttpServletRequest request) {
+
+        return UserMaster.downloadCertificate(examId, partyId, request);
     }
 }

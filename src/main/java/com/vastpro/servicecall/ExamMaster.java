@@ -2,13 +2,18 @@ package com.vastpro.servicecall;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.entity.GenericEntityException;
 import org.apache.ofbiz.entity.GenericValue;
+import org.apache.ofbiz.entity.condition.EntityCondition;
+import org.apache.ofbiz.entity.condition.EntityOperator;
 import org.apache.ofbiz.entity.util.EntityQuery;
 import org.apache.ofbiz.service.GenericServiceException;
 import org.apache.ofbiz.service.LocalDispatcher;
@@ -297,7 +302,7 @@ public class ExamMaster {
 		    }
 		}
 
-		public static Map<String, Object> searchExams(HttpServletRequest request, HttpServletResponse response) {
+		public static Map<String, Object> searchAllExams(HttpServletRequest request, HttpServletResponse response) {
 		    try {
 		        Delegator delegator = getDelegator(request);
 
@@ -326,6 +331,73 @@ public class ExamMaster {
 		                examMap.put("noOfQuestions",   exam.getString("noOfQuestions"));
 		                examMap.put("duration",        exam.getString("duration"));
 		                examMap.put("passPercentage",  exam.getString("passPercentage"));
+		                filteredExams.add(examMap);
+		            }
+		        }
+
+		        Map<String, Object> result = ServiceUtil.returnSuccess("success");
+		        result.put("examList", filteredExams);
+		        return result;
+
+		    } catch (Exception e) {
+		        e.printStackTrace();
+		        return ServiceUtil.returnError("Search failed: " + e.getMessage());
+		    }
+		}
+		public static Map<String, Object> searchAssignedExams(HttpServletRequest request, HttpServletResponse response) {
+		    try {
+		        Delegator delegator = getDelegator(request);
+
+		        // 1️⃣ Get logged-in user
+		        GenericValue userLogin = (GenericValue) request.getSession().getAttribute("userLogin");
+		        if (userLogin == null) {
+		            return ServiceUtil.returnError("User not logged in");
+		        }
+
+		        String partyId = userLogin.getString("partyId");
+
+		        // 2️⃣ Get assigned exams
+		        List<GenericValue> assignedList = EntityQuery.use(delegator)
+		                .from("PartyExamRelationship")
+		                .where("partyId", partyId)
+		                .queryList();
+
+		        String keyword = request.getParameter("keyword") != null
+		                ? request.getParameter("keyword").toLowerCase()
+		                : "";
+
+		        List<Map<String, Object>> filteredExams = new ArrayList<>();
+
+		        // 3️⃣ Loop assigned exams
+		        for (GenericValue rel : assignedList) {
+
+		            String examId = rel.getString("examId");
+
+		            // Get exam details
+		            GenericValue exam = EntityQuery.use(delegator)
+		                    .from("ExamMaster")
+		                    .where("examId", examId)
+		                    .queryOne();
+
+		            if (exam == null) continue;
+
+		            String examName = exam.getString("examName") != null
+		                    ? exam.getString("examName").toLowerCase() : "";
+
+		            String description = exam.getString("description") != null
+		                    ? exam.getString("description").toLowerCase() : "";
+
+		            // 4️⃣ Apply search
+		            if (keyword.isEmpty() || examName.contains(keyword) || description.contains(keyword)) {
+
+		                Map<String, Object> examMap = new HashMap<>();
+		                examMap.put("examId", exam.getString("examId"));
+		                examMap.put("examName", exam.getString("examName"));
+		                examMap.put("description", exam.getString("description"));
+		                examMap.put("noOfQuestions", exam.getString("noOfQuestions"));
+		                examMap.put("duration", exam.getString("duration"));
+		                examMap.put("passPercentage", exam.getString("passPercentage"));
+
 		                filteredExams.add(examMap);
 		            }
 		        }
