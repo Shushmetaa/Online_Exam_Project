@@ -162,9 +162,9 @@ public class SaveAndPublishExam {
                 // Read email settings from sphinx.properties ONCE
                 // outside the loop — no need to read it 100 times
                 // if there are 100 users
-                String mailFrom = EntityUtilProperties.getPropertyValue(
-                        "sphinx", "mail.from",
-                        "sphinxofbizz@gmail.com", delegator);
+            	String mailFrom = EntityUtilProperties.getPropertyValue(
+            	        "general", "mail.smtp.auth.user",
+            	        "sphinxofbizz@gmail.com", delegator);
 
                 String mailSubject = EntityUtilProperties.getPropertyValue(
                         "sphinx", "mail.exam.subject",
@@ -234,6 +234,15 @@ public class SaveAndPublishExam {
                     String safeExamName = (examName != null)
                             ? examName.replaceAll("[^a-zA-Z0-9 ]", "").trim()
                             : "Exam";
+                    
+                 // Get first name
+                    GenericValue person = EntityQuery.use(delegator)
+                            .from("Person")
+                            .where("partyId", partyId)
+                            .queryOne();
+
+                    String firstName = (person != null) 
+                            ? person.getString("firstName") : "Candidate";
 
                     // ── Send email using OFBiz built-in sendMail ──────
                     // OFBiz automatically uses SMTP settings from
@@ -244,12 +253,32 @@ public class SaveAndPublishExam {
                     emailCtx.put("subject",     mailSubject);
                     emailCtx.put("contentType", "text/plain");
                     emailCtx.put("body",
-                            "Hello,\n\n" +
-                            "You have been assigned to the exam: " + safeExamName + "\n\n" +
-                            "Username : " + email + "\n" +
-                            "Password : " + rawPassword + "\n\n" +
-                            "Please login and complete your exam before the deadline.\n\n" +
-                            "Regards,\nAdmin");
+                            "Dear " + firstName + ",\n\n" +
+                            "Welcome to Sphinx Exam Portal!\n\n" +
+                            "You have been assigned to the following exam:\n" +
+                            "Exam Name : " + safeExamName + "\n\n" +
+                            "================================================\n" +
+                            "STEP 1 — LOGIN TO THE PORTAL\n" +
+                            "================================================\n" +
+                            "Use these credentials to login:\n\n" +
+                            "Username       : " + email + "\n" +
+                            "Login Password : Sphinx@123\n\n" +
+                            "================================================\n" +
+                            "STEP 2 — START YOUR EXAM\n" +
+                            "================================================\n" +
+                            "Once logged in, use this password to start your exam:\n\n" +
+                            "Exam Name     : " + safeExamName + "\n" +
+                            "Exam Password : " + rawPassword + "\n\n" +
+                            "================================================\n" +
+                            "IMPORTANT NOTES\n" +
+                            "================================================\n" +
+                            "* Please complete the exam before the deadline.\n" +
+                            "* Do not share your exam password with anyone.\n" +
+                            "* Once the exam starts, the timer cannot be paused.\n" +
+                            "* Results and certificate will be emailed after completion.\n\n" +
+                            "If you face any issues, please contact your administrator.\n\n" +
+                            "Best Regards,\n" +
+                            "Sphinx Exam Portal Team");
 
                     // runAsync — fires in background, does not block
                     dispatcher.runAsync("sendMail", emailCtx);

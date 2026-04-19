@@ -35,6 +35,17 @@ public class UserResources {
     	return LoginMaster.loginUser(request, response);
 
     }
+    
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Path("/forgotPassword")
+    public Map<String, Object> forgotPassword(
+            @Context HttpServletRequest request,
+            @Context HttpServletResponse response) {
+        return LoginMaster.forgotPassword(request, response);
+    }
+    
 //    @GET
 //    @Path("/getUsers")
 //    @Produces(MediaType.APPLICATION_JSON)

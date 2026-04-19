@@ -47,10 +47,15 @@ public class ExamService {
                 return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
 
             Map<String, Object> resp = ServiceUtil.returnSuccess();
-            resp.put("questionList", result.get("questionList"));
-            resp.put("examName",     result.get("examName"));
-            resp.put("duration",     result.get("duration"));
-            resp.put("totalQ",       result.get("totalQ"));
+            resp.put("questionList",   result.get("questionList"));
+            resp.put("examName",       result.get("examName"));
+            resp.put("duration",       result.get("duration"));
+            resp.put("totalQ",         result.get("totalQ"));
+            resp.put("remainingTime",  result.get("remainingTime"));   
+            resp.put("totalAnswered",  result.get("totalAnswered"));  
+            resp.put("savedAnswers",   result.get("answeredList"));    
+            resp.put("isResuming",     result.get("isResuming"));      
+            resp.put("currentQuestion", result.get("currentQuestion")); 
             return resp;
 
         } catch (Exception e) {

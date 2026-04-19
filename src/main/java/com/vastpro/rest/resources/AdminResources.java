@@ -95,4 +95,12 @@ public class AdminResources {
 	        return ExamMaster.getAllUsers(request, response);
 	    }
 	    
+	    @DELETE
+	    @Produces(MediaType.APPLICATION_JSON)
+	    @Path("/deleteUser")
+	    public Map<String, Object> deleteUser(@QueryParam("partyId") String partyId,
+	            @Context HttpServletRequest request, @Context HttpServletResponse response) {
+	        return ExamMaster.deleteUser(partyId, request, response);
+	    }
+	    
 }

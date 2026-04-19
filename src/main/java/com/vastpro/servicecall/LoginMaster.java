@@ -12,6 +12,7 @@ import org.apache.ofbiz.base.util.UtilValidate;
 import org.apache.ofbiz.entity.Delegator;
 import org.apache.ofbiz.entity.GenericValue;
 import org.apache.ofbiz.entity.util.EntityQuery;
+import org.apache.ofbiz.entity.util.EntityUtilProperties;
 import org.apache.ofbiz.service.LocalDispatcher;
 import org.apache.ofbiz.service.ServiceUtil;
 import org.apache.ofbiz.webapp.control.LoginWorker;
@@ -87,7 +88,6 @@ public class LoginMaster {
                         GenericValue userSecGroup = EntityQuery.use(delegator)
                                 .from("UserLoginSecurityGroup")
                                 .where("userLoginId", userLogin.getString("userLoginId"))
-                                .filterByDate()
                                 .queryFirst();
 
                         String groupId = null;
@@ -145,18 +145,20 @@ public class LoginMaster {
                 return result;
             }
      
-            String partyId = (String) session.getAttribute("partyId");
-            String role    = (String) session.getAttribute("role");
+            String partyId    = (String) session.getAttribute("partyId");
+            String groupId    = (String) session.getAttribute("groupId"); // ← read groupId
+            String userLoginId = (String) session.getAttribute("userLoginId");
      
-            if (partyId == null || role == null) {
+            if (partyId == null || groupId == null) {
                 result.put("responseMessage", "error");
                 result.put("message", "Not logged in");
                 return result;
             }
      
             result.put("responseMessage", "success");
-            result.put("partyId", partyId);
-            result.put("role", role);  
+            result.put("partyId",     partyId);
+            result.put("role",        groupId); 
+            result.put("userLoginId", userLoginId);
             return result;
      
         } catch (Exception e) {
@@ -165,5 +167,103 @@ public class LoginMaster {
             result.put("message", "Session check failed: " + e.getMessage());
             return result;
         }
+    }
+    
+    public static Map<String, Object> forgotPassword(
+            HttpServletRequest request, HttpServletResponse response) {
+        try {
+            LocalDispatcher dispatcher = getDispatcher(request);
+            Delegator delegator = getDelegator(request);
+
+            String email = request.getParameter("email");
+
+            if (email == null || email.isEmpty())
+                return ServiceUtil.returnError("Email is required");
+
+            // 1. Check if user exists
+            GenericValue userLogin = EntityQuery.use(delegator)
+                    .from("UserLogin")
+                    .where("userLoginId", email)
+                    .queryOne();
+
+            if (userLogin == null)
+                return ServiceUtil.returnError("No account found with this email");
+
+            // 2. Generate new random password
+            String newPassword = generateRandomPassword();
+
+            // 3. Update password in DB
+            GenericValue systemUserLogin = delegator.findOne("UserLogin",
+                    org.apache.ofbiz.base.util.UtilMisc.toMap(
+                    "userLoginId", "system"), false);
+
+            Map<String, Object> updateCtx = new HashMap<>();
+            updateCtx.put("userLoginId",           email);
+            updateCtx.put("newPassword",           newPassword);
+            updateCtx.put("newPasswordVerify",     newPassword);
+            updateCtx.put("requirePasswordChange", "N");
+            updateCtx.put("userLogin",             systemUserLogin);
+
+            Map<String, Object> updateResult = dispatcher.runSync(
+                    "updatePassword", updateCtx);
+
+            if (ServiceUtil.isError(updateResult))
+                return ServiceUtil.returnError("Failed to reset password: "
+                        + ServiceUtil.getErrorMessage(updateResult));
+
+            // 4. Get first name
+            String partyId = userLogin.getString("partyId");
+            GenericValue person = EntityQuery.use(delegator)
+                    .from("Person")
+                    .where("partyId", partyId)
+                    .queryOne();
+
+            String firstName = (person != null)
+                    ? person.getString("firstName") : "User";
+
+            // 5. Send email
+            String mailFrom = EntityUtilProperties.getPropertyValue(
+                    "general", "mail.smtp.auth.user",
+                    "sphinxofbizz@gmail.com", delegator);
+
+            Map<String, Object> emailCtx = new HashMap<>();
+            emailCtx.put("sendTo",      email);
+            emailCtx.put("sendFrom",    mailFrom);
+            emailCtx.put("subject",     "Your Password Has Been Reset - Sphinx Exam Portal");
+            emailCtx.put("contentType", "text/plain");
+            emailCtx.put("body",
+                    "Dear " + firstName + ",\n\n" +
+                    "Your password has been reset successfully.\n\n" +
+                    "================================================\n" +
+                    "YOUR NEW LOGIN CREDENTIALS\n" +
+                    "================================================\n" +
+                    "Username : " + email + "\n" +
+                    "Password : " + newPassword + "\n\n" +
+                    "================================================\n" +
+                    "IMPORTANT\n" +
+                    "================================================\n" +
+                    "* If you did not request this reset,\n" +
+                    "  please contact your administrator immediately.\n" +
+                    "* Do not share your password with anyone.\n\n" +
+                    "Best Regards,\n" +
+                    "Sphinx Exam Portal Team");
+
+            dispatcher.runAsync("sendMail", emailCtx);
+
+            return ServiceUtil.returnSuccess("Password reset email sent successfully");
+
+        } catch (Exception e) {
+            return ServiceUtil.returnError("Error: " + e.getMessage());
+        }
+    }
+
+    private static String generateRandomPassword() {
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@$!%*?&";
+        java.security.SecureRandom random = new java.security.SecureRandom();
+        StringBuilder password = new StringBuilder();
+        for (int i = 0; i < 8; i++) {
+            password.append(chars.charAt(random.nextInt(chars.length())));
+        }
+        return password.toString();
     }
 }

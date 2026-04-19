@@ -54,6 +54,7 @@ public class SaveAnswer {
 
             long total     = exam != null ? exam.getLong("noOfQuestions") : 0L;
             long remaining = total - answered;
+            Long remainingTime = (Long) context.get("remainingTime");
 
             Map<String, Object> inpData = new HashMap<>();
             inpData.put("examId",        examId);
@@ -61,6 +62,7 @@ public class SaveAnswer {
             inpData.put("totalAnswered",  answered);
             inpData.put("totalRemaining", remaining);
             inpData.put("userLogin",      userLogin);
+            inpData.put("remainingTime",  remainingTime);
             dispatcher.runSync("updateInProgressPartyAuto", inpData);
 
             return ServiceUtil.returnSuccess("Answer saved");

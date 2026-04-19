@@ -79,7 +79,7 @@ public class SetupExamResources {
 		 }
 	 	
 	 	//setup exam removes completely
-	 	@POST
+	 	@DELETE
 	 	@Produces(MediaType.APPLICATION_JSON)
 	 	@Path("/softdelete")
 	 	public Map<String, Object> softDeleteExamSetup(@QueryParam("examId") String examId, @Context HttpServletRequest request, @Context HttpServletResponse response){

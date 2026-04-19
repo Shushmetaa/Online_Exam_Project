@@ -440,6 +440,7 @@
 	    <attribute name="partyId"         type="String" mode="IN" optional="false"/>
 	    <attribute name="questionId"      type="Long"   mode="IN" optional="false"/>
 	    <attribute name="submittedAnswer" type="String" mode="IN" optional="false"/>
+	    <attribute name="remainingTime" type="Long" mode="IN" optional="true"/>
 	    <attribute name="userLogin"       type="org.apache.ofbiz.entity.GenericValue" mode="IN" optional="true"/>
 	</service>
 	
@@ -554,8 +555,8 @@
              invoke="getExamsForParty" auth="true">
         <description>Returns all passed exams for an employee as a JSON array</description>
         <attribute name="partyId"   type="String" mode="IN"  optional="false"/>
-    <attribute name="exams" type="List" mode="OUT" optional="false"/>
-        	    <attribute name="userLogin" type="org.apache.ofbiz.entity.GenericValue" mode="IN" optional="true"/>
+    	<attribute name="exams" type="List" mode="OUT" optional="false"/>
+        <attribute name="userLogin" type="org.apache.ofbiz.entity.GenericValue" mode="IN" optional="true"/>
     </service>
  
     <!--

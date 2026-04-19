@@ -454,4 +454,51 @@ public class ExamMaster {
 		        return ServiceUtil.returnError("Failed: " + e.getMessage());
 		    }
 		}
+		
+		public static Map<String, Object> deleteUser(String partyId,
+		        HttpServletRequest request, HttpServletResponse response) {
+		    try {
+		        Delegator delegator = getDelegator(request);
+
+		        // 1. Delete PartyExamRelationship
+		        List<GenericValue> examRels = EntityQuery.use(delegator)
+		                .from("PartyExamRelationship")
+		                .where("partyId", partyId).queryList();
+		        for (GenericValue rel : examRels) rel.remove();
+
+		        // 2. Get userLoginId first
+		        GenericValue ul = EntityQuery.use(delegator)
+		                .from("UserLogin")
+		                .where("partyId", partyId).queryFirst();
+
+		        // 3. Delete UserLoginSecurityGroup using userLoginId ✅
+		        if (ul != null) {
+		            String userLoginId = ul.getString("userLoginId");
+		            List<GenericValue> secGroups = EntityQuery.use(delegator)
+		                    .from("UserLoginSecurityGroup")
+		                    .where("userLoginId", userLoginId).queryList();
+		            for (GenericValue sg : secGroups) sg.remove();
+
+		            // 4. Delete UserLogin
+		            ul.remove();
+		        }
+
+		        // 5. Delete Person
+		        GenericValue person = EntityQuery.use(delegator)
+		                .from("Person")
+		                .where("partyId", partyId).queryOne();
+		        if (person != null) person.remove();
+
+		        // 6. Delete PartyRole
+		        List<GenericValue> partyRoles = EntityQuery.use(delegator)
+		                .from("PartyRole")
+		                .where("partyId", partyId).queryList();
+		        for (GenericValue pr : partyRoles) pr.remove();
+
+		        return ServiceUtil.returnSuccess("User deleted successfully");
+
+		    } catch (Exception e) {
+		        return ServiceUtil.returnError("Error: " + e.getMessage());
+		    }
+		}
 }
