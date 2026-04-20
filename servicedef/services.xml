@@ -26,6 +26,12 @@
         <attribute name="duration"        mode="IN"  type="String"/>
         <attribute name="passPercentage"  mode="IN"  type="String"/>
     </service>
+    
+    <service name="createAdminPartyExamRelAuto" engine="entity-auto" invoke="create" default-entity-name="AdminPartyExamRel">
+	    <auto-attributes include="pk"    mode="IN" optional="false"/>
+	    <auto-attributes include="nonpk" mode="IN" optional="true"/>
+	    <attribute name="userLogin" mode="IN" type="org.apache.ofbiz.entity.GenericValue" optional="true"/>
+	</service>
 
     <service name="updateExam" engine="java"
              location="com.vastpro.services.exammaster.UpdateExam"

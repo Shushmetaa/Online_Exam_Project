@@ -31,8 +31,8 @@ public class SubmitExam {
             if (exam == null)
                 return ServiceUtil.returnError("Exam not found");
 
-            double passPercentage = exam.getDouble("passPercentage");
-            long   totalQ         = exam.getLong("noOfQuestions");
+            double passPercentage = Double.parseDouble(exam.get("passPercentage").toString());
+            long   totalQ         = Long.parseLong(exam.get("noOfQuestions").toString());
 
             // 2. Get all questions with correct answers
             List<GenericValue> questions = EntityQuery.use(delegator)
@@ -46,19 +46,19 @@ public class SubmitExam {
                     .where("examId", examId, "partyId", partyId)
                     .queryList();
 
-            // 4. Build answer map
-            Map<Long, String> answerMap = new HashMap<>();
+            // 4. Build answer map  — questionId is numeric in AnswerMaster
+            Map<String, String> answerMap = new HashMap<>();
             for (GenericValue ans : answers)
-                answerMap.put(ans.getLong("questionId"), ans.getString("submittedAnswer"));
+                answerMap.put(ans.getString("questionId"), ans.getString("submittedAnswer"));
 
-            // 5. Calculate score + topic stats
+            // 5. Calculate score + topic stats — qId and topicId are String (type="id")
             long totalCorrect = 0;
             long totalWrong   = 0;
-            Map<Long, long[]> topicStats = new HashMap<>();
+            Map<String, long[]> topicStats = new HashMap<>();
 
             for (GenericValue q : questions) {
-                Long   qId        = q.getLong("qId");
-                Long   topicId    = q.getLong("topicId");
+                String qId        = q.getString("qId");       // type="id" = String
+                String topicId    = q.getString("topicId");   // type="short-varchar" = String
                 String correct    = q.getString("answer");
                 String userAnswer = answerMap.get(qId);
 
@@ -82,8 +82,8 @@ public class SubmitExam {
                     .where("examId", examId, "partyId", partyId)
                     .queryOne();
 
-            long allowedAttempts = per.getLong("allowedAttempts");
-            long noOfAttempts    = per.getLong("noOfAttempts");
+            long allowedAttempts = Long.parseLong(per.get("allowedAttempts").toString());
+            long noOfAttempts    = Long.parseLong(per.get("noOfAttempts").toString());
             noOfAttempts++;
 
             // 7. Save PartyPerformance
@@ -105,8 +105,8 @@ public class SubmitExam {
 
             // 8. Save DetailedPartyPerformance per topic
             long detailedId = System.currentTimeMillis() + 1;
-            for (Map.Entry<Long, long[]> entry : topicStats.entrySet()) {
-                Long   topicId      = entry.getKey();
+            for (Map.Entry<String, long[]> entry : topicStats.entrySet()) {
+                String topicId      = entry.getKey();
                 long   topicCorrect = entry.getValue()[0];
                 long   topicTotal   = entry.getValue()[1];
                 double topicPct     = topicTotal > 0
@@ -114,16 +114,16 @@ public class SubmitExam {
 
                 GenericValue topicDetails = EntityQuery.use(delegator)
                         .from("ExamTopicDetails")
-                        .where("examId", examId, "topicId", String.valueOf(topicId))
+                        .where("examId", examId, "topicId", topicId)
                         .queryOne();
                 double topicPassPct = topicDetails != null
-                        ? topicDetails.getDouble("topicPassPercentage") : 50.0;
+                        ? Double.parseDouble(topicDetails.get("topicPassPercentage").toString()) : 50.0;
 
                 Map<String, Object> detData = new HashMap<>();
                 detData.put("detailedPerformanceId",       detailedId++);
                 detData.put("partyId",                     partyId);
                 detData.put("examId",                      examId);
-                detData.put("topicId",                     String.valueOf(topicId));
+                detData.put("topicId",                     topicId);
                 detData.put("topicPassPercentage",         topicPassPct);
                 detData.put("userTopicPercentage",         topicPct);
                 detData.put("correctQuestionsInthisTopic", topicCorrect);
@@ -138,7 +138,6 @@ public class SubmitExam {
             boolean examExpired = false;
 
             if (passed) {
-                // Passed → expire exam immediately
                 per.set("thruDate",            new Timestamp(System.currentTimeMillis()));
                 per.set("passwordChangesAuto", null);
                 per.set("noOfAttempts",        noOfAttempts);
@@ -151,14 +150,12 @@ public class SubmitExam {
                 per.set("lastPerformanceDate", new Timestamp(System.currentTimeMillis()));
 
                 if (noOfAttempts >= allowedAttempts) {
-                    // No attempts left → expire
                     per.set("thruDate",            new Timestamp(System.currentTimeMillis()));
                     per.set("passwordChangesAuto", null);
                     per.store();
                     examExpired = true;
 
                 } else {
-                    // Attempts remaining → new password + email
                     per.store();
 
                     String rawPassword    = generatePassword();

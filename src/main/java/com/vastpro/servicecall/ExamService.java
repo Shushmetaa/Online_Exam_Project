@@ -141,7 +141,7 @@ public class ExamService {
             Map<String, Object> data = new HashMap<>();
             data.put("examId",        examId);
             data.put("partyId",       partyId);
-            data.put("performanceId", Long.parseLong(performanceId));
+            data.put("performanceId", Long.valueOf(performanceId));
             data.put("userLogin",     userLogin);
 
             Map<String, Object> result = dispatcher.runSync("getExamResults", data);

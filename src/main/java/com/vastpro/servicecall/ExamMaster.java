@@ -51,10 +51,8 @@ public class ExamMaster {
                 return ServiceUtil.returnError("Dispatcher is null");
             }
 
-    	    GenericValue userLogin=EntityQuery.use(getDelegator(request))
-    	    		.from("UserLogin")
-    	    		.where("userLoginId", "admin")
-    	    		.queryOne();
+    	    GenericValue userLogin = (GenericValue) request.getSession().getAttribute("userLogin"); 
+    	    if (userLogin == null) return ServiceUtil.returnError("User not logged in");
     	    
     	    Map<String, Object> createData =new HashMap<>();
     	    createData.put("examName", examName);
@@ -207,22 +205,52 @@ public class ExamMaster {
 		    }
 		}
 		public static Map<String, Object> getExams(HttpServletRequest request, HttpServletResponse response) {
-             try {
-                  Delegator delegator = getDelegator(request);
+		    try {
+		        Delegator delegator = getDelegator(request);
 
-                       List<GenericValue> exams = EntityQuery.use(delegator)
-                                    .from("ExamMaster")
-                                    .orderBy("examId")
-                                    .queryList();
+		        // Step 1 — who is logged in?
+		        GenericValue userLogin = (GenericValue) request.getSession().getAttribute("userLogin");
+		        if (userLogin == null) return ServiceUtil.returnError("User not logged in");
 
-                       Map<String, Object> result = ServiceUtil.returnSuccess("Exams fetched");
-                       result.put("examList", exams);
-                       return result;
+		        String partyId = userLogin.getString("partyId");
 
-              } catch (GenericEntityException e) {
-                   return ServiceUtil.returnError("Failed: " + e.getMessage());
-              }
-         }
+		        // Step 2 — get only THIS admin's exam ids from AdminPartyExamRel
+		        List<GenericValue> adminRels = EntityQuery.use(delegator)
+		                .from("AdminPartyExamRel")
+		                .where("partyId", partyId)
+		                .queryList();
+
+		        // Step 3 — loop and fetch each exam
+		        List<Map<String, Object>> examList = new ArrayList<>();
+
+		        for (GenericValue rel : adminRels) {
+		            String examId = rel.getString("examId");
+
+		            GenericValue exam = EntityQuery.use(delegator)
+		                    .from("ExamMaster")
+		                    .where("examId", examId)
+		                    .queryOne();
+
+		            if (exam == null) continue;
+
+		            Map<String, Object> examMap = new HashMap<>();
+		            examMap.put("examId",        exam.getString("examId"));
+		            examMap.put("examName",      exam.getString("examName"));
+		            examMap.put("description",   exam.getString("description"));
+		            examMap.put("noOfQuestions", exam.getString("noOfQuestions"));
+		            examMap.put("duration",      exam.getString("duration"));
+		            examMap.put("passPercentage",exam.getString("passPercentage"));
+		            examList.add(examMap);
+		        }
+
+		        Map<String, Object> result = ServiceUtil.returnSuccess("Exams fetched");
+		        result.put("examList", examList);
+		        return result;
+
+		    } catch (GenericEntityException e) {
+		        return ServiceUtil.returnError("Failed: " + e.getMessage());
+		    }
+		}
 		
 		public static Map<String, Object> getAssignedUsers(HttpServletRequest request, HttpServletResponse response) {
 		    
@@ -306,31 +334,48 @@ public class ExamMaster {
 		    try {
 		        Delegator delegator = getDelegator(request);
 
-		        String keyword = request.getParameter("keyword") != null 
-		        	    ? request.getParameter("keyword") 
-		        	    : (String) request.getAttribute("keyword");
+		        // get logged in admin
+		        GenericValue userLogin = (GenericValue) request.getSession().getAttribute("userLogin");
+		        if (userLogin == null) return ServiceUtil.returnError("User not logged in");
 
-		        	if (keyword == null) keyword = "";
+		        String partyId = userLogin.getString("partyId");
 
-		        List<GenericValue> allExams = EntityQuery.use(delegator)
-		                .from("ExamMaster")
+		        String keyword = request.getParameter("keyword") != null
+		                ? request.getParameter("keyword")
+		                : (String) request.getAttribute("keyword");
+		        if (keyword == null) keyword = "";
+
+		        // get only this admin's exams
+		        List<GenericValue> adminRels = EntityQuery.use(delegator)
+		                .from("AdminPartyExamRel")
+		                .where("partyId", partyId)
 		                .queryList();
 
 		        List<Map<String, Object>> filteredExams = new ArrayList<>();
 
-		        for (GenericValue exam : allExams) {
-		            String examName    = exam.getString("examName") != null ? exam.getString("examName").toLowerCase() : "";
-		            String description = exam.getString("description") != null ? exam.getString("description").toLowerCase() : "";
-		            String search      = keyword != null ? keyword.toLowerCase().trim() : "";
+		        for (GenericValue rel : adminRels) {
+		            String examId = rel.getString("examId");
 
+		            GenericValue exam = EntityQuery.use(delegator)
+		                    .from("ExamMaster")
+		                    .where("examId", examId)
+		                    .queryOne();
+
+		            if (exam == null) continue;
+
+		            String examName    = exam.getString("examName")    != null ? exam.getString("examName").toLowerCase()    : "";
+		            String description = exam.getString("description") != null ? exam.getString("description").toLowerCase() : "";
+		            String search      = keyword.toLowerCase().trim();
+
+		            // filter
 		            if (search.isEmpty() || examName.contains(search) || description.contains(search)) {
 		                Map<String, Object> examMap = new HashMap<>();
-		                examMap.put("examId",          exam.getString("examId"));
-		                examMap.put("examName",        exam.getString("examName"));
-		                examMap.put("description",     exam.getString("description"));
-		                examMap.put("noOfQuestions",   exam.getString("noOfQuestions"));
-		                examMap.put("duration",        exam.getString("duration"));
-		                examMap.put("passPercentage",  exam.getString("passPercentage"));
+		                examMap.put("examId",        exam.getString("examId"));
+		                examMap.put("examName",      exam.getString("examName"));
+		                examMap.put("description",   exam.getString("description"));
+		                examMap.put("noOfQuestions", exam.getString("noOfQuestions"));
+		                examMap.put("duration",      exam.getString("duration"));
+		                examMap.put("passPercentage",exam.getString("passPercentage"));
 		                filteredExams.add(examMap);
 		            }
 		        }

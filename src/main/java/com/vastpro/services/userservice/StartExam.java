@@ -17,6 +17,7 @@ public class StartExam {
     public static Map<String, Object> startExam(
             DispatchContext dctx, Map<String, ? extends Object> context) {
         try {
+            System.out.println("=== NEW STARTEXAM RUNNING ===");
             String examId  = (String) context.get("examId");
             String partyId = (String) context.get("partyId");
             GenericValue userLogin = (GenericValue) context.get("userLogin");
@@ -45,8 +46,8 @@ public class StartExam {
             if (exam == null)
                 return ServiceUtil.returnError("Exam not found.");
 
-            Long totalQuestions  = Long.parseLong(exam.getString("noOfQuestions"));
-            Long durationSeconds = Long.parseLong(exam.getString("duration")) * 60L;
+            Long totalQuestions  = exam.getLong("noOfQuestions");
+            Long durationSeconds = exam.getLong("duration") * 60L;
 
             // 3. Check if InProgressParty exists
             GenericValue inProgress = EntityQuery.use(delegator)
@@ -54,38 +55,45 @@ public class StartExam {
                     .where("examId", examId, "partyId", partyId)
                     .queryOne();
 
-            if (inProgress == null) {
-                // ── Fresh start — CREATE ──────────────────────────────
+            boolean isResuming = (inProgress != null);
+
+            if (!isResuming) {
+                // Clean old answers from any previous attempt
+                List<GenericValue> oldAnswers = EntityQuery.use(delegator)
+                        .from("AnswerMaster")
+                        .where("examId", examId, "partyId", partyId)
+                        .queryList();
+                for (GenericValue old : oldAnswers) old.remove();
+
+                // Double-check to guard against race condition
+                GenericValue doubleCheck = EntityQuery.use(delegator)
+                        .from("InProgressParty")
+                        .where("examId", examId, "partyId", partyId)
+                        .queryOne();
+
                 Map<String, Object> inpData = new HashMap<>();
                 inpData.put("examId",         examId);
                 inpData.put("partyId",        partyId);
                 inpData.put("isExamActive",   1L);
                 inpData.put("totalAnswered",  0L);
                 inpData.put("totalRemaining", totalQuestions);
-                inpData.put("remainingTime",  durationSeconds); // full time
+                inpData.put("remainingTime",  String.valueOf(durationSeconds));
                 inpData.put("userLogin",      userLogin);
-                Map<String, Object> createResult = dispatcher.runSync("createInProgressPartyAuto", inpData);
-                if (ServiceUtil.isError(createResult))
-                    return ServiceUtil.returnError("Failed to create exam session: "
-                            + ServiceUtil.getErrorMessage(createResult));
 
-            } else {
-                // ── Resume — UPDATE, keep existing progress ───────────
-                Map<String, Object> inpData = new HashMap<>();
-                inpData.put("examId",         examId);
-                inpData.put("partyId",        partyId);
-                inpData.put("isExamActive",   1L);
-                inpData.put("totalAnswered",  inProgress.getLong("totalAnswered"));
-                inpData.put("totalRemaining", inProgress.getLong("totalRemaining"));
-                inpData.put("remainingTime",  inProgress.getLong("remainingTime")); // restore saved time
-                inpData.put("userLogin",      userLogin);
-                Map<String, Object> updateResult = dispatcher.runSync("updateInProgressPartyAuto", inpData);
-                if (ServiceUtil.isError(updateResult))
-                    return ServiceUtil.returnError("Failed to update exam session: "
-                            + ServiceUtil.getErrorMessage(updateResult));
+                if (doubleCheck != null) {
+                    // Parallel request already created it — just update
+                    dispatcher.runSync("updateInProgressPartyAuto", inpData);
+                } else {
+                    // Safe to insert
+                    Map<String, Object> createResult = dispatcher.runSync(
+                            "createInProgressPartyAuto", inpData);
+                    if (ServiceUtil.isError(createResult))
+                        return ServiceUtil.returnError("Failed to create exam session: "
+                                + ServiceUtil.getErrorMessage(createResult));
+                }
             }
 
-            // 4. Fetch questions (no answers sent to frontend)
+            // 4. Fetch questions
             List<GenericValue> questions = EntityQuery.use(delegator)
                     .from("QuestionBankMaster")
                     .where("examId", examId)
@@ -107,7 +115,7 @@ public class StartExam {
                 questionList.add(qMap);
             }
 
-            // 5. Fetch already answered questions from AnswerMaster
+            // 5. Fetch saved answers (empty for fresh start, populated for resume)
             List<GenericValue> answered = EntityQuery.use(delegator)
                     .from("AnswerMaster")
                     .where("examId", examId, "partyId", partyId)
@@ -116,7 +124,7 @@ public class StartExam {
             List<Map<String, Object>> answeredList = new ArrayList<>();
             for (GenericValue a : answered) {
                 Map<String, Object> aMap = new HashMap<>();
-                aMap.put("qId",             a.getString("questionId")); // ← check your field name
+                aMap.put("qId",             a.getString("questionId"));
                 aMap.put("submittedAnswer", a.getString("submittedAnswer"));
                 answeredList.add(aMap);
             }
@@ -132,11 +140,12 @@ public class StartExam {
             result.put("questionList",  questionList);
             result.put("answeredList",  answeredList);
             result.put("examName",      exam.getString("examName"));
-            result.put("duration",      Long.parseLong(exam.getString("duration")));
-            result.put("totalQ",        Long.parseLong(exam.getString("noOfQuestions")));
-            result.put("remainingTime", latestProgress.getLong("remainingTime"));
+            result.put("duration",      exam.getLong("duration"));
+            result.put("totalQ",        exam.getLong("noOfQuestions"));
+            String remainingTimeStr = latestProgress.getString("remainingTime");
+            result.put("remainingTime", remainingTimeStr != null ? Long.parseLong(remainingTimeStr) : durationSeconds);
             result.put("totalAnswered", latestProgress.getLong("totalAnswered"));
-            result.put("isResuming",    inProgress != null ? "Y" : "N");
+            result.put("isResuming",    isResuming ? "Y" : "N");
             return result;
 
         } catch (Exception e) {

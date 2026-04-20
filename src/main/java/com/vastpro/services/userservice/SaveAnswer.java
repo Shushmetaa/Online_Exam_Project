@@ -17,7 +17,7 @@ public class SaveAnswer {
         try {
             String examId          = (String) context.get("examId");
             String partyId         = (String) context.get("partyId");
-            Long   questionId      = (Long)   context.get("questionId");
+            Long   questionId      = Long.valueOf(context.get("questionId").toString());
             String submittedAnswer = (String) context.get("submittedAnswer");
             GenericValue userLogin = (GenericValue) context.get("userLogin");
 

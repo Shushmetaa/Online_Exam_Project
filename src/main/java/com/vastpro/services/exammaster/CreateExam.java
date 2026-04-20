@@ -71,6 +71,23 @@ public class CreateExam {
             if (ServiceUtil.isError(result)) {
                 return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
             }
+            
+            // insert into admin_exam_relationship table
+            GenericValue userLogin = (GenericValue) context.get("userLogin");
+            if (userLogin != null) {
+                String partyId = userLogin.getString("partyId");
+
+                Map<String, Object> relData = new HashMap<>();
+                relData.put("partyId",   partyId);
+                relData.put("examId",    examId);
+                relData.put("fromDate",  org.apache.ofbiz.base.util.UtilDateTime.nowTimestamp());
+                relData.put("userLogin", userLogin);
+
+                Map<String, Object> relResult = dispatcher.runSync("createAdminPartyExamRelAuto", relData);
+                if (ServiceUtil.isError(relResult))
+                    return ServiceUtil.returnError("Exam created but admin assign failed: "
+                            + ServiceUtil.getErrorMessage(relResult));
+            }
 
             Map<String, Object> response = ServiceUtil.returnSuccess("Exam Created Successfully");
             response.put("examId", examId);

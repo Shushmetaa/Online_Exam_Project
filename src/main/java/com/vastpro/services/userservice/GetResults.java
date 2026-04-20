@@ -18,7 +18,7 @@ public class GetResults {
         try {
             String examId        = (String) context.get("examId");
             String partyId       = (String) context.get("partyId");
-            Long   performanceId = (Long)   context.get("performanceId");
+            Long   performanceId = Long.valueOf(context.get("performanceId").toString());
 
             Delegator delegator = dctx.getDelegator();
 
@@ -40,7 +40,7 @@ public class GetResults {
             List<Map<String, Object>> topicList = new ArrayList<>();
             for (GenericValue tp : topicPerfs) {
                 Map<String, Object> t = new HashMap<>();
-                t.put("topicId",                     tp.getString("topicId"));
+                t.put("topicId",                     tp.getString("topicId"));  // ✅ String
                 t.put("userTopicPercentage",          tp.getDouble("userTopicPercentage"));
                 t.put("topicPassPercentage",          tp.getDouble("topicPassPercentage"));
                 t.put("correctQuestionsInthisTopic",  tp.getLong("correctQuestionsInthisTopic"));
@@ -61,20 +61,22 @@ public class GetResults {
                     .where("examId", examId, "partyId", partyId)
                     .queryList();
 
-            Map<Long, String> answerMap = new HashMap<>();
+            // ✅ Use String keys — qId and questionId are both type="id" (String)
+            Map<String, String> answerMap = new HashMap<>();
             for (GenericValue ans : answers)
-                answerMap.put(ans.getLong("questionId"), ans.getString("submittedAnswer"));
+                answerMap.put(ans.getString("questionId"), ans.getString("submittedAnswer"));
 
             List<Map<String, Object>> reviewList = new ArrayList<>();
             for (GenericValue q : questions) {
-                Long   qId         = q.getLong("qId");
-                String correctAns  = q.getString("answer");
-                String userAnswer  = answerMap.getOrDefault(qId, "");
-                boolean isCorrect  = correctAns.equalsIgnoreCase(userAnswer);
+                String qId        = q.getString("qId");       // ✅ String, not Long
+                String topicId    = q.getString("topicId");   // ✅ String, not Long
+                String correctAns = q.getString("answer");
+                String userAnswer = answerMap.getOrDefault(qId, "");
+                boolean isCorrect = correctAns != null && correctAns.equalsIgnoreCase(userAnswer);
 
                 Map<String, Object> qMap = new HashMap<>();
                 qMap.put("qId",            qId);
-                qMap.put("topicId",        q.getLong("topicId"));
+                qMap.put("topicId",        topicId);
                 qMap.put("questionDetail", q.getString("questionDetail"));
                 qMap.put("optiona",        q.getString("optiona"));
                 qMap.put("optionb",        q.getString("optionb"));

@@ -24,7 +24,6 @@ public class SaveAndPublishExam {
             String examId          = (String) context.get("examId");
             String partyIdsStr     = (String) context.get("partyIds");
             String allowedAttempts = (String) context.get("allowedAttempts");
-            String noOfAttempts    = (String) context.get("noOfAttempts");
             String timeoutDays     = (String) context.get("timeoutDays");
             String openDate        = (String) context.get("openDate");
             String closeDate       = (String) context.get("closeDate");
@@ -79,19 +78,15 @@ public class SaveAndPublishExam {
             }
 
             // ── STEP 2: Copy questions ONLY if ACTIVE ─────────────────
-            long globalQId = 1;
-
             if (isActive) {
-                // Delete old questions first
+                long globalQId = 1;
+
                 List<GenericValue> oldQuestions = EntityQuery.use(delegator)
                         .from("QuestionBankMaster")
                         .where("examId", examId)
                         .queryList();
-                for (GenericValue old : oldQuestions) {
-                    old.remove();
-                }
+                for (GenericValue old : oldQuestions) old.remove();
 
-                // Get topics for this exam
                 List<GenericValue> topics = EntityQuery.use(delegator)
                         .from("ExamTopicDetails")
                         .where("examId", examId)
@@ -123,8 +118,7 @@ public class SaveAndPublishExam {
                             " | Available: " + (pool != null ? pool.size() : 0));
 
                     Collections.shuffle(pool);
-                    List<GenericValue> selected =
-                        pool.subList(0, questionsNeeded.intValue());
+                    List<GenericValue> selected = pool.subList(0, questionsNeeded.intValue());
 
                     for (GenericValue q : selected) {
                         Map<String, Object> liveQ = new HashMap<>();
@@ -147,116 +141,116 @@ public class SaveAndPublishExam {
 
                         Map<String, Object> createResult = dispatcher.runSync(
                                 "createQuestionBankMasterAuto", liveQ);
-
                         if (ServiceUtil.isError(createResult))
-                            return ServiceUtil.returnError(
-                                "Failed to copy question: " +
-                                ServiceUtil.getErrorMessage(createResult));
+                            return ServiceUtil.returnError("Failed to copy question: "
+                                    + ServiceUtil.getErrorMessage(createResult));
                     }
                 }
             }
 
-            // ── STEP 3: Assign users and send email ONLY if ACTIVE ────
-            if (isActive) {
+            // ── STEP 3: Assign users — runs for BOTH DRAFT and ACTIVE ─
+            // Parse allowedAttempts safely ONCE before the loop
+            long parsedAllowedAttempts;
+            if (allowedAttempts == null || allowedAttempts.isEmpty()
+                    || "unlimited".equalsIgnoreCase(allowedAttempts)) {
+                parsedAllowedAttempts = 999L;
+            } else {
+                parsedAllowedAttempts = Long.parseLong(allowedAttempts);
+            }
+            long parsedTimeoutDays = Long.parseLong(timeoutDays != null ? timeoutDays : "30");
 
-                // Read email settings from sphinx.properties ONCE
-                // outside the loop — no need to read it 100 times
-                // if there are 100 users
-            	String mailFrom = EntityUtilProperties.getPropertyValue(
-            	        "general", "mail.smtp.auth.user",
-            	        "sphinxofbizz@gmail.com", delegator);
+            String mailFrom = isActive
+                    ? EntityUtilProperties.getPropertyValue(
+                        "general", "mail.smtp.auth.user",
+                        "sphinxofbizz@gmail.com", delegator)
+                    : null;
 
-                String mailSubject = EntityUtilProperties.getPropertyValue(
-                        "sphinx", "mail.exam.subject",
-                        "You have been assigned an Exam", delegator);
+            String[] partyIds = partyIdsStr.split(",");
 
-                String[] partyIds = partyIdsStr.split(",");
+            for (String partyId : partyIds) {
+                partyId = partyId.trim();
+                if (partyId.isEmpty()) continue;
 
-                for (String partyId : partyIds) {
-                    partyId = partyId.trim();
-                    if (partyId.isEmpty()) continue;
+                // Check first assignment BEFORE creating the record
+                List<GenericValue> previousExams = EntityQuery.use(delegator)
+                        .from("PartyExamRelationship")
+                        .where("partyId", partyId)
+                        .queryList();
+                boolean isFirstAssignment = previousExams.isEmpty();
 
-                    // ── Assign user if not already assigned ───────────
-                    GenericValue existing = EntityQuery.use(delegator)
-                            .from("PartyExamRelationship")
-                            .where("examId", examId, "partyId", partyId)
-                            .queryOne();
+                GenericValue existing = EntityQuery.use(delegator)
+                        .from("PartyExamRelationship")
+                        .where("examId", examId, "partyId", partyId)
+                        .queryOne();
 
-                    if (existing == null) {
-                        Map<String, Object> assignData = new HashMap<>();
-                        assignData.put("examId",          examId);
-                        assignData.put("partyId",         partyId);
-                        assignData.put("allowedAttempts",
-                            Long.parseLong(allowedAttempts != null ? allowedAttempts : "1"));
-                        assignData.put("noOfAttempts",
-                            Long.parseLong(noOfAttempts != null ? noOfAttempts : "1"));
-                        assignData.put("timeoutDays",
-                            Long.parseLong(timeoutDays != null ? timeoutDays : "30"));
-                        assignData.put("userLogin", userLogin);
+                if (existing == null) {
+                    // ✅ CREATE with correct allowedAttempts
+                    Map<String, Object> assignData = new HashMap<>();
+                    assignData.put("examId",          examId);
+                    assignData.put("partyId",         partyId);
+                    assignData.put("noOfAttempts",    0L);
+                    assignData.put("allowedAttempts", parsedAllowedAttempts);
+                    assignData.put("timeoutDays",     parsedTimeoutDays);
+                    assignData.put("userLogin",       userLogin);
 
-                        Map<String, Object> assignResult = dispatcher.runSync(
-                                "createPartyExamRelationshipAuto", assignData);
+                    Map<String, Object> assignResult = dispatcher.runSync(
+                            "createPartyExamRelationshipAuto", assignData);
+                    if (ServiceUtil.isError(assignResult))
+                        return ServiceUtil.returnError("Failed to assign user "
+                                + partyId + ": "
+                                + ServiceUtil.getErrorMessage(assignResult));
+                } else {
+                    // ✅ ALWAYS UPDATE allowedAttempts — permanent fix
+                    Map<String, Object> updateData = new HashMap<>();
+                    updateData.put("examId",          examId);
+                    updateData.put("partyId",         partyId);
+                    updateData.put("allowedAttempts", parsedAllowedAttempts);
+                    updateData.put("userLogin",       userLogin);
+                    dispatcher.runSync("updatePartyExamRelationshipAuto", updateData);
+                }
 
-                        if (ServiceUtil.isError(assignResult))
-                            return ServiceUtil.returnError(
-                                "Failed to assign user " + partyId + ": " +
-                                ServiceUtil.getErrorMessage(assignResult));
-                    }
+                // ── Send email ONLY if ACTIVE ─────────────────────────
+                if (!isActive) continue;
 
-                    // ── Fetch user and exam details ───────────────────
-                    GenericValue assignedUser = EntityQuery.use(delegator)
-                            .from("UserLogin")
-                            .where("partyId", partyId)
-                            .queryFirst();
+                GenericValue assignedUser = EntityQuery.use(delegator)
+                        .from("UserLogin").where("partyId", partyId).queryFirst();
+                GenericValue exam = EntityQuery.use(delegator)
+                        .from("ExamMaster").where("examId", examId).queryOne();
 
-                    GenericValue exam = EntityQuery.use(delegator)
-                            .from("ExamMaster")
-                            .where("examId", examId)
-                            .queryOne();
+                if (assignedUser == null || exam == null) continue;
 
-                    if (assignedUser == null || exam == null) continue;
+                String email    = assignedUser.getString("userLoginId");
+                String examName = exam.getString("examName");
 
-                    String email    = assignedUser.getString("userLoginId");
-                    String examName = exam.getString("examName");
+                String rawPassword    = generatePassword();
+                String hashedPassword = org.apache.ofbiz.base.crypto.HashCrypt
+                        .cryptUTF8("SHA", null, rawPassword);
 
-                    // ── Generate and save password ────────────────────
-                    String rawPassword    = generatePassword();
-                    String hashedPassword = org.apache.ofbiz.base.crypto.HashCrypt
-                            .cryptUTF8("SHA", null, rawPassword);
+                Map<String, Object> pwdData = new HashMap<>();
+                pwdData.put("examId",              examId);
+                pwdData.put("partyId",             partyId);
+                pwdData.put("passwordChangesAuto", hashedPassword);
+                pwdData.put("userLogin",           userLogin);
+                dispatcher.runSync("updatePartyExamPassword", pwdData);
 
-                    Map<String, Object> pwdData = new HashMap<>();
-                    pwdData.put("examId",              examId);
-                    pwdData.put("partyId",             partyId);
-                    pwdData.put("passwordChangesAuto", hashedPassword);
-                    pwdData.put("userLogin",           userLogin);
-                    dispatcher.runSync("updatePartyExamPassword", pwdData);
+                String safeExamName = (examName != null)
+                        ? examName.replaceAll("[^a-zA-Z0-9 ]", "").trim() : "Exam";
 
-                    String safeExamName = (examName != null)
-                            ? examName.replaceAll("[^a-zA-Z0-9 ]", "").trim()
-                            : "Exam";
-                    
-                 // Get first name
-                    GenericValue person = EntityQuery.use(delegator)
-                            .from("Person")
-                            .where("partyId", partyId)
-                            .queryOne();
+                GenericValue person = EntityQuery.use(delegator)
+                        .from("Person").where("partyId", partyId).queryOne();
+                String firstName = (person != null)
+                        ? person.getString("firstName") : "Candidate";
 
-                    String firstName = (person != null) 
-                            ? person.getString("firstName") : "Candidate";
-
-                    // ── Send email using OFBiz built-in sendMail ──────
-                    // OFBiz automatically uses SMTP settings from
-                    // general.properties — we only pass the content
-                    Map<String, Object> emailCtx = new HashMap<>();
-                    emailCtx.put("sendTo",      email);
-                    emailCtx.put("sendFrom",    mailFrom);
-                    emailCtx.put("subject",     mailSubject);
-                    emailCtx.put("contentType", "text/plain");
-                    emailCtx.put("body",
-                            "Dear " + firstName + ",\n\n" +
-                            "Welcome to Sphinx Exam Portal!\n\n" +
-                            "You have been assigned to the following exam:\n" +
-                            "Exam Name : " + safeExamName + "\n\n" +
+                Map<String, Object> emailCtx = new HashMap<>();
+                emailCtx.put("sendTo",      email);
+                emailCtx.put("sendFrom",    mailFrom);
+                emailCtx.put("subject",     "You have been assigned: " + safeExamName);
+                emailCtx.put("contentType", "text/plain");
+                emailCtx.put("body",
+                        "Dear " + firstName + ",\n\n" +
+                        "You have been assigned to the following exam:\n" +
+                        "Exam Name : " + safeExamName + "\n\n" +
+                        (isFirstAssignment ?
                             "================================================\n" +
                             "STEP 1 — LOGIN TO THE PORTAL\n" +
                             "================================================\n" +
@@ -266,23 +260,27 @@ public class SaveAndPublishExam {
                             "================================================\n" +
                             "STEP 2 — START YOUR EXAM\n" +
                             "================================================\n" +
-                            "Once logged in, use this password to start your exam:\n\n" +
-                            "Exam Name     : " + safeExamName + "\n" +
-                            "Exam Password : " + rawPassword + "\n\n" +
+                            "Once logged in, use this password to start your exam:\n\n"
+                            :
                             "================================================\n" +
-                            "IMPORTANT NOTES\n" +
+                            "EXAM ACCESS\n" +
                             "================================================\n" +
-                            "* Please complete the exam before the deadline.\n" +
-                            "* Do not share your exam password with anyone.\n" +
-                            "* Once the exam starts, the timer cannot be paused.\n" +
-                            "* Results and certificate will be emailed after completion.\n\n" +
-                            "If you face any issues, please contact your administrator.\n\n" +
-                            "Best Regards,\n" +
-                            "Sphinx Exam Portal Team");
+                            "Use this password to start your exam:\n\n"
+                        ) +
+                        "Exam Name     : " + safeExamName + "\n" +
+                        "Exam Password : " + rawPassword + "\n\n" +
+                        "================================================\n" +
+                        "IMPORTANT NOTES\n" +
+                        "================================================\n" +
+                        "* Please complete the exam before the deadline.\n" +
+                        "* Do not share your exam password with anyone.\n" +
+                        "* Once the exam starts, the timer cannot be paused.\n" +
+                        "* Results and certificate will be emailed after completion.\n\n" +
+                        "If you face any issues, please contact your administrator.\n\n" +
+                        "Best Regards,\n" +
+                        "Sphinx Exam Portal Team");
 
-                    // runAsync — fires in background, does not block
-                    dispatcher.runAsync("sendMail", emailCtx);
-                }
+                dispatcher.runAsync("sendMail", emailCtx);
             }
 
             return ServiceUtil.returnSuccess(
@@ -300,9 +298,8 @@ public class SaveAndPublishExam {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@$!%*?&";
         java.security.SecureRandom random = new java.security.SecureRandom();
         StringBuilder password = new StringBuilder();
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 8; i++)
             password.append(chars.charAt(random.nextInt(chars.length())));
-        }
         return password.toString();
     }
 }
