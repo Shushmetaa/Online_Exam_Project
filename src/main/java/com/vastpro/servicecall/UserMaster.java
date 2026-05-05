@@ -249,4 +249,30 @@ public class UserMaster {
                     .build();
         }
     }
+    
+    public static Map<String,Object> deleteUser(String partyId, HttpServletRequest request) {
+        try {
+            LocalDispatcher dispatcher = getDispatcher(request);
+            Delegator delegator = getDelegator(request);
+            
+            if (partyId == null || partyId.trim().isEmpty()) {
+                return ServiceUtil.returnError("partyId is required");
+            }
+            GenericValue userLogin = EntityQuery.use(delegator)
+                    .from("UserLogin").where("userLoginId", "admin").queryOne();
+
+            Map<String, Object> result = dispatcher.runSync(
+                    "deleteUser",
+                    UtilMisc.toMap("partyId", partyId.trim(), "userLogin", userLogin)
+            );
+            if(ServiceUtil.isError(result)) {
+            	return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+            }
+            else {
+            	return result;
+            }
+        }catch(Exception e) {
+        	 return ServiceUtil.returnError("Error: " + e.getMessage());
+        }
+    }
 }

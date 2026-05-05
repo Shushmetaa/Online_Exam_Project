@@ -31,18 +31,21 @@ public class DeleteQuestionMaster {
 			}
 			
     	  try {
-    	  GenericValue delete_question=EntityQuery.use(delegator)
-    			  .from("QuestionBankMasterB")
-    			  .where("examId",examId,"qId",qId)
-    			  .queryOne();
-    	  
-    	  if(delete_question==null) {
-    		  return ServiceUtil.returnError("Deleting data is Empty");
-    	  }
-    	  Map<String,Object> input= new HashMap<>();
-          input.put("examId", examId);
-          input.put("qId",qId);
-          input.put("userLogin", userLogin);
+    		  GenericValue delete_question = EntityQuery.use(delegator)
+    			        .from("QuestionBankMasterB")
+    			        .where("qId", qId)
+    			        .queryFirst();
+
+    			if (delete_question == null) {
+    			    return ServiceUtil.returnError("Question not found");
+    			}
+
+    			String actualExamId = delete_question.getString("examId");
+
+    			Map<String, Object> input = new HashMap<String, Object>();
+    			input.put("examId",    actualExamId);
+    			input.put("qId",       qId);
+    			input.put("userLogin", userLogin);
           
           Map<String, Object> result = dispatcher.runSync("deleteQuestionMasterAuto", input);
           

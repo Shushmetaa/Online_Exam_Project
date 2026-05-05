@@ -15,8 +15,8 @@ import org.apache.ofbiz.service.LocalDispatcher;
 import org.apache.ofbiz.service.ServiceUtil;
 
 public class TopicMaster {
-	
-	private static LocalDispatcher getDispatcher(HttpServletRequest request) {
+
+    private static LocalDispatcher getDispatcher(HttpServletRequest request) {
         LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
         if (dispatcher == null) {
             dispatcher = (LocalDispatcher) request.getSession().getServletContext().getAttribute("dispatcher");
@@ -31,150 +31,125 @@ public class TopicMaster {
         }
         return delegator;
     }
-	
-	public static Map<String, Object> createTopic(String examId, String topicId, String topicName, String percentage,
-			String startingQid, String endingQid, String questionsPerExam, String topicPassPercentage, HttpServletRequest request, HttpServletResponse response){
-		
-		try {
-			
-			LocalDispatcher dispatcher=getDispatcher(request);
-		    
-		    GenericValue userLogin=EntityQuery.use(getDelegator(request))
-		    		.from("UserLogin")
-		    		.where("userLoginId", "admin")
-		    		.queryOne();
-		    
-		    Map<String, Object> topicData = new HashMap<>();
-		    
-		    topicData.put("examId", examId);
-		    topicData.put("topicId", topicId);
-		    topicData.put("topicName", topicName);
-		    topicData.put("percentage", percentage);
-		    topicData.put("startingQid", startingQid);
-		    topicData.put("endingQid", endingQid);
-		    topicData.put("questionsPerExam", questionsPerExam);
-		    topicData.put("topicPassPercentage", topicPassPercentage);
-		    topicData.put("userLogin", userLogin);
-		    
-		    Map<String, Object> result = dispatcher.runSync("createExamTopicDetails", topicData);
-		    
-		    if(ServiceUtil.isError(result)) {
-		    	return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
-		    }
-		    else {
-		    	return ServiceUtil.returnSuccess("Topics created successfully");
-		    }
-		    
-		}catch(GenericEntityException | GenericServiceException e) {
-			return ServiceUtil.returnError(e.getMessage());
-		}
-	}
-	
-	public static Map<String, Object> getTopic(String examId, HttpServletRequest request, HttpServletResponse response){
-		
-		try {
 
-			LocalDispatcher dispatcher=getDispatcher(request);
-		    
-		    GenericValue userLogin=EntityQuery.use(getDelegator(request))
-		    		.from("UserLogin")
-		    		.where("userLoginId", "admin")
-		    		.queryOne();
-		    
-		    Map<String, Object> id = new HashMap<>();
-		    
-		    id.put("examId", examId);
-		    id.put("userLogin", userLogin);
-		    System.out.println(id);
-		    Map<String, Object> result = dispatcher.runSync("getTopicMaster", id);
-		    
-		    if(ServiceUtil.isError(result)) {
-		    	return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
-		    }
-		    
-		    Map<String, Object> response2 = new HashMap<>();
-		    response2.put("responseMessage", "success");
-		    response2.put("topicList", result.get("topicList"));
-		    return response2;
-			
-		}catch(GenericEntityException | GenericServiceException e) {
-			return ServiceUtil.returnError(e.getMessage());
-		}
-		
-	}
-	
-	public static Map<String, Object> updateTopic(String examId, String topicId, String topicName, String percentage,
-			String startingQid, String endingQid, String questionsPerExam, String topicPassPercentage, HttpServletRequest request, HttpServletResponse response){
-		
-		try {
-			
-			LocalDispatcher dispatcher=getDispatcher(request);
-		    
-		    GenericValue userLogin=EntityQuery.use(getDelegator(request))
-		    		.from("UserLogin")
-		    		.where("userLoginId", "admin")
-		    		.queryOne();
-		    
-		    Map<String, Object> updateData = new HashMap<>();
-		    
-		    updateData.put("examId", examId);  
-		    updateData.put("topicId", topicId);  
-		    updateData.put("topicName", topicName);
-		    updateData.put("percentage", percentage);
-		    updateData.put("startingQid", startingQid);
-		    updateData.put("endingQid", endingQid);
-		    updateData.put("questionsPerExam", questionsPerExam);
-		    updateData.put("topicPassPercentage", topicPassPercentage);
-		    updateData.put("userLogin", userLogin);
-		    
-		    Map<String, Object> result = dispatcher.runSync("updateTopicMaster", updateData);
-			
-		    if(ServiceUtil.isError(result)) {
-		    	return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
-		    }
-		    else {
-		    	return ServiceUtil.returnSuccess("Topics created successfully");
-		    }
-			
-		}catch(GenericEntityException | GenericServiceException e) {
-			return ServiceUtil.returnError(e.getMessage());
-		}
-		
-	}
-	
-	public static Map<String, Object> deleteTopic(String examId, String topicId,HttpServletRequest request, HttpServletResponse response){
-		try {
+    // ✅ Get the ACTUAL logged-in user from session, not hardcoded "admin"
+    private static GenericValue getLoggedInUser(HttpServletRequest request) {
+        return (GenericValue) request.getSession().getAttribute("userLogin");
+    }
 
-		        if (examId == null || examId.isEmpty()) {
-		            return ServiceUtil.returnError("Exam ID is required");
-		        }
-		        if (topicId == null || topicId.isEmpty()) {
-		            return ServiceUtil.returnError("Topic ID is required");
-		        }    
-		            LocalDispatcher dispatcher = getDispatcher(request);
+    public static Map<String, Object> createTopic(String examId, String topicId, String topicName,
+            String percentage, String startingQid, String endingQid,
+            String questionsPerExam, String topicPassPercentage,
+            HttpServletRequest request, HttpServletResponse response) {
+        try {
+            LocalDispatcher dispatcher = getDispatcher(request);
+            GenericValue userLogin = getLoggedInUser(request); // ✅ logged-in admin
 
-		            GenericValue userLogin = EntityQuery.use(getDelegator(request))
-		                    .from("UserLogin")
-		                    .where("userLoginId", "admin")
-		                    .queryOne();
+            Map<String, Object> topicData = new HashMap<>();
+            topicData.put("examId", examId);
+            topicData.put("topicId", topicId);
+            topicData.put("topicName", topicName);
+            topicData.put("percentage", percentage);
+            topicData.put("startingQid", startingQid);
+            topicData.put("endingQid", endingQid);
+            topicData.put("questionsPerExam", questionsPerExam);
+            topicData.put("topicPassPercentage", topicPassPercentage);
+            topicData.put("userLogin", userLogin);
 
-		            Map<String, Object> input = new HashMap<>();
-		            input.put("examId", examId);
-		            input.put("topicId", topicId);
-		            input.put("userLogin", userLogin); 
+            Map<String, Object> result = dispatcher.runSync("createExamTopicDetails", topicData);
 
-		            Map<String, Object> result = dispatcher.runSync("deleteTopicMaster", input);
+            if (ServiceUtil.isError(result)) {
+                return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+            }
+            return ServiceUtil.returnSuccess("Topics created successfully");
 
-		            if (ServiceUtil.isError(result)) {
-		                return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
-		            }
+        } catch (GenericServiceException e) {
+            return ServiceUtil.returnError(e.getMessage());
+        }
+    }
 
-		            return ServiceUtil.returnSuccess("Topic deleted successfully");   
-			
-		}catch (GenericEntityException | GenericServiceException e) {
-	        return ServiceUtil.returnError("Error deleting topic: " + e.getMessage());
-	    }
-		
-	}
+    public static Map<String, Object> getTopic(String examId,
+            HttpServletRequest request, HttpServletResponse response) {
+        try {
+            LocalDispatcher dispatcher = getDispatcher(request);
+            GenericValue userLogin = getLoggedInUser(request); // ✅ logged-in admin
 
+            Map<String, Object> id = new HashMap<>();
+            id.put("examId", examId);
+            id.put("userLogin", userLogin);
+
+            Map<String, Object> result = dispatcher.runSync("getTopicMaster", id);
+
+            if (ServiceUtil.isError(result)) {
+                return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+            }
+
+            Map<String, Object> response2 = new HashMap<>();
+            response2.put("responseMessage", "success");
+            response2.put("topicList", result.get("topicList"));
+            return response2;
+
+        } catch (GenericServiceException e) {
+            return ServiceUtil.returnError(e.getMessage());
+        }
+    }
+
+    public static Map<String, Object> updateTopic(String examId, String topicId, String topicName,
+            String percentage, String startingQid, String endingQid,
+            String questionsPerExam, String topicPassPercentage,
+            HttpServletRequest request, HttpServletResponse response) {
+        try {
+            LocalDispatcher dispatcher = getDispatcher(request);
+            GenericValue userLogin = getLoggedInUser(request); // ✅ logged-in admin
+
+            Map<String, Object> updateData = new HashMap<>();
+            updateData.put("examId", examId);
+            updateData.put("topicId", topicId);
+            updateData.put("topicName", topicName);
+            updateData.put("percentage", percentage);
+            updateData.put("startingQid", startingQid);
+            updateData.put("endingQid", endingQid);
+            updateData.put("questionsPerExam", questionsPerExam);
+            updateData.put("topicPassPercentage", topicPassPercentage);
+            updateData.put("userLogin", userLogin);
+
+            Map<String, Object> result = dispatcher.runSync("updateTopicMaster", updateData);
+
+            if (ServiceUtil.isError(result)) {
+                return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+            }
+            return ServiceUtil.returnSuccess("Topic updated successfully");
+
+        } catch (GenericServiceException e) {
+            return ServiceUtil.returnError(e.getMessage());
+        }
+    }
+
+    public static Map<String, Object> deleteTopic(String examId, String topicId,
+            HttpServletRequest request, HttpServletResponse response) {
+        try {
+            if (examId == null || examId.isEmpty())
+                return ServiceUtil.returnError("Exam ID is required");
+            if (topicId == null || topicId.isEmpty())
+                return ServiceUtil.returnError("Topic ID is required");
+
+            LocalDispatcher dispatcher = getDispatcher(request);
+            GenericValue userLogin = getLoggedInUser(request); // ✅ logged-in admin
+
+            Map<String, Object> input = new HashMap<>();
+            input.put("examId", examId);
+            input.put("topicId", topicId);
+            input.put("userLogin", userLogin);
+
+            Map<String, Object> result = dispatcher.runSync("deleteTopicMaster", input);
+
+            if (ServiceUtil.isError(result)) {
+                return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+            }
+            return ServiceUtil.returnSuccess("Topic deleted successfully");
+
+        } catch (GenericServiceException e) {
+            return ServiceUtil.returnError("Error deleting topic: " + e.getMessage());
+        }
+    }
 }

@@ -1,6 +1,7 @@
 package com.vastpro.services.questionmaster;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,7 +34,7 @@ public class GetQuestionMaster {
 
             List<GenericValue> allRows = EntityQuery.use(delegator)
                     .from("QuestionBankMasterB")
-                    .where("examId", examId, "topicId", topicId)
+                    .where("examId", examId,"topicId", topicId)
                     .orderBy("qId ASC")
                     .queryList();
 
@@ -57,9 +58,30 @@ public class GetQuestionMaster {
             int fromIndex  = Math.min(viewIndex * viewSize, totalSize);
             int toIndex    = Math.min(fromIndex + viewSize, totalSize);
             List<GenericValue> pageRows = filtered.subList(fromIndex, toIndex);
+            
+            List<Map<String, Object>> questionMaps = new ArrayList<>();
+            for (GenericValue q : pageRows) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("qId",              q.getString("qId"));
+                map.put("examId",           q.getString("examId"));
+                map.put("topicId",          q.getString("topicId"));
+                map.put("questionDetail",   q.getString("questionDetail"));
+                map.put("questionType",     q.getString("questionType"));
+                map.put("difficultyLevel",  q.getString("difficultyLevel"));
+                map.put("optiona",          q.getString("optiona"));
+                map.put("optionb",          q.getString("optionb"));
+                map.put("optionc",          q.getString("optionc"));
+                map.put("optiond",          q.getString("optiond"));
+                map.put("optione",          q.getString("optione"));
+                map.put("answer",           q.getString("answer"));
+                map.put("numAnswers",       q.getString("numAnswers"));
+                map.put("answerValue",      q.getString("answerValue"));
+                map.put("negativeMarkValue",q.getString("negativeMarkValue"));
+                questionMaps.add(map);
+            }
 
             Map<String, Object> result = ServiceUtil.returnSuccess();
-            result.put("questionList", pageRows);
+            result.put("questionList", questionMaps);   // ← plain Maps, not GenericValue
             result.put("totalSize",    totalSize);
             result.put("totalPages",   totalPages);
             result.put("viewSize",     viewSize);

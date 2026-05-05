@@ -16,8 +16,8 @@ import org.apache.ofbiz.service.LocalDispatcher;
 import org.apache.ofbiz.service.ServiceUtil;
 
 public class TopicMasterCall {
-	
-	private static LocalDispatcher getDispatcher(HttpServletRequest request) {
+
+    private static LocalDispatcher getDispatcher(HttpServletRequest request) {
         LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
         if (dispatcher == null) {
             dispatcher = (LocalDispatcher) request.getSession().getServletContext().getAttribute("dispatcher");
@@ -33,19 +33,26 @@ public class TopicMasterCall {
         return delegator;
     }
 
-    public static Map<String, Object> createTopic(String topicName, HttpServletRequest request, HttpServletResponse response) {
-    	
-        try {
+    // ✅ Always get the actual logged-in user from session
+    private static GenericValue getLoggedInUser(HttpServletRequest request) {
+        return (GenericValue) request.getSession().getAttribute("userLogin");
+    }
 
+    public static Map<String, Object> createTopic(String topicName, 
+            HttpServletRequest request, HttpServletResponse response) {
+        try {
             LocalDispatcher dispatcher = getDispatcher(request);
 
-            GenericValue userLogin = EntityQuery.use(getDelegator(request))
-                    .from("UserLogin")
-                    .where("userLoginId", "admin")
-                    .queryOne();
+            // ✅ Get logged-in admin's userLogin and partyId from session
+            GenericValue userLogin = getLoggedInUser(request);
+            if (userLogin == null) {
+                return ServiceUtil.returnError("User not logged in");
+            }
+            String partyId = userLogin.getString("partyId");
 
             Map<String, Object> topicData = new HashMap<>();
             topicData.put("topicName", topicName);
+            topicData.put("partyId",   partyId);   // ✅ scoped to this admin
             topicData.put("userLogin", userLogin);
 
             Map<String, Object> result = dispatcher.runSync("createTopicMaster", topicData);
@@ -54,28 +61,37 @@ public class TopicMasterCall {
                 return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
             }
 
-            // Pass topicId and topicName back so React can auto-select
             Map<String, Object> success = ServiceUtil.returnSuccess("Topic created successfully");
             success.put("topicId",   result.get("topicId"));
-            success.put("topicName", result.get("topicName"));
+            success.put("topicName", topicName);
             return success;
 
-        } catch (GenericEntityException | GenericServiceException e) {
+        } catch (GenericServiceException e) {
             return ServiceUtil.returnError(e.getMessage());
         }
     }
 
-    public static Map<String, Object> getAllTopics(HttpServletRequest request, HttpServletResponse response) {
-
+    public static Map<String, Object> getAllTopics(
+            HttpServletRequest request, HttpServletResponse response) {
         try {
             Delegator delegator = getDelegator(request);
 
+            // ✅ Get logged-in admin's partyId from session
+            GenericValue userLogin = getLoggedInUser(request);
+            if (userLogin == null) {
+                return ServiceUtil.returnError("User not logged in");
+            }
+            String partyId = userLogin.getString("partyId");
+
+            // ✅ Only return topics belonging to this admin
             List<GenericValue> topicList = EntityQuery.use(delegator)
                     .from("TopicMaster")
+                    .where("partyId", partyId)
                     .orderBy("topicName")
                     .queryList();
 
             Map<String, Object> res = ServiceUtil.returnSuccess();
+            res.put("responseMessage", "success");
             res.put("topicList", topicList);
             return res;
 

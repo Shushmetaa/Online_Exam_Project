@@ -96,7 +96,6 @@ public class CreateQuestionMaster {
 			
 			 List<GenericValue> allQuestions = EntityQuery.use(delegator)
 		                .from("QuestionBankMasterB")
-		                .where("examId", examId)
 		                .queryList();
 
 		        long maxQId = 0;

@@ -1,5 +1,7 @@
 package com.vastpro.services.setupexam;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -42,6 +44,30 @@ public class SaveAndPublishExam {
                 return ServiceUtil.returnError("Exam ID is required");
             if (partyIdsStr == null || partyIdsStr.isEmpty())
                 return ServiceUtil.returnError("At least one user must be assigned");
+            if (openDate == null || openDate.isEmpty())
+                return ServiceUtil.returnError("Open date is required");
+            if (closeDate == null || closeDate.isEmpty())
+                return ServiceUtil.returnError("Close date is required");
+            
+            LocalDateTime now = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+            LocalDateTime open  = LocalDateTime.parse(openDate,  formatter);
+            LocalDateTime close = LocalDateTime.parse(closeDate, formatter);
+            
+            if (open.isBefore(now))
+                return ServiceUtil.returnError("Open date cannot be in the past. Please select today or a future date.");
+
+            // Close date cannot be in the past
+            if (close.isBefore(now))
+                return ServiceUtil.returnError("Close date cannot be in the past. Please select a future date.");
+
+            // Close date must be after open date
+            if (!close.isAfter(open))
+                return ServiceUtil.returnError("Close date must be after the open date.");
+
+            // Close date must be at least 1 day after open date
+            if (!close.isAfter(open.plusDays(1)))
+                return ServiceUtil.returnError("Close date must be at least 1 day after the open date.");
 
             Delegator delegator        = dctx.getDelegator();
             LocalDispatcher dispatcher = dctx.getDispatcher();
@@ -108,7 +134,7 @@ public class SaveAndPublishExam {
 
                     List<GenericValue> pool = EntityQuery.use(delegator)
                             .from("QuestionBankMasterB")
-                            .where("examId", examId, "topicId", topicId)
+                            .where("topicId", topicId)
                             .queryList();
 
                     if (pool == null || pool.size() < questionsNeeded)

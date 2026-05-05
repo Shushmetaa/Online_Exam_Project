@@ -16,6 +16,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import com.vastpro.servicecall.ExamMaster;
+import com.vastpro.servicecall.UserMaster;
 
 
 @Path("/admin")
@@ -55,9 +56,12 @@ public class AdminResources {
 	    @DELETE
 	    @Produces(MediaType.APPLICATION_JSON)
 	    @Path("/delete/{examId}")
-	    public Map<String, Object> deleteExam( @PathParam("examId") String examId,@Context HttpServletRequest request, 
-	        @Context HttpServletResponse response) {
-	    	 return ExamMaster.deleteExam(request, response, examId);
+	    public Map<String, Object> deleteExam(
+	            @PathParam("examId") String examId,
+	            @QueryParam("forceDelete") Boolean forceDelete,
+	            @Context HttpServletRequest request,
+	            @Context HttpServletResponse response) {
+	        return ExamMaster.deleteExam(request, response, examId, forceDelete);
 	    }
 	    
 	    @GET
@@ -94,13 +98,11 @@ public class AdminResources {
 	        request.setAttribute("keyword", keyword);
 	        return ExamMaster.getAllUsers(request, response);
 	    }
-	    
 	    @DELETE
+	    @Path("/userdelete")
 	    @Produces(MediaType.APPLICATION_JSON)
-	    @Path("/deleteUser")
-	    public Map<String, Object> deleteUser(@QueryParam("partyId") String partyId,
-	            @Context HttpServletRequest request, @Context HttpServletResponse response) {
-	        return ExamMaster.deleteUser(partyId, request, response);
+	    public Map<String,Object> deleteUser(@QueryParam("partyId") String partyId,@Context HttpServletRequest request) {
+	     return UserMaster.deleteUser(partyId, request);
 	    }
 	    
 }

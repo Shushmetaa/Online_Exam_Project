@@ -50,6 +50,15 @@ public class DeleteTopicMaster {
 		            if (ServiceUtil.isError(result)) {
 		                return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
 		            }
+		            
+		            GenericValue topicMaster = EntityQuery.use(delegator)
+		                    .from("TopicMaster")
+		                    .where("topicId", topicId)
+		                    .queryOne();
+
+		            if (topicMaster != null) {
+		                topicMaster.remove();
+		            }
 
 		            return ServiceUtil.returnSuccess("Topic deleted successfully");
 		            

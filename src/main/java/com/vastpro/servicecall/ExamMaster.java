@@ -36,6 +36,15 @@ public class ExamMaster {
         }
         return delegator;
     }
+    
+    private static boolean adminOwnsExam(Delegator delegator, String partyId, String examId) 
+            throws GenericEntityException {
+        GenericValue rel = EntityQuery.use(delegator)
+                .from("AdminPartyExamRel")
+                .where("partyId", partyId, "examId", examId)
+                .queryOne();
+        return rel != null;
+    }
 	
     public static Map<String,Object> createExam(HttpServletRequest request, HttpServletResponse response){
     	try {
@@ -76,134 +85,117 @@ public class ExamMaster {
       		return ServiceUtil.returnError("Exam Creation Failed:" +e.getMessage());
     	}	 
     }
-    	public static Map<String,Object> updateExam( HttpServletRequest request, HttpServletResponse response){
-			
-    		try {
-	    		
-	    		String examId = request.getParameter("examId");
-	    		String examName = request.getParameter("examName");
-	    		String description = request.getParameter("description");
-	    		String noOfQuestions = request.getParameter("noOfQuestions");
-	    		String duration = request.getParameter("duration");
-	    		String passPercentage = request.getParameter("passPercentage");
-		    	
-	    		if (examId == null || examId.isEmpty()) {
-	    	            return ServiceUtil.returnError("Exam ID is required");
-	    	        }
-	    		LocalDispatcher dispatcher=getDispatcher(request);
+    public static Map<String, Object> updateExam(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            String examId = request.getParameter("examId");
+            if (examId == null || examId.isEmpty())
+                return ServiceUtil.returnError("Exam ID is required");
 
-	    		GenericValue userLogin=EntityQuery.use(getDelegator(request))
-	    	    		.from("UserLogin")
-	    	    		.where("userLoginId", "admin")
-	    	    		.queryOne();
-		    	
-		    	Map<String, Object> updateData = new HashMap<>();
-		    
-		    	updateData.put("examId", examId);
-		    	updateData.put("examName", examName);
-		    	updateData.put("description", description);
-		    	updateData.put("noOfQuestions", noOfQuestions);
-		    	updateData.put("duration", duration);
-		    	updateData.put("passPercentage", passPercentage);
-		    	updateData.put("userLogin", userLogin);
-		    	
-		    	Map<String, Object> result = dispatcher.runSync("updateExam", updateData);
-		    	
-		    	return result;
-		    	
-	    	}catch(Exception e) {
-	    		e.printStackTrace();
-	    		return null;
-	    	}
+            // Use logged-in admin from session — NOT hardcoded "admin"
+            GenericValue userLogin = (GenericValue) request.getSession().getAttribute("userLogin");
+            if (userLogin == null) return ServiceUtil.returnError("User not logged in");
+
+            String partyId = userLogin.getString("partyId");
+            Delegator delegator = getDelegator(request);
+
+            // Ownership check — can this admin touch this exam?
+            if (!adminOwnsExam(delegator, partyId, examId))
+                return ServiceUtil.returnError("Access denied: exam does not belong to you");
+
+            Map<String, Object> updateData = new HashMap<>();
+            updateData.put("examId",        examId);
+            updateData.put("examName",      request.getParameter("examName"));
+            updateData.put("description",   request.getParameter("description"));
+            updateData.put("noOfQuestions", request.getParameter("noOfQuestions"));
+            updateData.put("duration",      request.getParameter("duration"));
+            updateData.put("passPercentage",request.getParameter("passPercentage"));
+            updateData.put("userLogin",     userLogin);
+
+            return getDispatcher(request).runSync("updateExam", updateData);
+
+        } catch (Exception e) {
+            return ServiceUtil.returnError("Update failed: " + e.getMessage());
+        }
     }
-    	public static Map<String,Object> retireExam(HttpServletRequest request, HttpServletResponse response){
-    		try {
-    			String examId = request.getParameter("examId");
-    			String lastModifiedByUserLogin = request.getParameter("lastModifiedByUserLogin");
-    			
-    			if (examId == null || examId.isEmpty())
-    	            return ServiceUtil.returnError("Exam ID is required");
-    			
-    			LocalDispatcher dispatcher=getDispatcher(request);
+    public static Map<String, Object> retireExam(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            String examId = request.getParameter("examId");
+            if (examId == null || examId.isEmpty())
+                return ServiceUtil.returnError("Exam ID is required");
 
-	    		GenericValue userLogin=EntityQuery.use(getDelegator(request))
-	    	    		.from("UserLogin")
-	    	    		.where("userLoginId", "admin")
-	    	    		.queryOne();
+            GenericValue userLogin = (GenericValue) request.getSession().getAttribute("userLogin");
+            if (userLogin == null) return ServiceUtil.returnError("User not logged in");
 
-    			Map<String, Object> retireData = new HashMap<>();
-                retireData.put("examId",examId);
-                retireData.put("lastModifiedByUserLogin","admin");
-                retireData.put("userLogin", userLogin);
-    			
-                Map<String, Object> result = dispatcher.runSync("retireExam", retireData);
-        
-    	    	
-                return result;
-    				
-    			}catch (GenericEntityException | GenericServiceException e) {
-    	            return ServiceUtil.returnError("Error retiring exam: " + e.getMessage());
-    				
-    			}
-    		}
-			public static Map<String, Object> deleteExam(HttpServletRequest request, HttpServletResponse response,String examId) {
-				try {
-	
-			        if (examId == null || examId.isEmpty())
-			            return ServiceUtil.returnError("Exam ID is required");
-	
-			        LocalDispatcher dispatcher =getDispatcher(request);
-	
-			        GenericValue userLogin = EntityQuery
-			                .use(getDelegator(request))
-			                .from("UserLogin")
-			                .where("userLoginId", "admin")
-			                .queryOne();
-	
-			        Map<String, Object> deleteData = new HashMap<>();
-			        deleteData.put("examId",    examId);
-			        deleteData.put("userLogin", userLogin);
-	
-			        Map<String, Object> result =
-			            dispatcher.runSync("deleteExam", deleteData);
-	
-			        return result;
-	
-			    } catch (GenericEntityException | GenericServiceException e) {
-			        return ServiceUtil.returnError(
-			            "Error deleting exam: " + e.getMessage());
-			    }
-			}
+            String partyId = userLogin.getString("partyId");
+
+            if (!adminOwnsExam(getDelegator(request), partyId, examId))
+                return ServiceUtil.returnError("Access denied: exam does not belong to you");
+
+            Map<String, Object> retireData = new HashMap<>();
+            retireData.put("examId", examId);
+            retireData.put("lastModifiedByUserLogin", userLogin.getString("userLoginId"));
+            retireData.put("userLogin", userLogin);
+
+            return getDispatcher(request).runSync("retireExam", retireData);
+
+        } catch (Exception e) {
+            return ServiceUtil.returnError("Retire failed: " + e.getMessage());
+        }
+    }
+    public static Map<String, Object> deleteExam(HttpServletRequest request,
+            HttpServletResponse response, String examId, Boolean forceDelete) {
+        try {
+            if (examId == null || examId.isEmpty())
+                return ServiceUtil.returnError("Exam ID is required");
+
+            GenericValue userLogin = (GenericValue) request.getSession().getAttribute("userLogin");
+            if (userLogin == null) return ServiceUtil.returnError("User not logged in");
+
+            String partyId = userLogin.getString("partyId");
+
+            if (!adminOwnsExam(getDelegator(request), partyId, examId))
+                return ServiceUtil.returnError("Access denied: exam does not belong to you");
+
+            Map<String, Object> deleteData = new HashMap<>();
+            deleteData.put("examId",      examId);
+            deleteData.put("userLogin",   userLogin);
+            deleteData.put("forceDelete", forceDelete != null ? forceDelete : false);
+
+            return getDispatcher(request).runSync("deleteExam", deleteData);
+
+        } catch (Exception e) {
+            return ServiceUtil.returnError("Delete failed: " + e.getMessage());
+        }
+    }
 		
-		public static Map<String, Object> getExam( HttpServletRequest request,  HttpServletResponse response) {
-			try {
+    public static Map<String, Object> getExam(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            String examId = request.getParameter("examId");
 
-				String examId = request.getParameter("examId");
-				
-				LocalDispatcher dispatcher=getDispatcher(request);
-			    
-			    GenericValue userLogin=EntityQuery.use(getDelegator(request))
-			    		.from("UserLogin")
-			    		.where("userLoginId", "admin")
-			    		.queryOne();
-			    
-			    Map<String, Object> input = new HashMap<>();
+            GenericValue userLogin = (GenericValue) request.getSession().getAttribute("userLogin");
+            if (userLogin == null) return ServiceUtil.returnError("User not logged in");
 
-		        input.put("examId", examId);
-		        input.put("userLogin", userLogin); 
+            String partyId = userLogin.getString("partyId");
 
-		        Map<String, Object> result = dispatcher.runSync("getExam", input);
+            // Ownership check before fetching
+            if (!adminOwnsExam(getDelegator(request), partyId, examId))
+                return ServiceUtil.returnError("Access denied: exam does not belong to you");
 
-		        if (ServiceUtil.isError(result)) {
-		            return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
-		        } else {
-		            return result;
-		        }
+            Map<String, Object> input = new HashMap<>();
+            input.put("examId", examId);
+            input.put("userLogin", userLogin);
 
-		    } catch (GenericEntityException | GenericServiceException e) {
-		        return ServiceUtil.returnError(e.getMessage());
-		    }
-		}
+            Map<String, Object> result = getDispatcher(request).runSync("getExam", input);
+
+            if (ServiceUtil.isError(result))
+                return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
+
+            return result;
+
+        } catch (Exception e) {
+            return ServiceUtil.returnError(e.getMessage());
+        }
+    }
 		public static Map<String, Object> getExams(HttpServletRequest request, HttpServletResponse response) {
 		    try {
 		        Delegator delegator = getDelegator(request);
@@ -299,15 +291,19 @@ public class ExamMaster {
 		}
 		public static Map<String, Object> getNums(HttpServletRequest request, HttpServletResponse response) {
 		    try {
+		    	
+		    	String partyId = (String) request.getSession().getAttribute("partyId");
+		    	
 		        Delegator delegator = getDelegator(request);
 
 		        long totalExams = EntityQuery.use(delegator)
-		            .from("ExamMaster")
+		            .from("AdminPartyExamRel")
+		            .where("partyId", partyId)
 		            .queryCount();
 
 		        long totalUsers = EntityQuery.use(delegator)
 		            .from("PartyRole")
-		            .where("roleTypeId", "SPHINX_USER")
+		            .where("roleTypeId", "sphinx_user")
 		            .queryCount();
 
 		        long assignedUsers = EntityQuery.use(delegator)
@@ -460,10 +456,33 @@ public class ExamMaster {
 		    try {
 		        Delegator delegator = getDelegator(request);
 
+		        // pagination params
+		        int pageNumber = 1;
+		        int pageSize = 10;
+
+		        String pageNumberStr = request.getParameter("pageNumber");
+		        String pageSizeStr = request.getParameter("pageSize");
+
+		        if (pageNumberStr != null) pageNumber = Integer.parseInt(pageNumberStr);
+		        if (pageSizeStr != null) pageSize = Integer.parseInt(pageSizeStr);
+
+		        if (pageNumber < 1) pageNumber = 1;
+		        if (pageSize <= 0) pageSize = 10;
+
+		        int offset = (pageNumber - 1) * pageSize;
+
+		        //Fetch ONLY required roles (pagination applied here)
 		        List<GenericValue> roles = EntityQuery.use(delegator)
-		            .from("PartyRole")
-		            .where("roleTypeId", "sphinx_user")
-		            .queryList();
+		                .from("PartyRole")
+		                .where("roleTypeId", "sphinx_user")
+		                .offset(offset)
+		                .limit(pageSize)
+		                .queryList();
+
+		        long totalCount = EntityQuery.use(delegator)
+		                .from("PartyRole")
+		                .where("roleTypeId", "sphinx_user")
+		                .queryCount();
 
 		        List<Map<String, Object>> userList = new ArrayList<>();
 
@@ -472,27 +491,39 @@ public class ExamMaster {
 		            if (partyId == null) continue;
 
 		            GenericValue person = EntityQuery.use(delegator)
-		                .from("Person")
-		                .where("partyId", partyId)
-		                .queryOne();
+		                    .from("Person")
+		                    .where("partyId", partyId)
+		                    .queryOne();
 
 		            GenericValue userLogin = EntityQuery.use(delegator)
-		                .from("UserLogin")
-		                .where("partyId", partyId)
-		                .queryFirst();
+		                    .from("UserLogin")
+		                    .where("partyId", partyId)
+		                    .queryFirst();
 
 		            Map<String, Object> user = new HashMap<>();
 		            user.put("partyId", partyId);
 		            user.put("userLoginId", userLogin != null ? userLogin.getString("userLoginId") : "");
-		            user.put("firstName",   person   != null ? person.getString("firstName")   : "");
-		            user.put("lastName",    person   != null ? person.getString("lastName")    : "");
-		            user.put("roleTypeId",  "SPHINX_USER");
+		            user.put("firstName", person != null ? person.getString("firstName") : "");
+		            user.put("lastName", person != null ? person.getString("lastName") : "");
+		            user.put("roleTypeId", "SPHINX_USER");
+
 		            userList.add(user);
 		        }
 
+		        //  Pagination
+		        int totalPages = (int) Math.ceil((double) totalCount / pageSize);
+		        boolean hasNext = pageNumber < totalPages;
+		        boolean hasPrevious = pageNumber > 1;
+
 		        Map<String, Object> result = ServiceUtil.returnSuccess();
-		        result.put("totalUsers", userList.size());
+		        result.put("totalUsers", totalCount);
 		        result.put("userList", userList);
+		        result.put("pageNumber", pageNumber);
+		        result.put("pageSize", pageSize);
+		        result.put("totalPages", totalPages);
+		        result.put("hasNext", hasNext);
+		        result.put("hasPrevious", hasPrevious);
+
 		        return result;
 
 		    } catch (Exception e) {
@@ -500,50 +531,4 @@ public class ExamMaster {
 		    }
 		}
 		
-		public static Map<String, Object> deleteUser(String partyId,
-		        HttpServletRequest request, HttpServletResponse response) {
-		    try {
-		        Delegator delegator = getDelegator(request);
-
-		        // 1. Delete PartyExamRelationship
-		        List<GenericValue> examRels = EntityQuery.use(delegator)
-		                .from("PartyExamRelationship")
-		                .where("partyId", partyId).queryList();
-		        for (GenericValue rel : examRels) rel.remove();
-
-		        // 2. Get userLoginId first
-		        GenericValue ul = EntityQuery.use(delegator)
-		                .from("UserLogin")
-		                .where("partyId", partyId).queryFirst();
-
-		        // 3. Delete UserLoginSecurityGroup using userLoginId ✅
-		        if (ul != null) {
-		            String userLoginId = ul.getString("userLoginId");
-		            List<GenericValue> secGroups = EntityQuery.use(delegator)
-		                    .from("UserLoginSecurityGroup")
-		                    .where("userLoginId", userLoginId).queryList();
-		            for (GenericValue sg : secGroups) sg.remove();
-
-		            // 4. Delete UserLogin
-		            ul.remove();
-		        }
-
-		        // 5. Delete Person
-		        GenericValue person = EntityQuery.use(delegator)
-		                .from("Person")
-		                .where("partyId", partyId).queryOne();
-		        if (person != null) person.remove();
-
-		        // 6. Delete PartyRole
-		        List<GenericValue> partyRoles = EntityQuery.use(delegator)
-		                .from("PartyRole")
-		                .where("partyId", partyId).queryList();
-		        for (GenericValue pr : partyRoles) pr.remove();
-
-		        return ServiceUtil.returnSuccess("User deleted successfully");
-
-		    } catch (Exception e) {
-		        return ServiceUtil.returnError("Error: " + e.getMessage());
-		    }
-		}
 }

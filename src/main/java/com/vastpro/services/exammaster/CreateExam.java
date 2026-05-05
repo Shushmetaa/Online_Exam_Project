@@ -44,23 +44,8 @@ public class CreateExam {
         }
 
         try {
-            // Find max examId from DB and generate next ID
-            List<GenericValue> allExams = EntityQuery.use(delegator)
-                    .from("ExamMaster")
-                    .queryList();
-
-            long maxId = 0;
-            for (GenericValue exam : allExams) {
-                try {
-                    long id = Long.parseLong(exam.getString("examId"));
-                    if (id > maxId) maxId = id;
-                } catch (NumberFormatException e) {
-                    // skip non-numeric ids like EXAM001
-                }
-            }
-
-            // Next examId = max + 1
-            String examId = String.valueOf(maxId + 1);
+            
+        	String examId = delegator.getNextSeqId("ExamMaster");
 
             // Put generated examId into a new map along with all other fields
             Map<String, Object> examData = new HashMap<>(context);
@@ -93,7 +78,7 @@ public class CreateExam {
             response.put("examId", examId);
             return response;
 
-        } catch (GenericServiceException | GenericEntityException e) {
+        } catch (GenericServiceException e) {
             return ServiceUtil.returnError("Exam Creation Failed: " + e.getMessage());
         }
     }

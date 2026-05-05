@@ -139,4 +139,61 @@ public class GetExams {
 		        return ServiceUtil.returnError("Error verifying password: " + e.getMessage());
 		    }
 		}
+	 public static Map<String, Object> deleteUser(DispatchContext dctx, Map<String, ? extends Object> context) {
+		    try {
+		        Delegator delegator = dctx.getDelegator();
+		        String partyId = (String) context.get("partyId");
+		        if (partyId == null || partyId.trim().isEmpty()) {
+		            return ServiceUtil.returnError("partyId is required");
+		        }
+
+		        // Get all UserLogins for this party
+		        List<GenericValue> logins = EntityQuery.use(delegator)
+		                .from("UserLogin")
+		                .where("partyId", partyId)
+		                .queryList();
+
+		        for (GenericValue login : logins) {
+		            String userLoginId = login.getString("userLoginId");
+
+		            // 1. UserLoginHistory
+		            delegator.removeAll(EntityQuery.use(delegator)
+		                    .from("UserLoginHistory").where("userLoginId", userLoginId).queryList());
+
+		            // 2. UserLoginSecurityGroup
+		            delegator.removeAll(EntityQuery.use(delegator)
+		                    .from("UserLoginSecurityGroup").where("userLoginId", userLoginId).queryList());
+
+		            // 3. UserLoginSession
+		            delegator.removeAll(EntityQuery.use(delegator)
+		                    .from("UserLoginSession").where("userLoginId", userLoginId).queryList());
+		        }
+
+		        // 4. Delete UserLogin
+		        delegator.removeAll(logins);
+
+		        // 5. Delete Person
+		        GenericValue person = EntityQuery.use(delegator)
+		                .from("Person").where("partyId", partyId).queryOne();
+		        if (person != null) person.remove();
+
+		        // 6. Delete PartyRole
+		        delegator.removeAll(EntityQuery.use(delegator)
+		                .from("PartyRole").where("partyId", partyId).queryList());
+
+		        //7. Delete PartyStatus BEFORE Party
+		        delegator.removeAll(EntityQuery.use(delegator)
+		                .from("PartyStatus").where("partyId", partyId).queryList());
+
+		        // 8. Delete Party 
+		        GenericValue party = EntityQuery.use(delegator)
+		                .from("Party").where("partyId", partyId).queryOne();
+		        if (party != null) party.remove();
+
+		        return ServiceUtil.returnSuccess("User deleted successfully");
+
+		    } catch (Exception e) {
+		        return ServiceUtil.returnError("Error deleting user: " + e.getMessage());
+		    }
+		}
 }

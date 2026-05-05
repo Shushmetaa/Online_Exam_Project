@@ -428,6 +428,16 @@ public class SetupExam1 {
 	    try {
 	        Delegator delegator = getDelegator(request);
 
+	        // ── Pagination params (same pattern as getAllUsers) ──
+	        int pageNumber = 1;
+	        int pageSize = 10;
+	        String pageNumberStr = request.getParameter("pageNumber");
+	        String pageSizeStr   = request.getParameter("pageSize");
+	        if (pageNumberStr != null) pageNumber = Integer.parseInt(pageNumberStr);
+	        if (pageSizeStr   != null) pageSize   = Integer.parseInt(pageSizeStr);
+	        if (pageNumber < 1) pageNumber = 1;
+	        if (pageSize   < 1) pageSize   = 10;
+
 	        // 1. Get all setup exams
 	        List<GenericValue> setupExams = EntityQuery.use(delegator)
 	                .from("ExamSetupDetails")
@@ -438,7 +448,6 @@ public class SetupExam1 {
 	        for (GenericValue setup : setupExams) {
 	            String examId = setup.getString("examId");
 
-	            // 2. Get exam details from ExamMaster
 	            GenericValue exam = EntityQuery.use(delegator)
 	                    .from("ExamMaster")
 	                    .where("examId", examId)
@@ -446,7 +455,6 @@ public class SetupExam1 {
 
 	            if (exam == null) continue;
 
-	            // 3. Get all assigned users for this exam
 	            List<GenericValue> relationships = EntityQuery.use(delegator)
 	                    .from("PartyExamRelationship")
 	                    .where("examId", examId)
@@ -457,14 +465,13 @@ public class SetupExam1 {
 	            for (GenericValue rel : relationships) {
 	                String partyId = rel.getString("partyId");
 
-	                // 4. Get name from Person table
 	                GenericValue person = EntityQuery.use(delegator)
 	                        .from("Person")
 	                        .where("partyId", partyId)
 	                        .queryOne();
 
 	                Map<String, Object> userMap = new HashMap<>();
-	                userMap.put("partyId", partyId);
+	                userMap.put("partyId",      partyId);
 	                userMap.put("noOfAttempts", rel.getLong("noOfAttempts"));
 	                userMap.put("timeoutDays",  rel.getLong("timeoutDays"));
 
@@ -477,18 +484,31 @@ public class SetupExam1 {
 	            }
 
 	            Map<String, Object> examCard = new HashMap<>();
-	            examCard.put("examId",        examId);
-	            examCard.put("examName",      exam.getString("examName"));
-	            examCard.put("noOfQuestions", exam.getLong("noOfQuestions"));
-	            examCard.put("duration",      exam.getLong("duration"));
-	            examCard.put("passPercentage",exam.getLong("passPercentage"));
-	            examCard.put("assignedUsers", userList);
+	            examCard.put("examId",         examId);
+	            examCard.put("examName",       exam.getString("examName"));
+	            examCard.put("noOfQuestions",  exam.getLong("noOfQuestions"));
+	            examCard.put("duration",       exam.getLong("duration"));
+	            examCard.put("passPercentage", exam.getLong("passPercentage"));
+	            examCard.put("assignedUsers",  userList);
 
 	            examCards.add(examCard);
 	        }
 
+	        // ── Paginate examCards list ──
+	        int totalSize  = examCards.size();
+	        int totalPages = (totalSize == 0) ? 1 : (int) Math.ceil((double) totalSize / pageSize);
+	        int fromIndex  = Math.min((pageNumber - 1) * pageSize, totalSize);
+	        int toIndex    = Math.min(fromIndex + pageSize, totalSize);
+	        List<Map<String, Object>> pagedCards = examCards.subList(fromIndex, toIndex);
+
 	        Map<String, Object> result = ServiceUtil.returnSuccess();
-	        result.put("examCards", examCards);
+	        result.put("examCards",   pagedCards);
+	        result.put("totalSize",   totalSize);
+	        result.put("totalPages",  totalPages);
+	        result.put("pageNumber",  pageNumber);
+	        result.put("pageSize",    pageSize);
+	        result.put("hasNext",     pageNumber < totalPages);
+	        result.put("hasPrevious", pageNumber > 1);
 	        return result;
 
 	    } catch (GenericEntityException e) {

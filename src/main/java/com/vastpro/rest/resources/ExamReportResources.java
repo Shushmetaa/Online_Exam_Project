@@ -10,7 +10,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
-import com.vastpro.servicecall.SendExamReportEmail;
+import com.vastpro.servicecall.GetMyExamReport;
 
 @Path("/user/report")
 @Produces(MediaType.APPLICATION_JSON)
@@ -21,9 +21,9 @@ public class ExamReportResources {
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	@Path("/sendExamReport")
+	@Path("/myreport")
 	public Map<String, Object> sendExamReportEmail(@Context HttpServletRequest request, @Context HttpServletResponse response) {
 
-	    return SendExamReportEmail.sendReport(request, response);
+	    return GetMyExamReport.getReport(request, response);
 	}
 }

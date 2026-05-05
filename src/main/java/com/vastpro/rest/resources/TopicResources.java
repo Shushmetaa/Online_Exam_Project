@@ -55,19 +55,20 @@ public class TopicResources {
 	    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	    @Path("/update")
 	    public Map<String, Object> updateTopics(
-	    		@FormParam("examId")  String examId,
-	    	    @FormParam("topicId")  String topicId,
-	    	    @FormParam("topicName")  String topicName,
-	    	    @FormParam("percentage") String percentage,
-	    	    @FormParam("startingQid") String startingQid,
-	    	    @FormParam("endingQid") String endingQid,
-	    	    @FormParam("questionsPerExam") String questionsPerExam,
-	    	    @FormParam("topicPassPercentage") String topicPassPercentage,
-	    		@Context HttpServletRequest request, @Context HttpServletResponse response){
-	    	
-	    	return TopicMaster.updateTopic(examId, topicId, topicName, percentage, startingQid, endingQid, questionsPerExam, 
-	    			topicPassPercentage, request, response);
-	    	
+	            @FormParam("examId") String examId,         
+	            @FormParam("topicId") String topicId,        
+	            @FormParam("topicName") String topicName,    
+	            @FormParam("percentage") String percentage,  
+	            @FormParam("startingQid") String startingQid,        
+	            @FormParam("endingQid") String endingQid,            
+	            @FormParam("questionsPerExam") String questionsPerExam,      
+	            @FormParam("topicPassPercentage") String topicPassPercentage,
+	            @Context HttpServletRequest request,
+	            @Context HttpServletResponse response) {
+
+	        return TopicMaster.updateTopic(examId, topicId, topicName, percentage,
+	                startingQid, endingQid, questionsPerExam, topicPassPercentage,
+	                request, response);
 	    }
 	    
 	    @DELETE

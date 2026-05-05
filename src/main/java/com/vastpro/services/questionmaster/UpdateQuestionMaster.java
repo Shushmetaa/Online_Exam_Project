@@ -101,15 +101,17 @@ public class UpdateQuestionMaster {
 			System.out.println("====> examId: [" + examId + "] qId: [" + qId + "]");
 			GenericValue existing_data = EntityQuery.use(delegator)
 					                           .from("QuestionBankMasterB")
-					                           .where("examId", examId, "qId", qId)
-					                           .queryOne();
+					                           .where("qId", qId)
+					                           .queryFirst();
 			
 			if(existing_data == null) {
 				return ServiceUtil.returnError("Questions not found");
 			}
+			String actualExamId  = existing_data.getString("examId");
+			String actualTopicId = existing_data.getString("topicId");
 			
 			Map<String, Object> updateMap = new HashMap<>();
-			updateMap.put("examId", examId);
+			updateMap.put("examId", actualExamId);
 			updateMap.put("qId", qId);
 			updateMap.put("topicId", topicId);
 			updateMap.put("questionDetail", questionDetail);

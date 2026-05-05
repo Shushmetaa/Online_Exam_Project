@@ -52,11 +52,10 @@ public class QuestionMaster {
 			Double negativeMarkValue = Double.parseDouble(request.getParameter("negativeMarkValue").trim());
 			
 			LocalDispatcher dispatcher= getDispatcher(request);
-			
-			GenericValue userLogin=EntityQuery.use(getDelegator(request))
-						.from("UserLogin")
-						.where("userLoginId", "admin")
-						.queryOne();
+		
+			GenericValue userLogin = (GenericValue) request.getSession().getAttribute("userLogin");
+			if (userLogin == null)
+			    return ServiceUtil.returnError("User not logged in");
 			
 			Map<String, Object> createData = new HashMap<>();
 			
@@ -81,12 +80,12 @@ public class QuestionMaster {
 			if(ServiceUtil.isError(result)) {
 				return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
 			}
-			else {
+			
+			
 				return ServiceUtil.returnSuccess("Questions created successfully");
-			}
 			
 			
-		} catch (GenericServiceException | GenericEntityException e) {
+		} catch (GenericServiceException e) {
 			
 			return ServiceUtil.returnError("Questions created failed" + e.getMessage());
 		}
@@ -104,8 +103,10 @@ public class QuestionMaster {
 	            return ServiceUtil.returnError("topicId is required");
 
 	        LocalDispatcher dispatcher = getDispatcher(request);
-	        GenericValue userLogin = EntityQuery.use(getDelegator(request))
-	                .from("UserLogin").where("userLoginId", "admin").queryOne();
+	     
+	        GenericValue userLogin = (GenericValue) request.getSession().getAttribute("userLogin");
+	        if (userLogin == null)
+	            return ServiceUtil.returnError("User not logged in");
 
 	        Map<String, Object> ids = new HashMap<>();
 	        ids.put("examId",  examId);
@@ -129,7 +130,7 @@ public class QuestionMaster {
 	            return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
 	        return result;
 
-	    } catch (GenericEntityException | GenericServiceException e) {
+	    } catch (GenericServiceException e) {
 	        return ServiceUtil.returnError("Questions cannot be fetched: " + e.getMessage());
 	    }
 	}
@@ -166,11 +167,9 @@ public class QuestionMaster {
 			
 			LocalDispatcher dispatcher= getDispatcher(request);
 	
-			
-			GenericValue userLogin=EntityQuery.use(getDelegator(request))
-						.from("UserLogin")
-						.where("userLoginId", "admin")
-						.queryOne();
+			GenericValue userLogin = (GenericValue) request.getSession().getAttribute("userLogin");
+			if (userLogin == null)
+			    return ServiceUtil.returnError("User not logged in");
 			
 			Map<String, Object> updateData = new HashMap<>();
 			updateData.put("examId", examId);
@@ -199,7 +198,7 @@ public class QuestionMaster {
 				return ServiceUtil.returnSuccess("Questions updated successfully");
 			}
 			
-		}catch(GenericEntityException | GenericServiceException e) {
+		}catch(GenericServiceException e) {
 			return ServiceUtil.returnError("Questions failed to update" + e.getMessage());
 		}
 		
@@ -214,15 +213,23 @@ public class QuestionMaster {
 			
 			LocalDispatcher dispatcher= getDispatcher(request);
 			
+			GenericValue userLogin = (GenericValue) request.getSession().getAttribute("userLogin");
+			if (userLogin == null)
+			    return ServiceUtil.returnError("User not logged in");
 			
-			GenericValue userLogin=EntityQuery.use(getDelegator(request))
-						.from("UserLogin")
-						.where("userLoginId", "admin")
-						.queryOne();
+			 GenericValue existing = EntityQuery.use(getDelegator(request))
+		                .from("QuestionBankMasterB")
+		                .where("qId", qId)
+		                .queryFirst();
+
+		        if (existing == null)
+		            return ServiceUtil.returnError("Question not found");
+
+		        String actualExamId = existing.getString("examId");
 			
 			Map<String, Object> delete = new HashMap<>();
 		    
-			delete.put("examId", examId);
+			delete.put("examId", actualExamId);
 			delete.put("qId", qId);
 		    delete.put("userLogin", userLogin);
 		    
